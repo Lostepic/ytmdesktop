@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.0.4 — Runtime and interface optimization
+
+- Batch settings changes into one validated IPC operation and persistent-store update.
+- Avoid repeated secure-token refreshes caused by unrelated settings changes.
+- Cache Windows taskbar artwork and update controls only when playback state changes.
+- Skip unchanged memory-store notifications and unnecessary companion serialization.
+- Reduce now-playing export writes while preserving one-second JSON updates.
+- Correct compact-width chip clipping, player control spacing, and misplaced tooltips.
+
 ## 3.0.3 — Deterministic update checks
 
 - Resolve the exact latest tag from the fork's GitHub Releases API before giving Squirrel its version-specific feed.

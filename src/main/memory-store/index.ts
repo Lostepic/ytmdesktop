@@ -16,7 +16,9 @@ export default class MemoryStore<T extends Record<string, unknown>> {
   }
 
   public set(key: string, value: unknown) {
-    const oldState = structuredClone(this.state);
+    if (Object.is(this.state[key], value)) return;
+
+    const oldState = { ...this.state };
     this.state[key as string] = value;
     this.eventEmitter.emit("stateChanged", this.state, oldState);
   }

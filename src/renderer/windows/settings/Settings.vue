@@ -54,6 +54,9 @@ const playback: StoreSchema["playback"] = await store.get("playback");
 const integrations: StoreSchema["integrations"] = await store.get("integrations");
 const shortcuts: StoreSchema["shortcuts"] = await store.get("shortcuts");
 const lastFM: StoreSchema["lastfm"] = await store.get("lastfm");
+let persistedAppearance = appearance;
+let persistedIntegrations = integrations;
+let persistedLastFM = lastFM;
 
 const disableHardwareAcceleration = ref<boolean>(general.disableHardwareAcceleration);
 const hideToTrayOnClose = ref<boolean>(general.hideToTrayOnClose);
@@ -108,6 +111,10 @@ const lastFMSessionKey = ref<string>(lastFM.sessionKey);
 const scrobblePercent = ref<number>(lastFM.scrobblePercent);
 
 store.onDidAnyChange(async newState => {
+  persistedAppearance = newState.appearance;
+  persistedIntegrations = newState.integrations;
+  persistedLastFM = newState.lastfm;
+
   disableHardwareAcceleration.value = newState.general.disableHardwareAcceleration;
   hideToTrayOnClose.value = newState.general.hideToTrayOnClose;
   showNotificationOnSongChange.value = newState.general.showNotificationOnSongChange;
@@ -201,50 +208,63 @@ async function memorySettingsChanged() {
 }
 
 async function settingsChanged() {
-  store.set("general.hideToTrayOnClose", hideToTrayOnClose.value);
-  store.set("general.showNotificationOnSongChange", showNotificationOnSongChange.value);
-  store.set("general.startOnBoot", startOnBoot.value);
-  store.set("general.startMinimized", startMinimized.value);
-  store.set("general.disableHardwareAcceleration", disableHardwareAcceleration.value);
-
-  store.set("appearance.alwaysShowVolumeSlider", alwaysShowVolumeSlider.value);
-  store.set("appearance.centeredPlayerControls", centeredPlayerControls.value);
-  store.set("appearance.customCSSEnabled", customCSSEnabled.value);
-  store.set("appearance.zoom", zoom.value);
-  store.set("appearance.trayIconStyle", trayIconStyle.value);
-  store.set("appearance.themePreset", themePreset.value);
-  store.set("appearance.compactMode", compactMode.value);
-
-  store.set("playback.continueWhereYouLeftOff", continueWhereYouLeftOff.value);
-  store.set("playback.continueWhereYouLeftOffPaused", continueWhereYouLeftOffPaused.value);
-  store.set("playback.progressInTaskbar", progressInTaskbar.value);
-  store.set("playback.enableSpeakerFill", enableSpeakerFill.value);
-  store.set("playback.ratioVolume", ratioVolume.value);
-
-  store.set("integrations.companionServerEnabled", companionServerEnabled.value);
-  store.set("integrations.companionServerCORSWildcardEnabled", companionServerCORSWildcardEnabled.value);
-  store.set("integrations.discordPresenceEnabled", discordPresenceEnabled.value);
-  store.set("integrations.lastFMEnabled", lastFMEnabled.value);
-  store.set("integrations.sponsorBlockEnabled", sponsorBlockEnabled.value);
-  store.set("integrations.sponsorBlockSkipIntros", sponsorBlockSkipIntros.value);
-  store.set("integrations.sponsorBlockSkipOutros", sponsorBlockSkipOutros.value);
-  store.set("integrations.nowPlayingExportEnabled", nowPlayingExportEnabled.value);
-  store.set("integrations.listenBrainzEnabled", listenBrainzEnabled.value);
-  store.set("integrations.pluginManagerEnabled", pluginManagerEnabled.value);
-  store.set("integrations.localTelemetryEnabled", localTelemetryEnabled.value);
-  store.set("lastfm.scrobblePercent", scrobblePercent.value);
-
-  store.set("shortcuts.playPause", shortcutPlayPause.value);
-  store.set("shortcuts.next", shortcutNext.value);
-  store.set("shortcuts.previous", shortcutPrevious.value);
-  store.set("shortcuts.thumbsUp", shortcutThumbsUp.value);
-  store.set("shortcuts.thumbsDown", shortcutThumbsDown.value);
-  store.set("shortcuts.volumeUp", shortcutVolumeUp.value);
-  store.set("shortcuts.volumeDown", shortcutVolumeDown.value);
-  store.set("shortcuts.volumeDelta", shortcutsVolumeDelta.value);
-  store.set("shortcuts.shuffle", shortcutShuffle.value);
-  store.set("shortcuts.navigateBack", shortcutNavigateBack.value);
-  store.set("shortcuts.navigateForward", shortcutNavigateForward.value);
+  store.setMany({
+    general: {
+      hideToTrayOnClose: hideToTrayOnClose.value,
+      showNotificationOnSongChange: showNotificationOnSongChange.value,
+      startOnBoot: startOnBoot.value,
+      startMinimized: startMinimized.value,
+      disableHardwareAcceleration: disableHardwareAcceleration.value
+    },
+    appearance: {
+      ...persistedAppearance,
+      alwaysShowVolumeSlider: alwaysShowVolumeSlider.value,
+      centeredPlayerControls: centeredPlayerControls.value,
+      customCSSEnabled: customCSSEnabled.value,
+      zoom: zoom.value,
+      trayIconStyle: trayIconStyle.value,
+      themePreset: themePreset.value,
+      compactMode: compactMode.value
+    },
+    playback: {
+      continueWhereYouLeftOff: continueWhereYouLeftOff.value,
+      continueWhereYouLeftOffPaused: continueWhereYouLeftOffPaused.value,
+      progressInTaskbar: progressInTaskbar.value,
+      enableSpeakerFill: enableSpeakerFill.value,
+      ratioVolume: ratioVolume.value
+    },
+    integrations: {
+      ...persistedIntegrations,
+      companionServerEnabled: companionServerEnabled.value,
+      companionServerCORSWildcardEnabled: companionServerCORSWildcardEnabled.value,
+      discordPresenceEnabled: discordPresenceEnabled.value,
+      lastFMEnabled: lastFMEnabled.value,
+      sponsorBlockEnabled: sponsorBlockEnabled.value,
+      sponsorBlockSkipIntros: sponsorBlockSkipIntros.value,
+      sponsorBlockSkipOutros: sponsorBlockSkipOutros.value,
+      nowPlayingExportEnabled: nowPlayingExportEnabled.value,
+      listenBrainzEnabled: listenBrainzEnabled.value,
+      pluginManagerEnabled: pluginManagerEnabled.value,
+      localTelemetryEnabled: localTelemetryEnabled.value
+    },
+    shortcuts: {
+      playPause: shortcutPlayPause.value,
+      next: shortcutNext.value,
+      previous: shortcutPrevious.value,
+      thumbsUp: shortcutThumbsUp.value,
+      thumbsDown: shortcutThumbsDown.value,
+      volumeUp: shortcutVolumeUp.value,
+      volumeDown: shortcutVolumeDown.value,
+      volumeDelta: shortcutsVolumeDelta.value,
+      shuffle: shortcutShuffle.value,
+      navigateBack: shortcutNavigateBack.value,
+      navigateForward: shortcutNavigateForward.value
+    },
+    lastfm: {
+      ...persistedLastFM,
+      scrobblePercent: scrobblePercent.value
+    }
+  });
 }
 
 async function saveListenBrainzToken() {

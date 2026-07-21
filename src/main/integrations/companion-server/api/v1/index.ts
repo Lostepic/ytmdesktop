@@ -532,7 +532,8 @@ const CompanionServerAPIv1: FastifyPluginCallback<CompanionServerAPIv1Options> =
     });*/
 
     const stateStoreListener = (state: PlayerState) => {
-      fastify.io.of("/api/v1/realtime").emit("state-update", transformPlayerState(state));
+      const realtimeClients = fastify.io.of("/api/v1/realtime");
+      if (realtimeClients.sockets.size > 0) realtimeClients.emit("state-update", transformPlayerState(state));
     };
     playerStateStore.addEventListener(stateStoreListener);
 

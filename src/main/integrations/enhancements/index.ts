@@ -11,10 +11,12 @@ type SponsorSegment = { segment: [number, number]; UUID: string; category: strin
 export default class Enhancements {
   private store: Conf<StoreSchema>;
   private view: () => WebContentsView | null;
+  private integrationSettings: StoreSchema["integrations"];
   private currentVideoId = "";
   private segments: SponsorSegment[] = [];
   private skipped = new Set<string>();
   private lastExport = 0;
+  private lastExportText = "";
   private lastTelemetryWrite = 0;
   private lastProgress = 0;
   private listenSubmitted = new Set<string>();
@@ -24,12 +26,16 @@ export default class Enhancements {
   public provide(store: Conf<StoreSchema>, view: () => WebContentsView | null): void {
     this.store = store;
     this.view = view;
+    this.integrationSettings = store.get("integrations");
+    store.onDidChange("integrations", value => {
+      if (value) this.integrationSettings = value;
+    });
     playerStateStore.addEventListener(state => void this.onState(state));
     void this.validatePluginManifests();
   }
 
   private async onState(state: PlayerState): Promise<void> {
-    const settings = this.store.get("integrations");
+    const settings = this.integrationSettings;
     const videoId = state.videoDetails?.id ?? "";
 
     if (videoId && videoId !== this.currentVideoId) {
@@ -43,7 +49,7 @@ export default class Enhancements {
     }
 
     if (settings.sponsorBlockEnabled && state.trackState === VideoState.Playing) this.skipMarkedSegment(state.videoProgress);
-    if (settings.nowPlayingExportEnabled && Date.now() - this.lastExport > 900) void this.exportNowPlaying(state);
+    if (settings.nowPlayingExportEnabled && Date.now() - this.lastExport >= 1_000) void this.exportNowPlaying(state);
 
     const threshold = Math.min((state.videoDetails?.durationSeconds ?? 0) / 2, 240);
     if (settings.listenBrainzEnabled && videoId && state.videoProgress >= threshold && !this.listenSubmitted.has(videoId)) {
@@ -65,7 +71,7 @@ export default class Enhancements {
   }
 
   private async loadSponsorSegments(videoId: string): Promise<void> {
-    const settings = this.store.get("integrations");
+    const settings = this.integrationSettings;
     const categories = ["sponsor"];
     if (settings.sponsorBlockSkipIntros) categories.push("intro");
     if (settings.sponsorBlockSkipOutros) categories.push("outro");
@@ -110,12 +116,15 @@ export default class Enhancements {
       playing: state.trackState === VideoState.Playing,
       updatedAt: new Date().toISOString()
     };
+    const text = payload.title ? `${payload.artist} — ${payload.title}` : "";
     try {
       await fs.mkdir(directory, { recursive: true });
-      await Promise.all([
-        fs.writeFile(path.join(directory, "now-playing.json"), JSON.stringify(payload, null, 2), "utf8"),
-        fs.writeFile(path.join(directory, "now-playing.txt"), payload.title ? `${payload.artist} — ${payload.title}` : "", "utf8")
-      ]);
+      const writes: Array<Promise<void>> = [fs.writeFile(path.join(directory, "now-playing.json"), JSON.stringify(payload, null, 2), "utf8")];
+      if (text !== this.lastExportText) {
+        this.lastExportText = text;
+        writes.push(fs.writeFile(path.join(directory, "now-playing.txt"), text, "utf8"));
+      }
+      await Promise.all(writes);
     } catch (error) {
       log.warn("Now-playing export failed", error);
     }

@@ -360,7 +360,9 @@ function getMainWindowCloseAction(): CloseAction {
 }
 
 function anyShortcutChanged(newState: Readonly<StoreSchema>, oldState: Readonly<StoreSchema>) {
-  return JSON.stringify(newState.shortcuts) !== JSON.stringify(oldState.shortcuts);
+  const current = newState.shortcuts;
+  const previous = oldState.shortcuts;
+  return (Object.keys(current) as Array<keyof StoreSchema["shortcuts"]>).some(key => current[key] !== previous[key]);
 }
 
 // Create the persistent config store
@@ -638,12 +640,23 @@ stateSaverInterval = setInterval(
 );
 
 function setupTaskbarFeatures() {
+  const taskbarIcons =
+    process.platform === "win32"
+      ? {
+          previous: nativeImage.createFromPath(getControlsIconPath("play-previous-button.png")),
+          play: nativeImage.createFromPath(getControlsIconPath("play-button.png")),
+          pause: nativeImage.createFromPath(getControlsIconPath("pause-button.png")),
+          next: nativeImage.createFromPath(getControlsIconPath("play-next-button.png"))
+        }
+      : null;
+  let lastThumbarState = "";
+
   // Setup Taskbar Icons
-  if (mainWindow && mainWindow.isVisible() && process.platform === "win32") {
+  if (mainWindow && mainWindow.isVisible() && taskbarIcons) {
     mainWindow.setThumbarButtons([
       {
         tooltip: "Previous",
-        icon: nativeImage.createFromPath(getControlsIconPath("play-previous-button.png")),
+        icon: taskbarIcons.previous,
         flags: ["disabled"],
         click() {
           if (ytmView) {
@@ -653,7 +666,7 @@ function setupTaskbarFeatures() {
       },
       {
         tooltip: "Play/Pause",
-        icon: nativeImage.createFromPath(getControlsIconPath("play-button.png")),
+        icon: taskbarIcons.play,
         flags: ["disabled"],
         click() {
           if (ytmView) {
@@ -663,7 +676,7 @@ function setupTaskbarFeatures() {
       },
       {
         tooltip: "Next",
-        icon: nativeImage.createFromPath(getControlsIconPath("play-next-button.png")),
+        icon: taskbarIcons.next,
         flags: ["disabled"],
         click() {
           if (ytmView) {
@@ -677,17 +690,19 @@ function setupTaskbarFeatures() {
     const hasVideo = !!state.videoDetails;
     const isPlaying = state.trackState === VideoState.Playing;
 
-    if (process.platform == "win32") {
+    if (taskbarIcons) {
       const taskbarFlags = [];
       if (!hasVideo) {
         taskbarFlags.push("disabled");
       }
 
-      if (mainWindow && mainWindow.isVisible()) {
+      const thumbarState = `${hasVideo}:${isPlaying}`;
+      if (mainWindow && mainWindow.isVisible() && thumbarState !== lastThumbarState) {
+        lastThumbarState = thumbarState;
         mainWindow.setThumbarButtons([
           {
             tooltip: "Previous",
-            icon: nativeImage.createFromPath(getControlsIconPath("play-previous-button.png")),
+            icon: taskbarIcons.previous,
             flags: taskbarFlags,
             click() {
               if (ytmView) {
@@ -697,9 +712,7 @@ function setupTaskbarFeatures() {
           },
           {
             tooltip: "Play/Pause",
-            icon: isPlaying
-              ? nativeImage.createFromPath(getControlsIconPath("pause-button.png"))
-              : nativeImage.createFromPath(getControlsIconPath("play-button.png")),
+            icon: isPlaying ? taskbarIcons.pause : taskbarIcons.play,
             flags: taskbarFlags,
             click() {
               if (ytmView) {
@@ -709,7 +722,7 @@ function setupTaskbarFeatures() {
           },
           {
             tooltip: "Next",
-            icon: nativeImage.createFromPath(getControlsIconPath("play-next-button.png")),
+            icon: taskbarIcons.next,
             flags: taskbarFlags,
             click() {
               if (ytmView) {
@@ -1815,6 +1828,16 @@ app.on("ready", async () => {
     if (!senderIs(event.sender, settingsWindow) || typeof key !== "string") return;
 
     store.set(key, value);
+  });
+
+  ipcMain.on("settings:setMany", (event, values: Partial<StoreSchema>) => {
+    if (!senderIs(event.sender, settingsWindow) || !values || typeof values !== "object" || Array.isArray(values)) return;
+
+    const allowedSections = new Set<keyof StoreSchema>(["general", "appearance", "playback", "integrations", "shortcuts", "lastfm"]);
+    const entries = Object.entries(values).filter(([key, value]) => allowedSections.has(key as keyof StoreSchema) && value && typeof value === "object");
+    if (entries.length === 0 || entries.length > allowedSections.size) return;
+
+    store.set(Object.fromEntries(entries) as Partial<StoreSchema>);
   });
 
   ipcMain.handle("settings:get", (event, key: string) => {

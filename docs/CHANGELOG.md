@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.6 — Settings bridge correction
+
+- Expose batched settings persistence through Electron’s isolated preload bridge so interface scale and every other setting can be changed without crashing the Settings view.
+
 ## 3.0.5 — Popup positioning correction
 
 - Remove globally reparented YouTube tooltips whose stale coordinates could leave the “Start playback” hint over the navigation rail.

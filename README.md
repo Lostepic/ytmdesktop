@@ -19,7 +19,7 @@
 
 ## Download and package status
 
-The current maintained release is [YTM Desktop v3.0.4](https://github.com/Lostepic/ytmdesktop/releases/latest).
+The current maintained release is [YTM Desktop v3.0.5](https://github.com/Lostepic/ytmdesktop/releases/latest).
 
 | Platform    | Package                          | Current status              |
 | ----------- | -------------------------------- | --------------------------- |
@@ -27,7 +27,7 @@ The current maintained release is [YTM Desktop v3.0.4](https://github.com/Lostep
 | macOS x64   | Application archive (`.zip`)     | Build automation configured |
 | Linux x64   | Debian (`.deb`) and RPM (`.rpm`) | Build automation configured |
 
-Windows users should download `YTM.Desktop-3.0.4.Setup.exe`. The `.nupkg` and `RELEASES` files are updater metadata and are not manual installers.
+Windows users should download `YTM.Desktop-3.0.5.Setup.exe`. The `.nupkg` and `RELEASES` files are updater metadata and are not manual installers.
 
 The build badge reflects the real GitHub Actions result for the `development` branch. Release tags trigger packaging jobs for Windows, macOS, and Linux; produced files are attached directly to the matching GitHub Release.
 

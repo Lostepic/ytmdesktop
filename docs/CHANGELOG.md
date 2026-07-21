@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.5 — Popup positioning correction
+
+- Remove globally reparented YouTube tooltips whose stale coordinates could leave the “Start playback” hint over the navigation rail.
+
 ## 3.0.4 — Runtime and interface optimization
 
 - Batch settings changes into one validated IPC operation and persistent-store update.

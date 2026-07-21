@@ -156,13 +156,6 @@ function createStyleSheet() {
         white-space: nowrap !important;
       }
 
-      /* Player tooltips are positioned against YouTube's unmodified player
-         geometry and can be stranded in the navigation rail after relayout. */
-      ytmusic-player-bar tp-yt-paper-tooltip,
-      ytmusic-player-bar yt-tooltip-renderer {
-        display: none !important;
-      }
-
       ytmusic-search-box input {
         letter-spacing: -0.01em;
       }
@@ -260,6 +253,35 @@ function createStyleSheet() {
     `)
   );
   document.head.appendChild(css);
+}
+
+function suppressRestoredPlaybackCoachmark(): void {
+  const label = "Start playback";
+  const findAndHide = (): boolean => {
+    const matches = Array.from(document.querySelectorAll<HTMLElement>("body *")).filter(element => element.textContent?.trim() === label);
+    if (matches.length === 0) return false;
+
+    let coachmark = matches.at(-1);
+    while (coachmark?.parentElement && coachmark.parentElement !== document.body && coachmark.parentElement.textContent?.trim() === label) {
+      coachmark = coachmark.parentElement;
+    }
+    coachmark?.style.setProperty("display", "none", "important");
+    return true;
+  };
+
+  if (findAndHide()) return;
+
+  let scanScheduled = false;
+  const observer = new MutationObserver(() => {
+    if (scanScheduled) return;
+    scanScheduled = true;
+    setTimeout(() => {
+      scanScheduled = false;
+      if (findAndHide()) observer.disconnect();
+    }, 50);
+  });
+  observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+  setTimeout(() => observer.disconnect(), 10_000);
 }
 
 function createMaterialSymbolsLink() {
@@ -477,27 +499,7 @@ window.addEventListener("load", async () => {
     // The last page the user was on is already a page where it will be playing a song from (no point telling YTM to play it again)
     if (!state.lastUrl.startsWith("https://music.youtube.com/watch")) {
       if (state.lastVideoId) {
-        // Keep the `Start playback` hint aligned while the player bar transitions.
-        let heightTransitionCount = 0;
-        const transitionEnd = async (e: TransitionEvent) => {
-          if (e.target === document.querySelector("ytmusic-app-layout>ytmusic-player-bar")) {
-            if (e.propertyName === "height") {
-              (
-                await webFrame.executeJavaScript(`
-                  (function() {
-                    document.querySelector("ytmusic-popup-container").refitPopups_();
-                  })
-                `)
-              )();
-              heightTransitionCount++;
-              if (heightTransitionCount >= 2) {
-                document.querySelector("ytmusic-app-layout>ytmusic-player-bar").removeEventListener("transitionend", transitionEnd);
-              }
-            }
-          }
-        };
-        document.querySelector("ytmusic-app-layout>ytmusic-player-bar").addEventListener("transitionend", transitionEnd);
-
+        suppressRestoredPlaybackCoachmark();
         document.dispatchEvent(
           new CustomEvent("yt-navigate", {
             detail: {

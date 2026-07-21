@@ -1,0 +1,359 @@
+<script setup lang="ts" generic="T extends 'checkbox' | 'file' | 'range' | 'select' | 'text' | 'password' | 'custom'">
+import { computed, ref } from "vue";
+
+type ModelValue = {
+  checkbox: boolean;
+  file: string;
+  range: number;
+  custom: never;
+  select: number;
+  text: string;
+  password: string;
+};
+
+const props = defineProps<{
+  type: T;
+  modelValue?: ModelValue[T];
+  name: string;
+  description?: string;
+  restartRequired?: boolean;
+  indented?: boolean;
+  bindSetting?: string; // This is for the file picker so that it can properly set a data attribute that binds the setting correctly. TODO: Rewrite to not have this
+  max?: number | string;
+  min?: number | string;
+  step?: number | string;
+  disabled?: boolean;
+  disabledMessage?: string;
+  flexColumn?: boolean;
+  beta?: boolean;
+  optionsMap?: { [key: number]: string }; // This is for the select menu
+}>();
+const emit = defineEmits(["update:modelValue", "file-change", "change", "clear"]);
+
+const value = computed({
+  get() {
+    return props.modelValue;
+  },
+  set(value) {
+    emit("update:modelValue", value);
+  }
+});
+
+const hasDescription = computed(() => {
+  return props.description && props.description.trim() !== "";
+});
+
+const fileInput = ref(null);
+
+const selectOpen = ref(false);
+const selectedOption = computed(() => {
+  return props.optionsMap[props.modelValue as number];
+});
+
+// This function should be using ModelValue[T] but because it's bound to @click it doesn't interpret it as correct
+function select(optionKey: string) {
+  value.value = Number.parseInt(optionKey) as ModelValue[T];
+  selectOpen.value = false;
+  emit("change");
+}
+</script>
+
+<template>
+  <div :class="{ 'ytmd-setting': true, 'indented': props.indented, 'flex-column': props.flexColumn }">
+    <p v-if="!disabled && !hasDescription">
+      {{ name }} <span v-if="restartRequired" class="reload-required material-symbols-outlined">autorenew</span>
+      <span v-if="beta" class="beta-tag" title="This is a beta feature and may not work correctly yet.">BETA</span>
+    </p>
+    <div v-else-if="!disabled && hasDescription" class="name-description">
+      <p class="name">
+        {{ name }} <span v-if="restartRequired" class="reload-required material-symbols-outlined">autorenew</span>
+        <span v-if="beta" class="beta-tag" title="This is a beta feature and may not work correctly yet.">BETA</span>
+      </p>
+      <p class="description">{{ description }}</p>
+    </div>
+    <div v-if="disabled" class="disabled-name-message">
+      <p class="name">
+        <span class="disabled-tag">DISABLED</span> {{ name }} <span v-if="restartRequired" class="reload-required material-symbols-outlined">autorenew</span>
+        <span v-if="beta" class="beta-tag" title="This is a beta feature and may not work correctly yet.">BETA</span>
+      </p>
+      <p class="message">{{ disabledMessage }}</p>
+    </div>
+
+    <input
+      v-if="type !== 'file' && type !== 'range' && type !== 'select' && type !== 'custom'"
+      v-model="value"
+      :disabled="disabled"
+      :type="props.type"
+      @change="$emit('change', $event)"
+    />
+    <div v-if="type == 'range'" class="range-selector">
+      <span class="range-value">{{ value }}</span>
+      <input v-model="value" :disabled="disabled" :type="props.type" :max="props.max" :min="props.min" :step="props.step" @change="$emit('change', $event)" />
+    </div>
+    <div v-if="type == 'file'" class="file-picker">
+      <input ref="fileInput" :disabled="disabled" type="file" accept=".css" :data-setting="bindSetting" @change="$emit('file-change', $event)" />
+      <div class="file-input-button">
+        <button class="choose" @click="fileInput.click()"><span class="material-symbols-outlined">file_open</span></button>
+        <input :disabled="disabled" type="text" readonly class="path" placeholder="No file chosen" :value="value" />
+        <button v-if="value" class="remove" @click="$emit('clear')"><span class="material-symbols-outlined">delete</span></button>
+      </div>
+    </div>
+    <div v-if="type == 'select'" :class="{ select: true, open: selectOpen }">
+      <div class="selected" @click="selectOpen = !selectOpen">
+        <p class="text">{{ selectedOption }}</p>
+        <span v-if="!selectOpen" class="material-symbols-outlined">arrow_drop_down</span>
+        <span v-if="selectOpen" class="material-symbols-outlined">arrow_drop_up</span>
+      </div>
+      <div class="options">
+        <div v-for="(optionValue, optionKey) of props.optionsMap" :key="optionKey" class="option" @click="select(optionKey)">{{ optionValue }}</div>
+      </div>
+    </div>
+
+    <slot></slot>
+  </div>
+</template>
+
+<style scoped>
+.ytmd-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 64px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ytmd-setting:last-child {
+  border-bottom: 0;
+}
+
+.ytmd-setting p {
+  font-size: 14px;
+  font-weight: 540;
+}
+
+.ytmd-setting.indented {
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid #212121;
+}
+
+.ytmd-setting.flex-column {
+  flex-direction: column;
+  align-items: initial;
+  justify-content: initial;
+}
+
+.ytmd-setting .beta-tag {
+  background-color: #f44336;
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.ytmd-setting .disabled-tag {
+  background-color: #212121;
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.name-description .name,
+.disabled-name-message .name {
+  margin-bottom: unset;
+}
+
+.name-description .description,
+.disabled-name-message .message {
+  margin-top: 4px;
+  color: #a5a1aa;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.45;
+  max-width: 500px;
+}
+
+.reload-required {
+  vertical-align: middle;
+}
+
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  min-width: 48px;
+  min-height: 26px;
+  width: 48px;
+  height: 26px;
+  display: inline-block;
+  position: relative;
+  border-radius: 50px;
+  overflow: hidden;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  background-color: #3a3740;
+  transition: background-color ease 0.3s;
+}
+
+input[type="checkbox"]:before {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  left: 2px;
+  top: 2px;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: all ease 0.3s;
+}
+
+input[type="checkbox"]:checked {
+  background: linear-gradient(90deg, #df3548, #ff5966);
+}
+
+input[type="checkbox"]:checked:before {
+  left: 24px;
+}
+
+input[type="checkbox"]:disabled {
+  background-color: #212121;
+  cursor: not-allowed;
+}
+
+input[type="checkbox"]:disabled::before {
+  background-color: #969696;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.file-picker {
+  background-color: #25222a;
+  border-radius: 8px;
+}
+
+.file-input-button {
+  width: 216px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.file-input-button button {
+  padding: 8px;
+  border: none;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.file-input-button button.choose {
+  background-color: #f44336;
+  border-radius: 4px 0 0 4px;
+}
+
+.file-input-button button.remove {
+  background-color: transparent;
+  border-left: 1px solid #323232;
+  border-radius: 0 4px 4px 0;
+}
+
+.file-input-button button .material-symbols-outlined {
+  margin-right: 4px;
+  font-size: 18px;
+}
+
+.file-input-button input[type="text"] {
+  margin: 0;
+  padding: 8px;
+  width: 100%;
+  border: none;
+  background-color: transparent;
+}
+
+.file-input-button input[type="text"]:focus,
+.file-input-button input[type="text"]:active {
+  outline: none;
+}
+
+.file-input-button p {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.range-value {
+  vertical-align: top;
+  margin-right: 8px;
+}
+
+input[type="range"] {
+  appearance: none;
+  height: 15px;
+  border-radius: 4px;
+  background: #212121;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f44336;
+  cursor: pointer;
+}
+
+.select {
+  position: relative;
+  width: 216px;
+  background-color: #25222a;
+  border-radius: 8px;
+}
+
+.select.open {
+  border-radius: 4px 4px 0 0;
+}
+
+.select .selected {
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.select .selected .text {
+  margin: unset;
+  padding: unset;
+}
+
+.select .options {
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  border-radius: 0 0 4px 4px;
+  width: 100%;
+}
+
+.select .options .option {
+  user-select: none;
+  cursor: pointer;
+  background-color: #25222a;
+  padding: 8px;
+}
+
+.select .options .option:hover {
+  background-color: #393540;
+}
+
+.select:not(.open) .options {
+  display: none;
+}
+</style>

@@ -25,16 +25,14 @@ export default class CompanionServer implements IIntegration {
   private createServer() {
     this.fastifyServer = Fastify().withTypeProvider<TypeBoxTypeProvider>();
     this.fastifyServer.register(cors, {
-      origin: this.store.get<"integrations.companionServerCORSWildcardEnabled", boolean>("integrations.companionServerCORSWildcardEnabled", false) ? "*" : false
+      origin: this.store.get("integrations.companionServerCORSWildcardEnabled", false) ? "*" : false
     });
     const io = new SocketIOServer(this.fastifyServer.server, {
       transports: ["websocket"],
       allowUpgrades: false,
       // While this is websocket only we still apply cors just in case
       cors: {
-        origin: this.store.get<"integrations.companionServerCORSWildcardEnabled", boolean>("integrations.companionServerCORSWildcardEnabled", false)
-          ? "*"
-          : false
+        origin: this.store.get("integrations.companionServerCORSWildcardEnabled", false) ? "*" : false
       }
     });
     this.fastifyServer.decorate("io", io);

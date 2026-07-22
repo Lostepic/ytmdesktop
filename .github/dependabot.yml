@@ -33,6 +33,14 @@ updates:
         update-types:
           - minor
           - patch
+      production-major-updates:
+        dependency-type: production
+        update-types:
+          - major
+      development-major-updates:
+        dependency-type: development
+        update-types:
+          - major
   - package-ecosystem: github-actions
     directory: /
     target-branch: development

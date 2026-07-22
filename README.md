@@ -40,19 +40,20 @@
 
 </details>
 
-## Download and package status
+## Download
 
-The current maintained release is [YTM Desktop v3.0.9](https://github.com/Lostepic/ytmdesktop/releases/latest).
+Download the current maintained version from [GitHub Releases](https://github.com/Lostepic/ytmdesktop/releases/latest). Every release is built for Windows, macOS, and Linux.
 
-| Platform    | Package                          | Current status              |
-| ----------- | -------------------------------- | --------------------------- |
-| Windows x64 | Squirrel installer (`.exe`)      | Available now               |
-| macOS x64   | Application archive (`.zip`)     | Build automation configured |
-| Linux x64   | Debian (`.deb`) and RPM (`.rpm`) | Build automation configured |
+| Platform | Download | Installation |
+| --- | --- | --- |
+| Windows x64 | `YTM.Desktop-<version>.Setup.exe` | Run the Squirrel installer. Updates are delivered automatically from this repository. |
+| macOS x64 | `YTM.Desktop-darwin-x64-<version>.zip` | Extract the archive and move YTM Desktop to Applications. The build is currently unsigned. |
+| Debian/Ubuntu x64 | `youtube-music-desktop-app_<version>_amd64.deb` | Install with your graphical package manager or `sudo apt install ./<file>.deb`. |
+| Fedora/RHEL x64 | `youtube-music-desktop-app-<version>-1.x86_64.rpm` | Install with your graphical package manager or `sudo dnf install ./<file>.rpm`. |
 
-Windows users should download `YTM.Desktop-3.0.9.Setup.exe`. The `.nupkg` and `RELEASES` files are updater metadata and are not manual installers.
+`RELEASES` and the `.nupkg` file are Windows automatic-update metadata, not manual installers.
 
-The build badge reflects the real GitHub Actions result for the `development` branch. Release tags trigger packaging jobs for Windows, macOS, and Linux; produced files are attached directly to the matching GitHub Release.
+The build badge reports validation of the maintained `development` branch. Version tags build all platforms in parallel and publish every package directly to the matching GitHub Release.
 
 ## What changed in 3.0
 

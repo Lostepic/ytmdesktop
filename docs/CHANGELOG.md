@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.1 — Runtime maintenance
+
+- Update Electron from 40.8.5 to 40.10.6 after full Windows, macOS, and Linux packaging validation.
+- Refresh compatible development dependencies discovered during the final 3.1 stabilization pass.
+- Document GitHub Release assets versus the intentionally unused GitHub Packages registry.
+- Defer incompatible major toolchain updates and prevent Dependabot from reopening them automatically.
+
 ## 3.1.0 — Dependency and release hardening
 
 - Upgrade compatible production and development dependencies, including security fixes for `engine.io` and `js-yaml`.

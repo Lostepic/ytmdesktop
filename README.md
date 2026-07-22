@@ -42,7 +42,7 @@
 
 ## Download and package status
 
-The current maintained release is [YTM Desktop v3.0.8](https://github.com/Lostepic/ytmdesktop/releases/latest).
+The current maintained release is [YTM Desktop v3.0.9](https://github.com/Lostepic/ytmdesktop/releases/latest).
 
 | Platform    | Package                          | Current status              |
 | ----------- | -------------------------------- | --------------------------- |
@@ -50,7 +50,7 @@ The current maintained release is [YTM Desktop v3.0.8](https://github.com/Lostep
 | macOS x64   | Application archive (`.zip`)     | Build automation configured |
 | Linux x64   | Debian (`.deb`) and RPM (`.rpm`) | Build automation configured |
 
-Windows users should download `YTM.Desktop-3.0.8.Setup.exe`. The `.nupkg` and `RELEASES` files are updater metadata and are not manual installers.
+Windows users should download `YTM.Desktop-3.0.9.Setup.exe`. The `.nupkg` and `RELEASES` files are updater metadata and are not manual installers.
 
 The build badge reflects the real GitHub Actions result for the `development` branch. Release tags trigger packaging jobs for Windows, macOS, and Linux; produced files are attached directly to the matching GitHub Release.
 
@@ -86,7 +86,15 @@ The app keeps hardware acceleration enabled by default and prevents background r
 
 ### Stream Deck and companion API
 
-Enable **Companion and plugin server** in Settings. The authenticated API listens locally on `127.0.0.1:9863`. Pairing must be opened manually and automatically closes after five minutes.
+Enable **Companion and plugin server** in Settings. The authenticated API listens locally on `127.0.0.1:9863`.
+
+To connect the official Stream Deck plugin:
+
+1. Open **Settings → Integrations** and enable **Pair a Stream Deck or companion**.
+2. Select the YTMD Connector action in Stream Deck and press **Authorize**.
+3. Approve the authorization prompt in YTM Desktop.
+
+The pairing window closes automatically after five minutes. Existing authorizations remain encrypted locally and can be revoked from the authorized companions list.
 
 ### Now-playing export
 

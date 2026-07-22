@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.0.9 — Stream Deck authorization compatibility
+
+- Allow the official Stream Deck connector's action and property inspector to retry pairing without being blocked by a shared HTTP rate limit.
+- Retain the explicit five-minute pairing gate, one-time authorization codes, user approval prompt, expiry, and concurrent-window cap.
+- Verify the official connector can authorize and establish its live Socket.IO connection end to end.
+
+## 3.0.8 — Settings controls and project showcase
+
+- Keep open dropdown menus above adjacent switches and sliders, with aligned fixed-width control columns.
+- Add an organized screenshot gallery covering the player, now-playing view, integrations, playback, shortcuts, and companion management.
+
+## 3.0.7 — Companion credential stability
+
+- Merge batched settings against current main-process state so stale settings windows cannot overwrite companion credentials.
+- Refresh active companion sessions only when authorization tokens actually change.
+- Restrict the local companion API listener to `127.0.0.1`.
+
 ## 3.0.6 — Settings bridge correction
 
 - Expose batched settings persistence through Electron’s isolated preload bridge so interface scale and every other setting can be changed without crashing the Settings view.

@@ -44,7 +44,22 @@ jobs:
           node-version: 22
       - run: corepack enable
       - run: yarn install --immutable
-      - run: yarn make --arch ${{ matrix.arch }}
+      - name: Build Windows and Linux package
+        if: runner.os != 'macOS'
+        run: yarn make --arch ${{ matrix.arch }}
+      - name: Build, sign, and archive macOS application
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          yarn package --arch "${{ matrix.arch }}"
+          app="out/YTM Desktop-darwin-${{ matrix.arch }}/YTM Desktop.app"
+          destination="out/make/zip/darwin/${{ matrix.arch }}"
+          version="$(node -p "require('./package.json').version")"
+          archive="$destination/YTM Desktop-darwin-${{ matrix.arch }}-$version.zip"
+          codesign --force --deep --sign - "$app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          mkdir -p "$destination"
+          ditto -c -k --sequesterRsrc --keepParent "$app" "$archive"
       - uses: actions/upload-artifact@v7
         with:
           name: release-${{ matrix.artifact }}

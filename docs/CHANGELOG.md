@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.3 — macOS bundle integrity
+
+- Re-sign the completed macOS application after Electron fuses are applied.
+- Strictly verify both Intel and Apple Silicon bundle signatures before publishing.
+- Create the release ZIP from the verified final application bundle while preserving macOS resource metadata.
+
 ## 3.1.2 — Native Apple Silicon support
 
 - Add a native macOS ARM64 package for M-series Macs instead of requiring Rosetta.

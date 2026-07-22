@@ -58,7 +58,7 @@ Installers are published as GitHub **Release assets**, so the repository's **Pac
 
 The Windows installer is currently unsigned, so Microsoft Defender SmartScreen may show an unknown-publisher warning. Removing that warning requires release signing with a publicly trusted Windows code-signing certificate; never bypass security warnings for installers downloaded anywhere other than this repository's Releases page.
 
-The macOS archives are currently unsigned. On first launch, macOS may require **Control-click → Open**. Apple Silicon users should download the `arm64` archive to avoid Rosetta translation and its additional CPU and memory overhead.
+The macOS archives use a verified ad-hoc bundle signature but are not yet Apple-notarized. On first launch, macOS may require approval in **System Settings → Privacy & Security**. Apple Silicon users should download the `arm64` archive to avoid Rosetta translation and its additional CPU and memory overhead.
 
 The build badge reports validation of the protected `main` branch. Version tags build all platforms in parallel and publish every installer and archive directly to the matching GitHub Release.
 

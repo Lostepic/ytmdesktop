@@ -184,6 +184,6 @@ The icon variants in `src/assets/icons` are intentionally platform-specific: the
 
 ## License and project history
 
-YTM Desktop is distributed under GPL-3.0 and incorporates work from the original YouTube Music Desktop App maintainers and contributors. Required copyright and licence notices are retained.
+YTM Desktop is distributed under GPL-3.0 and incorporates work from the [original YouTube Music Desktop App project](https://github.com/ytmdesktop/ytmdesktop), its maintainers, and its contributors. Required copyright and licence notices and the full Git history are retained.
 
 This project is not affiliated with Google or YouTube. YouTube Music is a trademark of Google LLC.

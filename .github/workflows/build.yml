@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: build-${{ github.ref }}
@@ -18,11 +19,13 @@ jobs:
   quality:
     name: Quality checks
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
+          cache: yarn
       - run: corepack enable
       - run: yarn install --immutable
       - run: yarn check
@@ -41,11 +44,13 @@ jobs:
           - os: macos-latest
             artifact: macos
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
+          cache: yarn
       - run: corepack enable
       - run: yarn install --immutable
       - run: yarn package
@@ -53,4 +58,4 @@ jobs:
         with:
           name: package-${{ matrix.artifact }}
           path: out/**
-          retention-days: 14
+          retention-days: 7

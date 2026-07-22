@@ -242,7 +242,10 @@ const CompanionServerAPIv1: FastifyPluginCallback<CompanionServerAPIv1Options> =
     {
       config: {
         rateLimit: {
-          max: 5,
+          // Official Stream Deck clients can retry from both the action and
+          // property inspector while pairing. The five-minute pairing gate and
+          // authorization-window cap remain the primary safeguards.
+          max: 30,
           timeWindow: 1000 * 60
         }
       },
@@ -274,7 +277,7 @@ const CompanionServerAPIv1: FastifyPluginCallback<CompanionServerAPIv1Options> =
     {
       config: {
         rateLimit: {
-          max: 5,
+          max: 30,
           timeWindow: 1000 * 60
         }
       },

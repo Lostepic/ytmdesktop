@@ -17,9 +17,32 @@
   <a href="LICENSE"><img alt="GPL-3.0 license" src="https://img.shields.io/github/license/Lostepic/ytmdesktop?style=flat-square"></a>
 </p>
 
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/player-home.png" alt="YTM Desktop home screen" width="900">
+</p>
+
+| Now playing | Integrations and devices |
+| --- | --- |
+| <img src="screenshots/now-playing.png" alt="YTM Desktop now-playing screen"> | <img src="screenshots/settings-integrations.png" alt="YTM Desktop integrations settings"> |
+
+<details>
+<summary>More settings screens</summary>
+
+| Playback | Keyboard shortcuts |
+| --- | --- |
+| <img src="screenshots/settings-playback.png" alt="YTM Desktop playback settings"> | <img src="screenshots/settings-shortcuts.png" alt="YTM Desktop keyboard shortcut settings"> |
+
+| General | Authorized companions |
+| --- | --- |
+| <img src="screenshots/settings-general.png" alt="YTM Desktop general settings"> | <img src="screenshots/settings-authorized-companions.png" alt="YTM Desktop authorized companion settings"> |
+
+</details>
+
 ## Download and package status
 
-The current maintained release is [YTM Desktop v3.0.7](https://github.com/Lostepic/ytmdesktop/releases/latest).
+The current maintained release is [YTM Desktop v3.0.8](https://github.com/Lostepic/ytmdesktop/releases/latest).
 
 | Platform    | Package                          | Current status              |
 | ----------- | -------------------------------- | --------------------------- |
@@ -27,7 +50,7 @@ The current maintained release is [YTM Desktop v3.0.7](https://github.com/Lostep
 | macOS x64   | Application archive (`.zip`)     | Build automation configured |
 | Linux x64   | Debian (`.deb`) and RPM (`.rpm`) | Build automation configured |
 
-Windows users should download `YTM.Desktop-3.0.7.Setup.exe`. The `.nupkg` and `RELEASES` files are updater metadata and are not manual installers.
+Windows users should download `YTM.Desktop-3.0.8.Setup.exe`. The `.nupkg` and `RELEASES` files are updater metadata and are not manual installers.
 
 The build badge reflects the real GitHub Actions result for the `development` branch. Release tags trigger packaging jobs for Windows, macOS, and Linux; produced files are attached directly to the matching GitHub Release.
 

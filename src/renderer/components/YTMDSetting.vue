@@ -115,12 +115,19 @@ function select(optionKey: string) {
 
 <style scoped>
 .ytmd-setting {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
   min-height: 64px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.name-description,
+.disabled-name-message {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .ytmd-setting:last-child {
@@ -291,6 +298,18 @@ input[type="file"] {
   margin-right: 8px;
 }
 
+.range-selector {
+  flex: 0 0 216px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.range-selector input[type="range"] {
+  min-width: 0;
+  width: 144px;
+}
+
 input[type="range"] {
   appearance: none;
   height: 15px;
@@ -310,13 +329,16 @@ input[type="range"]::-webkit-slider-thumb {
 
 .select {
   position: relative;
+  flex: 0 0 216px;
   width: 216px;
   background-color: #25222a;
   border-radius: 8px;
 }
 
 .select.open {
+  z-index: 20;
   border-radius: 4px 4px 0 0;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.42);
 }
 
 .select .selected {
@@ -337,7 +359,8 @@ input[type="range"]::-webkit-slider-thumb {
   position: absolute;
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: 21;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.42);
   border-radius: 0 0 4px 4px;
   width: 100%;
 }

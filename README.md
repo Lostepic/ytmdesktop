@@ -53,6 +53,8 @@ Download the current maintained version from [GitHub Releases](https://github.co
 
 `RELEASES` and the `.nupkg` file are Windows automatic-update metadata, not manual installers.
 
+The Windows installer is currently unsigned, so Microsoft Defender SmartScreen may show an unknown-publisher warning. Removing that warning requires release signing with a publicly trusted Windows code-signing certificate; never bypass security warnings for installers downloaded anywhere other than this repository's Releases page.
+
 The build badge reports validation of the maintained `development` branch. Version tags build all platforms in parallel and publish every package directly to the matching GitHub Release.
 
 ## What changed in 3.0

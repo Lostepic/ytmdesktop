@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.1.0 — Dependency and release hardening
+
+- Upgrade compatible production and development dependencies, including security fixes for `engine.io` and `js-yaml`.
+- Add grouped Dependabot updates with guarded automatic merging for safe patch and minor releases.
+- Add required cross-platform packaging, CodeQL, dependency-review, ownership, and pull-request checks.
+- Preserve companion server and Stream Deck compatibility across the Conf and Fastify dependency upgrades.
+- Establish `main` as the protected stable release branch and keep tag-based Windows, macOS, and Linux publishing.
+
 ## 3.0.9 — Stream Deck authorization compatibility
 
 - Allow the official Stream Deck connector's action and property inspector to retry pairing without being blocked by a shared HTTP rate limit.

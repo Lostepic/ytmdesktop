@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/Lostepic/ytmdesktop/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Lostepic/ytmdesktop?style=flat-square&label=release"></a>
-  <a href="https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=development&style=flat-square&label=build"></a>
+  <a href="https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=main&style=flat-square&label=build"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/releases"><img alt="Release downloads" src="https://img.shields.io/github/downloads/Lostepic/ytmdesktop/total?style=flat-square&label=downloads"></a>
   <img alt="Electron 40" src="https://img.shields.io/badge/Electron-40.8.5-47848f?style=flat-square&logo=electron">
   <a href="LICENSE"><img alt="GPL-3.0 license" src="https://img.shields.io/github/license/Lostepic/ytmdesktop?style=flat-square"></a>
@@ -53,9 +53,24 @@ Download the current maintained version from [GitHub Releases](https://github.co
 
 `RELEASES` and the `.nupkg` file are Windows automatic-update metadata, not manual installers.
 
+Installers are published as GitHub **Release assets**, so the repository's **Packages** section is intentionally empty. GitHub Packages is a registry for reusable libraries and container images; it is not the download location for this desktop application.
+
 The Windows installer is currently unsigned, so Microsoft Defender SmartScreen may show an unknown-publisher warning. Removing that warning requires release signing with a publicly trusted Windows code-signing certificate; never bypass security warnings for installers downloaded anywhere other than this repository's Releases page.
 
-The build badge reports validation of the maintained `development` branch. Version tags build all platforms in parallel and publish every package directly to the matching GitHub Release.
+The build badge reports validation of the protected `main` branch. Version tags build all platforms in parallel and publish every installer and archive directly to the matching GitHub Release.
+
+## What changed in 3.1
+
+Version 3.1 focuses on dependency, security, and release reliability:
+
+- Updated compatible production and development dependencies.
+- Applied security updates for `engine.io` and `js-yaml`.
+- Preserved Stream Deck and companion-server compatibility through the Conf and Fastify upgrades.
+- Added grouped Dependabot updates with guarded patch/minor automation.
+- Added required CodeQL, dependency-review, ownership, quality, and cross-platform packaging checks.
+- Established `main` as the protected default and stable release branch.
+- Kept Windows, macOS, Debian/Ubuntu, and Fedora/RHEL downloads together on GitHub Releases.
+- Deferred incompatible toolchain majors until they can receive a dedicated migration and regression cycle.
 
 ## What changed in 3.0
 

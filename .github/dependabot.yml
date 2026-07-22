@@ -12,6 +12,10 @@ updates:
     open-pull-requests-limit: 10
     rebase-strategy: auto
     versioning-strategy: increase-if-necessary
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
     labels:
       - dependencies
     reviewers:
@@ -33,14 +37,6 @@ updates:
         update-types:
           - minor
           - patch
-      production-major-updates:
-        dependency-type: production
-        update-types:
-          - major
-      development-major-updates:
-        dependency-type: development
-        update-types:
-          - major
   - package-ecosystem: github-actions
     directory: /
     target-branch: main

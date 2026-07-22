@@ -1834,10 +1834,16 @@ app.on("ready", async () => {
     if (!senderIs(event.sender, settingsWindow) || !values || typeof values !== "object" || Array.isArray(values)) return;
 
     const allowedSections = new Set<keyof StoreSchema>(["general", "appearance", "playback", "integrations", "shortcuts", "lastfm"]);
-    const entries = Object.entries(values).filter(([key, value]) => allowedSections.has(key as keyof StoreSchema) && value && typeof value === "object");
+    const entries = Object.entries(values).filter(
+      ([key, value]) => allowedSections.has(key as keyof StoreSchema) && value && typeof value === "object" && !Array.isArray(value)
+    );
     if (entries.length === 0 || entries.length > allowedSections.size) return;
 
-    store.set(Object.fromEntries(entries) as Partial<StoreSchema>);
+    // Merge against the main process' current values. Settings renderers can be
+    // stale, and replacing a whole section used to erase credentials created by
+    // integrations while the window was open (notably Stream Deck auth tokens).
+    const mergedEntries = entries.map(([key, value]) => [key, { ...(store.get(key) as object), ...(value as object) }]);
+    store.set(Object.fromEntries(mergedEntries) as Partial<StoreSchema>);
   });
 
   ipcMain.handle("settings:get", (event, key: string) => {

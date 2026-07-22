@@ -1,5 +1,9 @@
 import { ipcRenderer } from "electron";
 
+type SectionUpdates<TSchema> = {
+  [TKey in keyof TSchema]?: TSchema[TKey] extends object ? Partial<TSchema[TKey]> : TSchema[TKey];
+};
+
 if (process.type !== "renderer") {
   throw new Error("This module can only be used from the renderer process");
 }
@@ -9,7 +13,7 @@ export default class Store<TSchema> {
     return ipcRenderer.send("settings:set", key, value);
   }
 
-  public setMany(values: Partial<TSchema>) {
+  public setMany(values: SectionUpdates<TSchema>) {
     return ipcRenderer.send("settings:setMany", values);
   }
 

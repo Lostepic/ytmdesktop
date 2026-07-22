@@ -14,7 +14,7 @@ import log from "electron-log";
 import { isDefinedAPIError } from "./api-shared/errors";
 
 export default class CompanionServer implements IIntegration {
-  private listenIp = "0.0.0.0";
+  private listenIp = "127.0.0.1";
   private listenPort = 9863;
   private fastifyServer: FastifyInstance;
   private store: Conf<StoreSchema>;
@@ -94,10 +94,18 @@ export default class CompanionServer implements IIntegration {
         host: this.listenIp,
         port: this.listenPort
       });
-      this.storeListener = this.store.onDidChange("integrations", async newState => {
-        const validTokenIds: string[] = newState.companionServerAuthTokens
-          ? JSON.parse(safeStorage.decryptString(Buffer.from(newState.companionServerAuthTokens, "hex"))).map((authToken: AuthToken) => authToken.id)
-          : [];
+      this.storeListener = this.store.onDidChange("integrations", async (newState, oldState) => {
+        if (newState.companionServerAuthTokens === oldState?.companionServerAuthTokens) return;
+
+        const encryptedTokens = newState.companionServerAuthTokens;
+        let validTokenIds: string[] = [];
+        try {
+          validTokenIds = encryptedTokens
+            ? JSON.parse(safeStorage.decryptString(Buffer.from(encryptedTokens, "hex"))).map((authToken: AuthToken) => authToken.id)
+            : [];
+        } catch (error) {
+          log.warn("Could not read companion authorization data while refreshing active connections", error);
+        }
         if (this.fastifyServer.server.listening) {
           const namespaces = this.fastifyServer.io._nsps.keys();
           let sockets: RemoteSocket<DefaultEventsMap, { tokenId: string }>[] = [];

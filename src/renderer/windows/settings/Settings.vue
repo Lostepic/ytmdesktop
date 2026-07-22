@@ -54,9 +54,6 @@ const playback: StoreSchema["playback"] = await store.get("playback");
 const integrations: StoreSchema["integrations"] = await store.get("integrations");
 const shortcuts: StoreSchema["shortcuts"] = await store.get("shortcuts");
 const lastFM: StoreSchema["lastfm"] = await store.get("lastfm");
-let persistedAppearance = appearance;
-let persistedIntegrations = integrations;
-let persistedLastFM = lastFM;
 
 const disableHardwareAcceleration = ref<boolean>(general.disableHardwareAcceleration);
 const hideToTrayOnClose = ref<boolean>(general.hideToTrayOnClose);
@@ -111,10 +108,6 @@ const lastFMSessionKey = ref<string>(lastFM.sessionKey);
 const scrobblePercent = ref<number>(lastFM.scrobblePercent);
 
 store.onDidAnyChange(async newState => {
-  persistedAppearance = newState.appearance;
-  persistedIntegrations = newState.integrations;
-  persistedLastFM = newState.lastfm;
-
   disableHardwareAcceleration.value = newState.general.disableHardwareAcceleration;
   hideToTrayOnClose.value = newState.general.hideToTrayOnClose;
   showNotificationOnSongChange.value = newState.general.showNotificationOnSongChange;
@@ -217,7 +210,6 @@ async function settingsChanged() {
       disableHardwareAcceleration: disableHardwareAcceleration.value
     },
     appearance: {
-      ...persistedAppearance,
       alwaysShowVolumeSlider: alwaysShowVolumeSlider.value,
       centeredPlayerControls: centeredPlayerControls.value,
       customCSSEnabled: customCSSEnabled.value,
@@ -234,7 +226,6 @@ async function settingsChanged() {
       ratioVolume: ratioVolume.value
     },
     integrations: {
-      ...persistedIntegrations,
       companionServerEnabled: companionServerEnabled.value,
       companionServerCORSWildcardEnabled: companionServerCORSWildcardEnabled.value,
       discordPresenceEnabled: discordPresenceEnabled.value,
@@ -261,7 +252,6 @@ async function settingsChanged() {
       navigateForward: shortcutNavigateForward.value
     },
     lastfm: {
-      ...persistedLastFM,
       scrobblePercent: scrobblePercent.value
     }
   });

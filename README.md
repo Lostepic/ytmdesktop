@@ -47,7 +47,8 @@ Download the current maintained version from [GitHub Releases](https://github.co
 | Platform | Download | Installation |
 | --- | --- | --- |
 | Windows x64 | `YTM.Desktop-<version>.Setup.exe` | Run the Squirrel installer. Updates are delivered automatically from this repository. |
-| macOS x64 | `YTM.Desktop-darwin-x64-<version>.zip` | Extract the archive and move YTM Desktop to Applications. The build is currently unsigned. |
+| macOS Apple Silicon | `YTM.Desktop-darwin-arm64-<version>.zip` | Native build for M1, M2, M3, M4, and later Apple Silicon Macs. Extract it and move YTM Desktop to Applications. |
+| macOS Intel | `YTM.Desktop-darwin-x64-<version>.zip` | Intel build for older Macs. Apple Silicon users should not use this Rosetta build. |
 | Debian/Ubuntu x64 | `youtube-music-desktop-app_<version>_amd64.deb` | Install with your graphical package manager or `sudo apt install ./<file>.deb`. |
 | Fedora/RHEL x64 | `youtube-music-desktop-app-<version>-1.x86_64.rpm` | Install with your graphical package manager or `sudo dnf install ./<file>.rpm`. |
 
@@ -56,6 +57,8 @@ Download the current maintained version from [GitHub Releases](https://github.co
 Installers are published as GitHub **Release assets**, so the repository's **Packages** section is intentionally empty. GitHub Packages is a registry for reusable libraries and container images; it is not the download location for this desktop application.
 
 The Windows installer is currently unsigned, so Microsoft Defender SmartScreen may show an unknown-publisher warning. Removing that warning requires release signing with a publicly trusted Windows code-signing certificate; never bypass security warnings for installers downloaded anywhere other than this repository's Releases page.
+
+The macOS archives are currently unsigned. On first launch, macOS may require **Control-click → Open**. Apple Silicon users should download the `arm64` archive to avoid Rosetta translation and its additional CPU and memory overhead.
 
 The build badge reports validation of the protected `main` branch. Version tags build all platforms in parallel and publish every installer and archive directly to the matching GitHub Release.
 

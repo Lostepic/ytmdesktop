@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.2 — Native Apple Silicon support
+
+- Add a native macOS ARM64 package for M-series Macs instead of requiring Rosetta.
+- Keep a separate macOS x64 archive for Intel hardware.
+- Validate Intel and Apple Silicon packages independently in pull requests and release builds.
+- Document the correct architecture-specific download names and unsigned macOS launch behavior.
+
 ## 3.1.1 — Runtime maintenance
 
 - Update Electron from 40.8.5 to 40.10.6 after full Windows, macOS, and Linux packaging validation.

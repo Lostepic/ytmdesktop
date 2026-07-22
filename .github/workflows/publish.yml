@@ -18,17 +18,23 @@ permissions:
 
 jobs:
   build:
-    name: Build release (${{ matrix.os }})
+    name: Build release (${{ matrix.artifact }})
     strategy:
       fail-fast: true
       matrix:
         include:
           - os: ubuntu-latest
-            artifact: linux
+            arch: x64
+            artifact: linux-x64
           - os: windows-latest
-            artifact: windows
+            arch: x64
+            artifact: windows-x64
           - os: macos-latest
-            artifact: macos
+            arch: x64
+            artifact: macos-x64
+          - os: macos-latest
+            arch: arm64
+            artifact: macos-arm64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     steps:
@@ -38,7 +44,7 @@ jobs:
           node-version: 22
       - run: corepack enable
       - run: yarn install --immutable
-      - run: yarn make --arch x64
+      - run: yarn make --arch ${{ matrix.arch }}
       - uses: actions/upload-artifact@v7
         with:
           name: release-${{ matrix.artifact }}

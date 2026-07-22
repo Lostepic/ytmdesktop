@@ -30,18 +30,24 @@ jobs:
       - run: yarn check
 
   package:
-    name: Package (${{ matrix.os }})
+    name: Package (${{ matrix.artifact }})
     needs: quality
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
-            artifact: linux
+            arch: x64
+            artifact: linux-x64
           - os: windows-latest
-            artifact: windows
+            arch: x64
+            artifact: windows-x64
           - os: macos-latest
-            artifact: macos
+            arch: x64
+            artifact: macos-x64
+          - os: macos-latest
+            arch: arm64
+            artifact: macos-arm64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
@@ -51,7 +57,7 @@ jobs:
           node-version: 22
       - run: corepack enable
       - run: yarn install --immutable
-      - run: yarn package
+      - run: yarn package --arch ${{ matrix.arch }}
       - uses: actions/upload-artifact@v7
         with:
           name: package-${{ matrix.artifact }}

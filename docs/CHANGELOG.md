@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.1.4 — Faster startup and navigation
+
+- Start YouTube Music immediately instead of blocking it behind the release-feed update check.
+- Display the embedded player as soon as its DOM is ready while integrations continue initializing.
+- Run independent player hooks and settings reads concurrently.
+- Apply the visual shell earlier to avoid exposing an unstyled page during startup.
+- Remove high-volume renderer and Electron event forwarding from production navigation paths.
+- Refresh the compatible Material Symbols and Vue TypeScript tooling dependencies.
+
 ## 3.1.3 — macOS bundle integrity
 
 - Re-sign the completed macOS application after Electron fuses are applied.

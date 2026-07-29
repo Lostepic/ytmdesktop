@@ -66,6 +66,8 @@ The build badge reports validation of the protected `main` branch. Version tags 
 
 Version 3.1 focuses on dependency, security, and release reliability:
 
+- Starts and reveals YouTube Music earlier by running update checks and independent integrations concurrently.
+- Reduces production navigation overhead by avoiding high-volume renderer and Electron event logging.
 - Updated compatible production and development dependencies.
 - Applied security updates for `engine.io` and `js-yaml`.
 - Preserved Stream Deck and companion-server compatibility through the Conf and Fastify upgrades.

@@ -437,13 +437,17 @@ function getYTMTextRun(runs: { text: string }[]) {
   )();
 })();
 
-window.addEventListener("load", async () => {
+window.addEventListener("DOMContentLoaded", async () => {
   if (window.location.hostname !== "music.youtube.com") {
     if (window.location.hostname === "consent.youtube.com" || window.location.hostname === "accounts.google.com") {
       ipcRenderer.send("ytmView:loaded");
     }
     return;
   }
+
+  // Apply the lightweight visual shell immediately. Player and integration
+  // hooks can finish in the background without exposing an unstyled page.
+  createStyleSheet();
 
   const hooked = await waitForCondition(async () => {
     return (
@@ -478,19 +482,19 @@ window.addEventListener("load", async () => {
     return;
   }
 
-  createStyleSheet();
   createNavigationMenuArrows();
   createKeyboardNavigation();
-  await createAdditionalPlayerBarControls();
-  await hideChromecastButton();
-  await hookPlayerApiEvents();
+  await Promise.all([createAdditionalPlayerBarControls(), hideChromecastButton(), hookPlayerApiEvents()]);
   overrideHistoryButtonDisplay();
 
-  const integrationScripts: { [integrationName: string]: { [scriptName: string]: string } } = await ipcRenderer.invoke("ytmView:getIntegrationScripts");
-
-  const state = await store.get("state");
-  const continueWhereYouLeftOff = (await store.get("playback")).continueWhereYouLeftOff;
-  let volumeDelta = Number((await store.get("shortcuts")).volumeDelta ?? 10);
+  const [integrationScripts, state, playback, shortcuts] = await Promise.all([
+    ipcRenderer.invoke("ytmView:getIntegrationScripts") as Promise<{ [integrationName: string]: { [scriptName: string]: string } }>,
+    store.get("state"),
+    store.get("playback"),
+    store.get("shortcuts")
+  ]);
+  const continueWhereYouLeftOff = playback.continueWhereYouLeftOff;
+  let volumeDelta = Number(shortcuts.volumeDelta ?? 10);
   store.onDidAnyChange(newState => {
     volumeDelta = Number(newState.shortcuts.volumeDelta ?? 10);
   });

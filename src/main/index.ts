@@ -86,7 +86,10 @@ log.hooks.push((message, transport) => {
 
 log.initialize({
   preload: true,
-  spyRendererConsole: true
+  // YouTube Music emits a large volume of renderer console traffic while
+  // navigating. Forward it during development, but keep production page
+  // transitions off the main-process IPC and disk-log hot path.
+  spyRendererConsole: !app.isPackaged
 });
 // Handle logs and errors
 log.errorHandler.startCatching({
@@ -143,7 +146,7 @@ log.errorHandler.startCatching({
     }
   }
 });
-log.eventLogger.startLogging();
+if (!app.isPackaged) log.eventLogger.startLogging();
 
 Object.assign(console, log.functions);
 //#endregion  Crash + Error reporting
@@ -194,6 +197,7 @@ let lastPlaylistId = "";
 let companionAuthWindowEnableTimeout: NodeJS.Timeout | null = null;
 let ytmViewLoadTimeout: NodeJS.Timeout | null = null;
 let ytmViewBoundsUpdateScheduled = false;
+let ytmViewAttached = false;
 
 // Single Instances Lock
 const gotTheLock = app.requestSingleInstanceLock();
@@ -1119,6 +1123,7 @@ function isPreventedNavOrRedirect(url: URL): boolean {
 }
 
 const createYTMView = (): void => {
+  ytmViewAttached = false;
   memoryStore.set("ytmViewLoadTimedout", false);
   memoryStore.set("ytmViewLoading", true);
   memoryStore.set("ytmViewLoadingStatus", "Initializing...");
@@ -1267,6 +1272,8 @@ const createYTMView = (): void => {
   });
 
   // Loading status event handlers
+  ytmView.webContents.on("dom-ready", showYTMView);
+
   ytmView.webContents.on("did-start-loading", () => {
     memoryStore.set("ytmViewLoadingStatus", "Loading YouTube Music...");
   });
@@ -1324,6 +1331,21 @@ function updateYTMViewBounds(): void {
   });
 }
 
+function showYTMView(): void {
+  if (!mainWindow || !ytmView || mainWindow.isDestroyed() || ytmView.webContents.isDestroyed()) return;
+
+  memoryStore.set("ytmViewLoading", false);
+  if (ytmViewLoadTimeout) {
+    clearTimeout(ytmViewLoadTimeout);
+    ytmViewLoadTimeout = null;
+  }
+  if (!ytmViewAttached) {
+    mainWindow.contentView.addChildView(ytmView);
+    ytmViewAttached = true;
+  }
+  updateYTMViewBounds();
+}
+
 function scheduleYTMViewBoundsUpdate(): void {
   if (ytmViewBoundsUpdateScheduled) return;
 
@@ -1344,6 +1366,7 @@ function disposeYTMView(): void {
     ytmView.webContents.close();
   }
   ytmView = null;
+  ytmViewAttached = false;
 }
 
 const createMainWindow = (): void => {
@@ -1711,10 +1734,7 @@ app.on("ready", async () => {
     if (ytmView !== null && mainWindow !== null) {
       if (event.sender !== ytmView.webContents) return;
 
-      memoryStore.set("ytmViewLoading", false);
-      clearTimeout(ytmViewLoadTimeout);
-      mainWindow.contentView.addChildView(ytmView);
-      updateYTMViewBounds();
+      showYTMView();
       if (store.get("developer.enableDevTools")) {
         ytmView.webContents.openDevTools({
           mode: "detach"
@@ -2041,25 +2061,12 @@ app.on("ready", async () => {
   log.info("Created main window");
 
   memoryStore.set("ytmViewLoading", true);
-  memoryStore.set("ytmViewLoadingStatus", "Checking for updates...");
+  memoryStore.set("ytmViewLoadingStatus", "Initializing YouTube Music...");
 
-  // Check for application updates
+  // Update checks are independent of the player. Never hold the YouTube Music
+  // renderer behind network or release-feed latency.
   if (app.isPackaged && !shouldDisableUpdates() && !YTMD_DISABLE_UPDATES) {
     void checkForUpdatesFromFork();
-    await new Promise<void>(resolve => {
-      const timeout = setTimeout(() => {
-        clearInterval(interval);
-        appLaunchUpdateCheck = false;
-        resolve();
-      }, 30_000);
-      const interval = setInterval(() => {
-        if (!appLaunchUpdateCheck) {
-          clearTimeout(timeout);
-          clearInterval(interval);
-          resolve();
-        }
-      }, 250);
-    });
   } else {
     appLaunchUpdateCheck = false;
   }

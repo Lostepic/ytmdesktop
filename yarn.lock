@@ -6782,9 +6782,9 @@ __metadata:
   linkType: hard
 
 "material-symbols@npm:^0.45.8":
-  version: 0.45.8
-  resolution: "material-symbols@npm:0.45.8"
-  checksum: 10c0/bc95c36a46f751be625577c38a1c4e6ea77fe5f5c40f4e82b2e01434ed31023569355adedf2a13bbc4934003f734170a29099a2fb438f82e32a804225c1dfc31
+  version: 0.45.9
+  resolution: "material-symbols@npm:0.45.9"
+  checksum: 10c0/d8e0f5d1aa2960b7e7a3b6bd6a1caa1524b6a20aca63f4937dadab00e8e6e2b59ec3ce5b9cf0730e76b5da824b9b5c6eb2a7713f3e7f79c5835ed60dcb9b1bfe
   languageName: node
   linkType: hard
 

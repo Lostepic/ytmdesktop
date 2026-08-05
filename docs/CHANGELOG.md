@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.6 — Repository access
+
+- Add a direct GitHub repository button to Settings → About.
+- Open the maintained repository safely in the system browser through the isolated Electron bridge.
+- Revalidate Dependabot, dependency review, CodeQL, and cross-platform pull-request checks.
+
 ## 3.1.5 — Stream Deck control reliability
 
 - Register remote-control commands before optional YouTube Music interface enhancements can run.

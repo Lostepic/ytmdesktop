@@ -1931,6 +1931,12 @@ app.on("ready", async () => {
     return app.getVersion();
   });
 
+  ipcMain.on("app:openRepository", event => {
+    if (!settingsWindow || event.sender !== settingsWindow.webContents) return;
+
+    void shell.openExternal(`https://github.com/${YTMD_UPDATE_FEED_OWNER}/${YTMD_UPDATE_FEED_REPOSITORY}`);
+  });
+
   ipcMain.on("app:checkForUpdates", event => {
     if (event.sender !== settingsWindow.webContents) return;
 

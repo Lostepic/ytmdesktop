@@ -45,6 +45,7 @@ declare global {
 
       // App specific
       getAppVersion(): Promise<string>;
+      openRepository(): void;
       checkForUpdates(): void;
       handleCheckingForUpdate(callback: (event: Electron.IpcRendererEvent) => void);
       handleUpdateAvailable(callback: (event: Electron.IpcRendererEvent) => void);

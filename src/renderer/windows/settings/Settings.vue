@@ -373,6 +373,10 @@ function checkForUpdates() {
   checkingForUpdate.value = true;
 }
 
+function openRepository() {
+  window.ytmd.openRepository();
+}
+
 async function logoutLastFM() {
   store.set("lastfm.sessionKey", null);
   lastFMEnabled.value = false;
@@ -873,6 +877,7 @@ window.ytmd.handleUpdateDownloaded(() => {
           <img class="icon" :src="logo" />
           <h2 class="app-name">YTM Desktop</h2>
           <p class="made-by">Created and maintained by AaranCloud</p>
+          <button class="repository-button" @click="openRepository"><span class="material-symbols-outlined">code</span>View source on GitHub</button>
           <template v-if="!autoUpdaterDisabled">
             <button
               v-if="!updateDownloaded"
@@ -1250,7 +1255,8 @@ window.ytmd.handleUpdateDownloaded(() => {
   cursor: pointer;
 }
 
-.update-check-button {
+.update-check-button,
+.repository-button {
   display: flex;
   align-items: center;
   background-color: transparent;
@@ -1259,6 +1265,10 @@ window.ytmd.handleUpdateDownloaded(() => {
   padding: 4px 8px;
   margin-bottom: 8px;
   cursor: pointer;
+}
+
+.repository-button {
+  color: #ffffff;
 }
 
 .update-check-button:disabled {
@@ -1306,6 +1316,7 @@ window.ytmd.handleUpdateDownloaded(() => {
 }
 
 .update-check-button .material-symbols-outlined,
+.repository-button .material-symbols-outlined,
 .updating .material-symbols-outlined,
 .update-button .material-symbols-outlined {
   margin-right: 4px;

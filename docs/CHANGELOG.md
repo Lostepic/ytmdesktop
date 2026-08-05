@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.5 — Stream Deck control reliability
+
+- Register remote-control commands before optional YouTube Music interface enhancements can run.
+- Queue early Stream Deck commands until the player API is ready, then replay them in order.
+- Isolate optional interface hooks so a changed YouTube Music selector cannot disable playback controls.
+- Refresh compatible production dependencies and security-patched transitive dependencies.
+
 ## 3.1.4 — Faster startup and navigation
 
 - Start YouTube Music immediately instead of blocking it behind the release-feed update check.

@@ -66,16 +66,19 @@ The build badge reports validation of the protected `main` branch. Version tags 
 
 Version 3.1 focuses on dependency, security, and release reliability:
 
+- Restores reliable Stream Deck playback controls by registering commands before optional interface enhancements and queueing commands until the player is ready.
+- Adds direct access to the maintained GitHub repository from **Settings → About**.
 - Starts and reveals YouTube Music earlier by running update checks and independent integrations concurrently.
 - Reduces production navigation overhead by avoiding high-volume renderer and Electron event logging.
-- Updated compatible production and development dependencies.
-- Applied security updates for `engine.io` and `js-yaml`.
+- Updates compatible production, development, and transitive dependencies, including security fixes for `engine.io` and `js-yaml`.
 - Preserved Stream Deck and companion-server compatibility through the Conf and Fastify upgrades.
 - Added grouped Dependabot updates with guarded patch/minor automation.
 - Added required CodeQL, dependency-review, ownership, quality, and cross-platform packaging checks.
 - Established `main` as the protected default and stable release branch.
 - Kept Windows, macOS, Debian/Ubuntu, and Fedora/RHEL downloads together on GitHub Releases.
 - Deferred incompatible toolchain majors until they can receive a dedicated migration and regression cycle.
+
+The current 3.1.6 maintenance release includes the repository shortcut and all Stream Deck, startup, native Apple Silicon, packaging, updater, and dependency improvements delivered throughout the 3.1 series.
 
 ## What changed in 3.0
 

@@ -347,7 +347,8 @@ function createNavigationMenuArrows() {
   if (!pivotBar) {
     // New YTM UI
     const searchBar = document.querySelector("ytmusic-search-box");
-    const navBar = searchBar.parentNode;
+    const navBar = searchBar?.parentNode;
+    if (!searchBar || !navBar) return;
     navBar.insertBefore(historyForwardElement, searchBar);
     navBar.insertBefore(historyBackElement, historyForwardElement);
   } else {
@@ -387,7 +388,7 @@ async function hookPlayerApiEvents() {
 }
 
 function overrideHistoryButtonDisplay() {
-  document.querySelector<HTMLElement>("#history-link .history-button").style = "display: inline-block !important;";
+  document.querySelector<HTMLElement>("#history-link .history-button")?.style.setProperty("display", "inline-block", "important");
 }
 
 function setCenteredPlayerControls(enabled: boolean) {
@@ -445,6 +446,20 @@ window.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  let playerControlsReady = false;
+  let volumeDelta = 10;
+  const pendingRemoteCommands: Array<{ command: string; value: unknown }> = [];
+  ipcRenderer.on("remoteControl:execute", (_event, command: string, value: unknown) => {
+    if (!playerControlsReady) {
+      // Stream Deck can reconnect before YouTube's player API is ready. Keep a
+      // small ordered queue instead of silently dropping those button presses.
+      if (pendingRemoteCommands.length >= 32) pendingRemoteCommands.shift();
+      pendingRemoteCommands.push({ command, value });
+      return;
+    }
+    void executeRemoteCommand(command, value).catch((): void => {});
+  });
+
   // Apply the lightweight visual shell immediately. Player and integration
   // hooks can finish in the background without exposing an unstyled page.
   createStyleSheet();
@@ -482,9 +497,18 @@ window.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  playerControlsReady = true;
+  for (const pendingCommand of pendingRemoteCommands.splice(0)) {
+    try {
+      await executeRemoteCommand(pendingCommand.command, pendingCommand.value);
+    } catch {
+      // A stale command must not prevent the remaining integrations from loading.
+    }
+  }
+
   createNavigationMenuArrows();
   createKeyboardNavigation();
-  await Promise.all([createAdditionalPlayerBarControls(), hideChromecastButton(), hookPlayerApiEvents()]);
+  await Promise.allSettled([createAdditionalPlayerBarControls(), hideChromecastButton(), hookPlayerApiEvents()]);
   overrideHistoryButtonDisplay();
 
   const [integrationScripts, state, playback, shortcuts] = await Promise.all([
@@ -494,7 +518,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     store.get("shortcuts")
   ]);
   const continueWhereYouLeftOff = playback.continueWhereYouLeftOff;
-  let volumeDelta = Number(shortcuts.volumeDelta ?? 10);
+  volumeDelta = Number(shortcuts.volumeDelta ?? 10);
   store.onDidAnyChange(newState => {
     volumeDelta = Number(newState.shortcuts.volumeDelta ?? 10);
   });
@@ -551,13 +575,13 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   const alwaysShowVolumeSlider = (await store.get("appearance")).alwaysShowVolumeSlider;
   if (alwaysShowVolumeSlider) {
-    document.querySelector("ytmusic-app-layout>ytmusic-player-bar #volume-slider").classList.add("ytmd-persist-volume-slider");
+    document.querySelector("ytmusic-app-layout>ytmusic-player-bar #volume-slider")?.classList.add("ytmd-persist-volume-slider");
   }
   setCenteredPlayerControls((await store.get("appearance")).centeredPlayerControls ?? false);
   const initialAppearance = await store.get("appearance");
   applyAppearance(initialAppearance.themePreset ?? 0, initialAppearance.compactMode ?? false);
 
-  ipcRenderer.on("remoteControl:execute", async (_event, command, value) => {
+  async function executeRemoteCommand(command: string, value: unknown): Promise<void> {
     switch (command) {
       case "playPause": {
         (
@@ -667,7 +691,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       }
 
       case "setVolume": {
-        const valueInt: number = parseInt(value);
+        const valueInt = Number(value);
         // Check if Volume is a number and between 0 and 100
         if (isNaN(valueInt) || valueInt < 0 || valueInt > 100) {
           return;
@@ -737,7 +761,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         break;
 
       case "playQueueIndex": {
-        const index: number = parseInt(value);
+        const index = Number(value);
 
         (
           await webFrame.executeJavaScript(`
@@ -796,7 +820,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         break;
       }
     }
-  });
+  }
 
   ipcRenderer.on("ytmView:getPlaylists", async (_event, requestId) => {
     const rawPlaylists = await (await webFrame.executeJavaScript(getPlaylistsScript))();

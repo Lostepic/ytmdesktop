@@ -916,13 +916,14 @@ __metadata:
   linkType: hard
 
 "@fastify/rate-limit@npm:^11.1.0":
-  version: 11.1.0
-  resolution: "@fastify/rate-limit@npm:11.1.0"
+  version: 11.2.0
+  resolution: "@fastify/rate-limit@npm:11.2.0"
   dependencies:
     "@lukeed/ms": "npm:^2.0.2"
     fastify-plugin: "npm:^6.0.0"
+    ip-address: "npm:^10.2.0"
     toad-cache: "npm:^3.7.0"
-  checksum: 10c0/06813270d1a2af17d73e0f7715caaa534c3ecbabf8fda30b8d6aba025efe420f6b9318ec83571ca3b420085f77e9c34d3706ae96616c959f03b29efda12ebf6c
+  checksum: 10c0/f782431e2b3a1374cfb042e978789b0f2b1409c058d8ade40c8968c2728b8bcc185a808a2dad011ed9b1e746a9f9f810fa68fc01affb46cfbfc714a55c7b7f05
   languageName: node
   linkType: hard
 
@@ -4906,9 +4907,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify@npm:5.10.0":
-  version: 5.10.0
-  resolution: "fastify@npm:5.10.0"
+"fastify@npm:5.11.0":
+  version: 5.11.0
+  resolution: "fastify@npm:5.11.0"
   dependencies:
     "@fastify/ajv-compiler": "npm:^4.0.5"
     "@fastify/error": "npm:^4.0.0"
@@ -4925,7 +4926,7 @@ __metadata:
     secure-json-parse: "npm:^4.0.0"
     semver: "npm:^7.6.0"
     toad-cache: "npm:^3.7.0"
-  checksum: 10c0/02b34326413cb4fd69e9cb8f6e0f043a867abd975e6db07384073a5f04ff05e9b51b4c6e1345c61bcd53f62f60b0d6018a00bab49088ab76a51cbf63fc961f85
+  checksum: 10c0/baca681a07272e7483ab453d4ef4df645c7512ac74162ef25190bb6e303ba115d009a349dd242a86d2cf8f931334bd31e89bb4e8f12a25d453076829cf149d27
   languageName: node
   linkType: hard
 
@@ -5847,6 +5848,13 @@ __metadata:
   version: 3.1.1
   resolution: "interpret@npm:3.1.1"
   checksum: 10c0/6f3c4d0aa6ec1b43a8862375588a249e3c917739895cbe67fe12f0a76260ea632af51e8e2431b50fbcd0145356dc28ca147be08dbe6a523739fd55c0f91dc2a5
+  languageName: node
+  linkType: hard
+
+"ip-address@npm:^10.2.0":
+  version: 10.4.0
+  resolution: "ip-address@npm:10.4.0"
+  checksum: 10c0/d7b0bd2624fd861afbae6e49036a9b56f9506eaff7ff38592b7b4492dd5c272b53f5356dc8cc019e318acf29a96c90a3d1af1df761960267d23efa96858270fa
   languageName: node
   linkType: hard
 
@@ -6782,9 +6790,9 @@ __metadata:
   linkType: hard
 
 "material-symbols@npm:^0.45.8":
-  version: 0.45.9
-  resolution: "material-symbols@npm:0.45.9"
-  checksum: 10c0/d8e0f5d1aa2960b7e7a3b6bd6a1caa1524b6a20aca63f4937dadab00e8e6e2b59ec3ce5b9cf0730e76b5da824b9b5c6eb2a7713f3e7f79c5835ed60dcb9b1bfe
+  version: 0.45.10
+  resolution: "material-symbols@npm:0.45.10"
+  checksum: 10c0/ba9c5af4c0030b5ca2f01c275ebdd40b062d0024fbc105b33599393c56de59e9e59884cf631eaa140b0e053d76a53334d57acca053e8250613331ae998bbc610
   languageName: node
   linkType: hard
 
@@ -10224,7 +10232,7 @@ __metadata:
     eslint-import-resolver-typescript: "npm:^3.10.1"
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-vue: "npm:^9.33.0"
-    fastify: "npm:5.10.0"
+    fastify: "npm:5.11.0"
     husky: "npm:^9.1.7"
     lint-staged: "npm:^15.5.2"
     material-symbols: "npm:^0.45.8"

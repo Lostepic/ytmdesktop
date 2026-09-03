@@ -50,6 +50,7 @@ declare global {
       handleCheckingForUpdate(callback: (event: Electron.IpcRendererEvent) => void);
       handleUpdateAvailable(callback: (event: Electron.IpcRendererEvent) => void);
       handleUpdateNotAvailable(callback: (event: Electron.IpcRendererEvent) => void);
+      handleUpdateError(callback: (event: Electron.IpcRendererEvent) => void);
       handleUpdateDownloaded(callback: (event: Electron.IpcRendererEvent) => void);
       isAppUpdateAvailable(): Promise<boolean>;
       isAppUpdateDownloaded(): Promise<boolean>;

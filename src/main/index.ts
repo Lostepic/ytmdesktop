@@ -284,29 +284,15 @@ async function checkForUpdatesFromFork(): Promise<void> {
   updateCheckInProgress = true;
 
   try {
-    const response = await fetch(`https://api.github.com/repos/${YTMD_UPDATE_FEED_OWNER}/${YTMD_UPDATE_FEED_REPOSITORY}/releases/latest`, {
-      signal: AbortSignal.timeout(10_000),
-      headers: {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": `YTM-Desktop/${app.getVersion()}`
-      }
-    });
-    if (!response.ok) throw new Error(`GitHub release lookup returned HTTP ${response.status}`);
-
-    const release = (await response.json()) as { tag_name?: unknown };
-    if (typeof release.tag_name !== "string" || !/^v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(release.tag_name)) {
-      throw new Error("GitHub returned an invalid release tag");
-    }
-
     autoUpdater.setFeedURL({
-      url: `https://github.com/${YTMD_UPDATE_FEED_OWNER}/${YTMD_UPDATE_FEED_REPOSITORY}/releases/download/${release.tag_name}`
+      url: `https://github.com/${YTMD_UPDATE_FEED_OWNER}/${YTMD_UPDATE_FEED_REPOSITORY}/releases/latest/download`
     });
     autoUpdater.checkForUpdates();
   } catch (error) {
     updateCheckInProgress = false;
-    log.warn("Unable to check the fork release feed", error);
+    log.warn("Unable to check the release feed", error);
     appLaunchUpdateCheck = false;
-    if (settingsWindow && !settingsWindow.webContents.isDestroyed()) settingsWindow.webContents.send("app:updateNotAvailable");
+    if (settingsWindow && !settingsWindow.webContents.isDestroyed()) settingsWindow.webContents.send("app:updateError");
   }
 }
 
@@ -341,7 +327,7 @@ if (app.isPackaged && !shouldDisableUpdates() && !YTMD_DISABLE_UPDATES) {
     updateCheckInProgress = false;
     log.warn("Application update check failed", error);
     if (appLaunchUpdateCheck) appLaunchUpdateCheck = false;
-    if (settingsWindow) settingsWindow.webContents.send("app:updateNotAvailable");
+    if (settingsWindow && !settingsWindow.webContents.isDestroyed()) settingsWindow.webContents.send("app:updateError");
   });
   log.info("Setup application updater");
 

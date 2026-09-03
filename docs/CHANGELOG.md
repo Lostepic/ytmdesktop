@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.2.2 — Windows update reliability
+
+- Read Squirrel update metadata from GitHub's stable latest-release download URL without consuming the unauthenticated Releases API quota.
+- Report update-check failures separately from the valid already-current result.
+- Preserve automatic download and restart-to-install behaviour for installed Windows builds.
+
 ## 3.2.1 — Transitive dependency hardening
 
 - Update Fastify's JSON serializer compiler so the obsolete serializer and vulnerable `fast-uri` 2.x tree are removed.

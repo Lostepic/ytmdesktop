@@ -56,6 +56,7 @@ const requiresRestart = ref(false);
 const checkingForUpdate = ref(false);
 const updateAvailable = ref(initialUpdateAvailable);
 const updateNotAvailable = ref(false);
+const updateError = ref(false);
 const updateDownloaded = ref(initialUpdateDownloaded);
 
 const safeStorageAvailable = ref<boolean>(initialSafeStorageAvailable);
@@ -384,6 +385,8 @@ function restartApplicationForUpdate() {
 }
 
 function checkForUpdates() {
+  updateNotAvailable.value = false;
+  updateError.value = false;
   window.ytmd.checkForUpdates();
   checkingForUpdate.value = true;
 }
@@ -401,24 +404,35 @@ async function logoutLastFM() {
 
 window.ytmd.handleCheckingForUpdate(() => {
   checkingForUpdate.value = true;
+  updateError.value = false;
 });
 
 window.ytmd.handleUpdateAvailable(() => {
   checkingForUpdate.value = false;
   updateAvailable.value = true;
   updateNotAvailable.value = false;
+  updateError.value = false;
 });
 
 window.ytmd.handleUpdateNotAvailable(() => {
   checkingForUpdate.value = false;
   updateNotAvailable.value = true;
   updateAvailable.value = false;
+  updateError.value = false;
+});
+
+window.ytmd.handleUpdateError(() => {
+  checkingForUpdate.value = false;
+  updateNotAvailable.value = false;
+  updateAvailable.value = false;
+  updateError.value = true;
 });
 
 window.ytmd.handleUpdateDownloaded(() => {
   checkingForUpdate.value = false;
   updateNotAvailable.value = false;
   updateAvailable.value = false;
+  updateError.value = false;
   updateDownloaded.value = true;
 });
 </script>
@@ -912,6 +926,7 @@ window.ytmd.handleUpdateDownloaded(() => {
               <span class="material-symbols-outlined">progress_activity</span>Downloading update...
             </p>
             <p v-if="updateNotAvailable" class="no-update">Update not available</p>
+            <p v-if="updateError" class="update-error">Update check failed. Try again or download the latest release from GitHub.</p>
           </template>
           <template v-if="autoUpdaterDisabled">
             <button disabled class="update-check-button"><span class="material-symbols-outlined">update</span>Check for updates</button>
@@ -1292,7 +1307,8 @@ window.ytmd.handleUpdateDownloaded(() => {
 }
 
 .updating,
-.no-update {
+.no-update,
+.update-error {
   display: flex;
   align-items: center;
   color: #888888;

@@ -23,19 +23,19 @@
   <img src="screenshots/player-home.png" alt="YTM Desktop home screen" width="900">
 </p>
 
-| Now playing | Integrations and devices |
-| --- | --- |
+| Now playing                                                                  | Integrations and devices                                                                  |
+| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | <img src="screenshots/now-playing.png" alt="YTM Desktop now-playing screen"> | <img src="screenshots/settings-integrations.png" alt="YTM Desktop integrations settings"> |
 
 <details>
 <summary>More settings screens</summary>
 
-| Playback | Keyboard shortcuts |
-| --- | --- |
+| Playback                                                                          | Keyboard shortcuts                                                                          |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | <img src="screenshots/settings-playback.png" alt="YTM Desktop playback settings"> | <img src="screenshots/settings-shortcuts.png" alt="YTM Desktop keyboard shortcut settings"> |
 
-| General | Authorized companions |
-| --- | --- |
+| General                                                                         | Authorized companions                                                                                      |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | <img src="screenshots/settings-general.png" alt="YTM Desktop general settings"> | <img src="screenshots/settings-authorized-companions.png" alt="YTM Desktop authorized companion settings"> |
 
 </details>
@@ -44,13 +44,13 @@
 
 Download the current maintained version from [GitHub Releases](https://github.com/Lostepic/ytmdesktop/releases/latest). Every release is built for Windows, macOS, and Linux.
 
-| Platform | Download | Installation |
-| --- | --- | --- |
-| Windows x64 | `YTM.Desktop-<version>.Setup.exe` | Run the Squirrel installer. Updates are delivered automatically from this repository. |
-| macOS Apple Silicon | `YTM.Desktop-darwin-arm64-<version>.zip` | Native build for M1, M2, M3, M4, and later Apple Silicon Macs running macOS 13 or newer. Extract it and move YTM Desktop to Applications. |
-| macOS Intel | `YTM.Desktop-darwin-x64-<version>.zip` | Intel build for macOS 13 or newer. Apple Silicon users should not use this Rosetta build. |
-| Debian/Ubuntu x64 | `youtube-music-desktop-app_<version>_amd64.deb` | Install with your graphical package manager or `sudo apt install ./<file>.deb`. |
-| Fedora/RHEL x64 | `youtube-music-desktop-app-<version>-1.x86_64.rpm` | Install with your graphical package manager or `sudo dnf install ./<file>.rpm`. |
+| Platform            | Download                                           | Installation                                                                                                                              |
+| ------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Windows x64         | `YTM.Desktop-<version>.Setup.exe`                  | Run the Squirrel installer. Updates are delivered automatically from this repository.                                                     |
+| macOS Apple Silicon | `YTM.Desktop-darwin-arm64-<version>.zip`           | Native build for M1, M2, M3, M4, and later Apple Silicon Macs running macOS 13 or newer. Extract it and move YTM Desktop to Applications. |
+| macOS Intel         | `YTM.Desktop-darwin-x64-<version>.zip`             | Intel build for macOS 13 or newer. Apple Silicon users should not use this Rosetta build.                                                 |
+| Debian/Ubuntu x64   | `youtube-music-desktop-app_<version>_amd64.deb`    | Install with your graphical package manager or `sudo apt install ./<file>.deb`.                                                           |
+| Fedora/RHEL x64     | `youtube-music-desktop-app-<version>-1.x86_64.rpm` | Install with your graphical package manager or `sudo dnf install ./<file>.rpm`.                                                           |
 
 `RELEASES` and the `.nupkg` file are Windows automatic-update metadata, not manual installers.
 
@@ -69,6 +69,7 @@ Version 3.2 is a focused runtime, startup, and recovery release:
 - Moves the app to the supported Electron 44 runtime with its newer Chromium, Node.js, and platform fixes.
 - Loads Settings state concurrently instead of waiting on ten sequential IPC requests.
 - Deduplicates automatic and manual update checks and reports update progress reliably.
+- Reads the Windows update feed without consuming GitHub's unauthenticated API quota and distinguishes connection failures from an already-current installation.
 - Avoids enabling Squirrel updates in raw local packages that do not contain an updater.
 - Batches playback-state persistence, skips unchanged writes, and avoids sending state to destroyed renderers.
 - Makes YouTube Music renderer recovery safer after a crash.
@@ -172,7 +173,7 @@ Plugin manifests are read from the application data `plugins` directory. Only kn
 
 ## Updates
 
-Installed Windows builds resolve the exact latest tag from this repository's GitHub Releases API and then read Squirrel metadata from that version-specific release. Update ownership is fixed at `Lostepic/ytmdesktop` in both runtime and packaging configuration, so builds cannot accidentally follow the abandoned upstream repository or a stale update redirect. Raw developer packages leave the updater disabled because they do not contain Squirrel's update service.
+Installed Windows builds read Squirrel metadata through this repository's stable latest-release download URL, avoiding the rate-limited GitHub Releases API. Update ownership is fixed at `Lostepic/ytmdesktop` in both runtime and packaging configuration, so builds cannot accidentally follow the abandoned upstream repository. Raw developer packages leave the updater disabled because they do not contain Squirrel's update service.
 
 The update feed is verified against each Windows release: it offers the newest version to older clients and reports no update to clients already current. macOS automatic updates require code signing, while Linux updates continue through installed packages or GitHub Releases.
 

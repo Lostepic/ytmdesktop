@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.1 — Transitive dependency hardening
+
+- Update Fastify's JSON serializer compiler so the obsolete serializer and vulnerable `fast-uri` 2.x tree are removed.
+- Update Socket.IO's adapter and shared WebSocket implementation to their patched compatible releases.
+- Refresh AJV and all remaining compatible URI parsing resolutions.
+- Confirm the recursive production dependency audit completes with zero findings.
+
 ## 3.2.0 — Runtime, startup, and recovery
 
 - Move to the supported Electron 44 runtime and refresh compatible production, development, and security-patched transitive dependencies.

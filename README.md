@@ -75,6 +75,7 @@ Version 3.2 is a focused runtime, startup, and recovery release:
 - Handles companion-server startup and shutdown failures without bringing down the application.
 - Prevents Discord Rich Presence from becoming stuck after an empty track update or missing artwork.
 - Refreshes Fastify, Vue, Material Symbols, TypeScript tooling, and security-patched transitive dependencies.
+- Removes obsolete serializer and WebSocket dependency copies; the recursive production audit completes with zero findings.
 - Keeps Dependabot patch and minor updates gated by quality, CodeQL, dependency review, and four-platform packaging checks.
 
 ## What changed in 3.1

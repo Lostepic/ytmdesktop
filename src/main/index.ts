@@ -23,6 +23,7 @@ import Conf from "conf";
 import log from "electron-log";
 import path from "path";
 import fs from "fs/promises";
+import { existsSync } from "fs";
 import electronSquirrelStartup from "electron-squirrel-startup";
 
 import MemoryStore from "./memory-store";
@@ -54,6 +55,7 @@ let applicationQuitting = false;
 let appUpdateAvailable = false;
 let appUpdateDownloaded = false;
 let appLaunchUpdateCheck = true;
+let updateCheckInProgress = false;
 
 let stateSaverInterval: NodeJS.Timeout | null = null;
 
@@ -253,15 +255,15 @@ if (!app.isDefaultProtocolClient("ytmd")) {
 // Create the in-memory store for state within the UI
 const memoryStore = new MemoryStore<MemoryStoreSchema>();
 memoryStore.onStateChanged((newState, oldState) => {
-  if (mainWindow !== null) {
+  if (mainWindow !== null && !mainWindow.webContents.isDestroyed()) {
     mainWindow.webContents.send("memoryStore:stateChanged", newState, oldState);
   }
 
-  if (settingsWindow !== null) {
+  if (settingsWindow !== null && !settingsWindow.webContents.isDestroyed()) {
     settingsWindow.webContents.send("memoryStore:stateChanged", newState, oldState);
   }
 
-  if (ytmView !== null) {
+  if (ytmView !== null && !ytmView.webContents.isDestroyed()) {
     ytmView.webContents.send("memoryStore:stateChanged", newState, oldState);
   }
 });
@@ -271,9 +273,16 @@ function shouldDisableUpdates() {
   // macOS can't have auto updates without a code signature
   // The Electron update service used here supports the Windows release path only.
   if (process.platform !== "win32") return true;
+
+  // A raw Electron Forge package is useful for local testing but does not have
+  // Squirrel's Update.exe. Only enable autoUpdater in an installed build.
+  return !existsSync(path.resolve(path.dirname(process.execPath), "..", "Update.exe"));
 }
 
 async function checkForUpdatesFromFork(): Promise<void> {
+  if (appUpdateAvailable || appUpdateDownloaded || updateCheckInProgress) return;
+  updateCheckInProgress = true;
+
   try {
     const response = await fetch(`https://api.github.com/repos/${YTMD_UPDATE_FEED_OWNER}/${YTMD_UPDATE_FEED_REPOSITORY}/releases/latest`, {
       signal: AbortSignal.timeout(10_000),
@@ -294,9 +303,10 @@ async function checkForUpdatesFromFork(): Promise<void> {
     });
     autoUpdater.checkForUpdates();
   } catch (error) {
+    updateCheckInProgress = false;
     log.warn("Unable to check the fork release feed", error);
     appLaunchUpdateCheck = false;
-    if (settingsWindow) settingsWindow.webContents.send("app:updateNotAvailable");
+    if (settingsWindow && !settingsWindow.webContents.isDestroyed()) settingsWindow.webContents.send("app:updateNotAvailable");
   }
 }
 
@@ -305,9 +315,10 @@ async function checkForUpdatesFromFork(): Promise<void> {
 if (app.isPackaged && !shouldDisableUpdates() && !YTMD_DISABLE_UPDATES) {
   autoUpdater.on("checking-for-update", () => {
     if (appLaunchUpdateCheck) memoryStore.set("ytmViewLoadingStatus", "Checking for updates...");
-    if (settingsWindow) settingsWindow.webContents.send("app:checkingForUpdates");
+    if (settingsWindow && !settingsWindow.webContents.isDestroyed()) settingsWindow.webContents.send("app:checkingForUpdate");
   });
   autoUpdater.on("update-available", () => {
+    updateCheckInProgress = false;
     log.info("Application update available");
     memoryStore.set("appUpdateAvailable", true);
     appUpdateAvailable = true;
@@ -315,6 +326,7 @@ if (app.isPackaged && !shouldDisableUpdates() && !YTMD_DISABLE_UPDATES) {
     if (settingsWindow) settingsWindow.webContents.send("app:updateAvailable");
   });
   autoUpdater.on("update-not-available", () => {
+    updateCheckInProgress = false;
     if (appLaunchUpdateCheck) appLaunchUpdateCheck = false;
     if (settingsWindow) settingsWindow.webContents.send("app:updateNotAvailable");
   });
@@ -325,7 +337,9 @@ if (app.isPackaged && !shouldDisableUpdates() && !YTMD_DISABLE_UPDATES) {
     if (appLaunchUpdateCheck) autoUpdater.quitAndInstall();
     if (settingsWindow) settingsWindow.webContents.send("app:updateDownloaded");
   });
-  autoUpdater.on("error", () => {
+  autoUpdater.on("error", error => {
+    updateCheckInProgress = false;
+    log.warn("Application update check failed", error);
     if (appLaunchUpdateCheck) appLaunchUpdateCheck = false;
     if (settingsWindow) settingsWindow.webContents.send("app:updateNotAvailable");
   });
@@ -479,12 +493,17 @@ const store = new Conf<StoreSchema>({
     }
   }
 });
+const persistedState = store.get("state");
+lastUrl = persistedState.lastUrl;
+lastVideoId = persistedState.lastVideoId;
+lastPlaylistId = persistedState.lastPlaylistId;
+
 store.onDidAnyChange(async (newState, oldState) => {
-  if (settingsWindow !== null) {
+  if (settingsWindow !== null && !settingsWindow.webContents.isDestroyed()) {
     settingsWindow.webContents.send("settings:stateChanged", newState, oldState);
   }
 
-  if (ytmView !== null) {
+  if (ytmView !== null && !ytmView.webContents.isDestroyed()) {
     ytmView.webContents.send("settings:stateChanged", newState, oldState);
   }
 
@@ -629,10 +648,23 @@ if (store.get("playback").enableSpeakerFill) {
 }
 
 function saveState() {
-  store.set("state.lastUrl", lastUrl);
-  store.set("state.lastVideoId", lastVideoId);
-  store.set("state.lastPlaylistId", lastPlaylistId);
-  store.set("state.lastVideoProgress", playerStateStore.getState().videoProgress);
+  const currentState = store.get("state");
+  const nextState = {
+    ...currentState,
+    lastUrl,
+    lastVideoId,
+    lastPlaylistId,
+    lastVideoProgress: playerStateStore.getState().videoProgress
+  };
+  if (
+    currentState.lastUrl === nextState.lastUrl &&
+    currentState.lastVideoId === nextState.lastVideoId &&
+    currentState.lastPlaylistId === nextState.lastPlaylistId &&
+    currentState.lastVideoProgress === nextState.lastVideoProgress
+  )
+    return;
+
+  store.set("state", nextState);
 }
 
 // Automatic background state saving every 5 minutes
@@ -1193,9 +1225,7 @@ const createYTMView = (): void => {
     }
   });
   ytmView.webContents.on("render-process-gone", () => {
-    store.set("state.lastUrl", lastUrl);
-    store.set("state.lastVideoId", lastVideoId);
-    store.set("state.lastPlaylistId", lastPlaylistId);
+    saveState();
     disposeYTMView();
     createYTMView();
   });

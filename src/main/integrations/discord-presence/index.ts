@@ -9,6 +9,8 @@ import { DiscordActivityType } from "./minimal-discord-client/types";
 const DISCORD_CLIENT_ID = "1143202598460076053";
 
 function getHighestResThumbnail(thumbnails: Thumbnail[]): string {
+  if (thumbnails.length === 0) return "";
+
   return thumbnails.reduce(
     (accumulator, current) => (current.height * current.width <= accumulator.height * accumulator.width ? accumulator : current),
     thumbnails[0]
@@ -69,8 +71,13 @@ export default class DiscordPresence implements IIntegration {
   private UpdateActivity() {
     if (this.activityDebounceTimeout) return;
     this.activityDebounceTimeout = setTimeout(() => {
+      if (!this.enabled || !this.ready || !this.discordClient) {
+        this.activityDebounceTimeout = null;
+        return;
+      }
       if (!this.videoDetails) {
         this.discordClient.clearActivity();
+        this.activityDebounceTimeout = null;
         return;
       }
       const { title, author, album, id, thumbnails, durationSeconds, channelId, albumId } = this.videoDetails;
@@ -87,7 +94,7 @@ export default class DiscordPresence implements IIntegration {
           end: this.videoState === VideoState.Playing ? Date.now() + (durationSeconds - this.progress) * 1000 : undefined
         },
         assets: {
-          large_image: (thumbnail?.length ?? 0) <= 256 ? thumbnail : "ytmd-logo",
+          large_image: thumbnail && thumbnail.length <= 256 ? thumbnail : "ytmd-logo",
           large_text: album ? stringLimit(album, 128, 2) : undefined,
           large_url: albumId ? `https://music.youtube.com/browse/${albumId}` : undefined,
           small_image: getSmallImageKey(this.videoState),
@@ -130,7 +137,7 @@ export default class DiscordPresence implements IIntegration {
     this.pauseTimeout = null;
     if (state.trackState == VideoState.Playing) return;
     this.pauseTimeout = setTimeout(() => {
-      if (!this.discordClient && !this.ready) return;
+      if (!this.discordClient || !this.ready) return;
       this.discordClient.clearActivity();
       this.pauseTimeout = null;
     }, 30 * 1000);

@@ -1,7 +1,7 @@
 {
   "name": "youtube-music-desktop-app",
   "productName": "YTM Desktop",
-  "version": "3.1.6",
+  "version": "3.2.0",
   "description": "A modern, high-performance YouTube Music desktop client",
   "main": ".vite/main/index.js",
   "private": true,
@@ -52,7 +52,7 @@
     "@typescript-eslint/eslint-plugin": "^8.55.0",
     "@typescript-eslint/parser": "^8.55.0",
     "@vitejs/plugin-vue": "^5.2.4",
-    "electron": "41.10.3",
+    "electron": "44.1.1",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.2",
     "eslint-import-resolver-typescript": "^3.10.1",
@@ -75,7 +75,7 @@
     "conf": "^15.1.0",
     "electron-log": "5.4.4",
     "electron-squirrel-startup": "^1.0.1",
-    "fastify": "5.12.0",
+    "fastify": "5.12.1",
     "material-symbols": "^0.46.0",
     "socket.io": "^4.8.3",
     "vue": "^3.5.28"

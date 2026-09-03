@@ -4037,16 +4037,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:41.10.3":
-  version: 41.10.3
-  resolution: "electron@npm:41.10.3"
+"electron@npm:44.1.1":
+  version: 44.1.1
+  resolution: "electron@npm:44.1.1"
   dependencies:
     "@electron-internal/extract-zip": "npm:^1.0.1"
     "@electron/get": "npm:^5.0.0"
     "@types/node": "npm:^24.9.0"
   bin:
     electron: cli.js
-  checksum: 10c0/5f18e1008f667fc541370c75ae464e4c761558fc8f478e745d2716bf882855d07f675b4df795ad129b02d9a38ffae5942997897ee8a2d8bb0fa9d98a0b59ebf5
+    install-electron: install.js
+  checksum: 10c0/0d0545242951eb1dcef5bcf13ffd6cf3402b82bff48828e19a1d746ad8addeb0c778d172b4969a8abb4dbd7ddb80b31ba65a68e10dfd1ea267143386dee33363
   languageName: node
   linkType: hard
 
@@ -4958,9 +4959,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify@npm:5.12.0":
-  version: 5.12.0
-  resolution: "fastify@npm:5.12.0"
+"fastify@npm:5.12.1":
+  version: 5.12.1
+  resolution: "fastify@npm:5.12.1"
   dependencies:
     "@fastify/ajv-compiler": "npm:^4.0.5"
     "@fastify/error": "npm:^4.0.0"
@@ -4977,7 +4978,7 @@ __metadata:
     secure-json-parse: "npm:^4.0.0"
     semver: "npm:^7.6.0"
     toad-cache: "npm:^3.7.0"
-  checksum: 10c0/abc39c7a630b923fc2e1eb2cdbe279aa6bbb02033d35a62c3388285b66d9395727a2ff7c0cb6f9992d435aae3c34dea74d92bacfa33bb15261f5536aeaeefe51
+  checksum: 10c0/07e2219db3d7d522519fe16bfefa1768d3bbcb80a161762131db7315812af3f7a4cd131358985a9aeb84ab24c069a362ec3ef592a3a29eb4fa3446e77bbf6678
   languageName: node
   linkType: hard
 
@@ -10271,7 +10272,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^8.55.0"
     "@vitejs/plugin-vue": "npm:^5.2.4"
     conf: "npm:^15.1.0"
-    electron: "npm:41.10.3"
+    electron: "npm:44.1.1"
     electron-log: "npm:5.4.4"
     electron-squirrel-startup: "npm:^1.0.1"
     eslint: "npm:^8.57.1"
@@ -10279,7 +10280,7 @@ __metadata:
     eslint-import-resolver-typescript: "npm:^3.10.1"
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-vue: "npm:^9.33.0"
-    fastify: "npm:5.12.0"
+    fastify: "npm:5.12.1"
     husky: "npm:^9.1.7"
     lint-staged: "npm:^15.5.2"
     material-symbols: "npm:^0.46.0"

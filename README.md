@@ -13,7 +13,7 @@
   <a href="https://github.com/Lostepic/ytmdesktop/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Lostepic/ytmdesktop?style=flat-square&label=release"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=main&style=flat-square&label=build"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/releases"><img alt="Release downloads" src="https://img.shields.io/github/downloads/Lostepic/ytmdesktop/total?style=flat-square&label=downloads"></a>
-  <img alt="Electron 40" src="https://img.shields.io/badge/Electron-40.10.6-47848f?style=flat-square&logo=electron">
+  <img alt="Electron 44" src="https://img.shields.io/badge/Electron-44.1.1-47848f?style=flat-square&logo=electron">
   <a href="LICENSE"><img alt="GPL-3.0 license" src="https://img.shields.io/github/license/Lostepic/ytmdesktop?style=flat-square"></a>
 </p>
 
@@ -47,8 +47,8 @@ Download the current maintained version from [GitHub Releases](https://github.co
 | Platform | Download | Installation |
 | --- | --- | --- |
 | Windows x64 | `YTM.Desktop-<version>.Setup.exe` | Run the Squirrel installer. Updates are delivered automatically from this repository. |
-| macOS Apple Silicon | `YTM.Desktop-darwin-arm64-<version>.zip` | Native build for M1, M2, M3, M4, and later Apple Silicon Macs. Extract it and move YTM Desktop to Applications. |
-| macOS Intel | `YTM.Desktop-darwin-x64-<version>.zip` | Intel build for older Macs. Apple Silicon users should not use this Rosetta build. |
+| macOS Apple Silicon | `YTM.Desktop-darwin-arm64-<version>.zip` | Native build for M1, M2, M3, M4, and later Apple Silicon Macs running macOS 13 or newer. Extract it and move YTM Desktop to Applications. |
+| macOS Intel | `YTM.Desktop-darwin-x64-<version>.zip` | Intel build for macOS 13 or newer. Apple Silicon users should not use this Rosetta build. |
 | Debian/Ubuntu x64 | `youtube-music-desktop-app_<version>_amd64.deb` | Install with your graphical package manager or `sudo apt install ./<file>.deb`. |
 | Fedora/RHEL x64 | `youtube-music-desktop-app-<version>-1.x86_64.rpm` | Install with your graphical package manager or `sudo dnf install ./<file>.rpm`. |
 
@@ -61,6 +61,21 @@ The Windows installer is currently unsigned, so Microsoft Defender SmartScreen m
 The macOS archives use a verified ad-hoc bundle signature but are not yet Apple-notarized. On first launch, macOS may require approval in **System Settings → Privacy & Security**. Apple Silicon users should download the `arm64` archive to avoid Rosetta translation and its additional CPU and memory overhead.
 
 The build badge reports validation of the protected `main` branch. Version tags build all platforms in parallel and publish every installer and archive directly to the matching GitHub Release.
+
+## What changed in 3.2
+
+Version 3.2 is a focused runtime, startup, and recovery release:
+
+- Moves the app to the supported Electron 44 runtime with its newer Chromium, Node.js, and platform fixes.
+- Loads Settings state concurrently instead of waiting on ten sequential IPC requests.
+- Deduplicates automatic and manual update checks and reports update progress reliably.
+- Avoids enabling Squirrel updates in raw local packages that do not contain an updater.
+- Batches playback-state persistence, skips unchanged writes, and avoids sending state to destroyed renderers.
+- Makes YouTube Music renderer recovery safer after a crash.
+- Handles companion-server startup and shutdown failures without bringing down the application.
+- Prevents Discord Rich Presence from becoming stuck after an empty track update or missing artwork.
+- Refreshes Fastify, Vue, Material Symbols, TypeScript tooling, and security-patched transitive dependencies.
+- Keeps Dependabot patch and minor updates gated by quality, CodeQL, dependency review, and four-platform packaging checks.
 
 ## What changed in 3.1
 
@@ -78,7 +93,7 @@ Version 3.1 focuses on dependency, security, and release reliability:
 - Kept Windows, macOS, Debian/Ubuntu, and Fedora/RHEL downloads together on GitHub Releases.
 - Deferred incompatible toolchain majors until they can receive a dedicated migration and regression cycle.
 
-The current 3.1.6 maintenance release includes the repository shortcut and all Stream Deck, startup, native Apple Silicon, packaging, updater, and dependency improvements delivered throughout the 3.1 series.
+The final 3.1.6 maintenance release includes the repository shortcut and all Stream Deck, startup, native Apple Silicon, packaging, updater, and dependency improvements delivered throughout the 3.1 series.
 
 ## What changed in 3.0
 
@@ -156,7 +171,7 @@ Plugin manifests are read from the application data `plugins` directory. Only kn
 
 ## Updates
 
-Packaged Windows builds resolve the exact latest tag from the fork's GitHub Releases API and then read Squirrel metadata from that version-specific release. Update ownership is fixed at `Lostepic/ytmdesktop` in both runtime and packaging configuration, so builds cannot accidentally follow the abandoned upstream repository or a stale update redirect.
+Installed Windows builds resolve the exact latest tag from this repository's GitHub Releases API and then read Squirrel metadata from that version-specific release. Update ownership is fixed at `Lostepic/ytmdesktop` in both runtime and packaging configuration, so builds cannot accidentally follow the abandoned upstream repository or a stale update redirect. Raw developer packages leave the updater disabled because they do not contain Squirrel's update service.
 
 The update feed is verified against each Windows release: it offers the newest version to older clients and reports no update to clients already current. macOS automatic updates require code signing, while Linux updates continue through installed packages or GitHub Releases.
 
@@ -164,7 +179,7 @@ The update feed is verified against each Windows release: it offers the newest v
 
 ### Requirements
 
-- Node.js 22
+- Node.js 22.12 or newer
 - Corepack with Yarn 4.5.1
 - Platform packaging tools when building installers
 

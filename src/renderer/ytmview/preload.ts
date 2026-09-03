@@ -511,11 +511,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   await Promise.allSettled([createAdditionalPlayerBarControls(), hideChromecastButton(), hookPlayerApiEvents()]);
   overrideHistoryButtonDisplay();
 
-  const [integrationScripts, state, playback, shortcuts] = await Promise.all([
+  const [integrationScripts, state, playback, shortcuts, appearance] = await Promise.all([
     ipcRenderer.invoke("ytmView:getIntegrationScripts") as Promise<{ [integrationName: string]: { [scriptName: string]: string } }>,
     store.get("state"),
     store.get("playback"),
-    store.get("shortcuts")
+    store.get("shortcuts"),
+    store.get("appearance")
   ]);
   const continueWhereYouLeftOff = playback.continueWhereYouLeftOff;
   volumeDelta = Number(shortcuts.volumeDelta ?? 10);
@@ -573,13 +574,12 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  const alwaysShowVolumeSlider = (await store.get("appearance")).alwaysShowVolumeSlider;
+  const alwaysShowVolumeSlider = appearance.alwaysShowVolumeSlider;
   if (alwaysShowVolumeSlider) {
     document.querySelector("ytmusic-app-layout>ytmusic-player-bar #volume-slider")?.classList.add("ytmd-persist-volume-slider");
   }
-  setCenteredPlayerControls((await store.get("appearance")).centeredPlayerControls ?? false);
-  const initialAppearance = await store.get("appearance");
-  applyAppearance(initialAppearance.themePreset ?? 0, initialAppearance.compactMode ?? false);
+  setCenteredPlayerControls(appearance.centeredPlayerControls ?? false);
+  applyAppearance(appearance.themePreset ?? 0, appearance.compactMode ?? false);
 
   async function executeRemoteCommand(command: string, value: unknown): Promise<void> {
     switch (command) {

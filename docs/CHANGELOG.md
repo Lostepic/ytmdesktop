@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.2.0 — Runtime, startup, and recovery
+
+- Move to the supported Electron 44 runtime and refresh compatible production, development, and security-patched transitive dependencies.
+- Load Settings state concurrently to reduce startup latency and the chance of a partially initialized window.
+- Deduplicate update checks, correct update-status delivery, and disable Squirrel updates in unpackaged test builds.
+- Batch unchanged playback-state persistence to reduce disk writes and renderer notifications.
+- Protect state broadcasts and crash recovery from destroyed renderer processes.
+- Recover cleanly from companion-server startup failures and remove stale listeners when it stops.
+- Prevent Discord Rich Presence debounce stalls and handle missing artwork safely.
+- Keep Dependabot patch and minor updates automatic after all required quality, security, and cross-platform package checks pass.
+
 ## 3.1.6 — Repository access
 
 - Add a direct GitHub repository button to Settings → About.

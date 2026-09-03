@@ -2,19 +2,45 @@
 import { nextTick, ref, watch } from "vue";
 import KeybindInput from "../../components/KeybindInput.vue";
 import YTMDSetting from "../../components/YTMDSetting.vue";
-import { StoreSchema, ThemePreset, TrayIconStyle } from "~shared/store/schema";
+import { ThemePreset, TrayIconStyle } from "~shared/store/schema";
 import { AuthToken } from "~shared/integrations/companion-server/types";
 import logo from "~assets/icons/ytmd.png";
 
 declare const YTMD_GIT_COMMIT_HASH: string;
 declare const YTMD_GIT_BRANCH: string;
 
-const ytmdVersion = await window.ytmd.getAppVersion();
 const ytmdCommitHash = YTMD_GIT_COMMIT_HASH.substring(0, 7);
 const ytmdBranch = YTMD_GIT_BRANCH;
 
 const isDarwin = window.ytmd.isDarwin;
 const isLinux = window.ytmd.isLinux;
+const store = window.ytmd.store;
+const memoryStore = window.ytmd.memoryStore;
+const safeStorage = window.ytmd.safeStorage;
+
+const [
+  ytmdVersion,
+  initialUpdateAvailable,
+  initialUpdateDownloaded,
+  initialSafeStorageAvailable,
+  general,
+  appearance,
+  playback,
+  integrations,
+  shortcuts,
+  lastFM
+] = await Promise.all([
+  window.ytmd.getAppVersion(),
+  window.ytmd.isAppUpdateAvailable(),
+  window.ytmd.isAppUpdateDownloaded(),
+  memoryStore.get("safeStorageAvailable") as Promise<boolean>,
+  store.get("general"),
+  store.get("appearance"),
+  store.get("playback"),
+  store.get("integrations"),
+  store.get("shortcuts"),
+  store.get("lastfm")
+]);
 
 const currentTab = ref(1);
 const settingsSearch = ref("");
@@ -28,15 +54,11 @@ const tabMeta: Record<number, { title: string; description: string }> = {
 };
 const requiresRestart = ref(false);
 const checkingForUpdate = ref(false);
-const updateAvailable = ref(await window.ytmd.isAppUpdateAvailable());
+const updateAvailable = ref(initialUpdateAvailable);
 const updateNotAvailable = ref(false);
-const updateDownloaded = ref(await window.ytmd.isAppUpdateDownloaded());
+const updateDownloaded = ref(initialUpdateDownloaded);
 
-const store = window.ytmd.store;
-const memoryStore = window.ytmd.memoryStore;
-const safeStorage = window.ytmd.safeStorage;
-
-const safeStorageAvailable = ref<boolean>(await memoryStore.get("safeStorageAvailable"));
+const safeStorageAvailable = ref<boolean>(initialSafeStorageAvailable);
 
 function parseAuthTokens(value: string | null): AuthToken[] {
   if (!value) return [];
@@ -47,13 +69,6 @@ function parseAuthTokens(value: string | null): AuthToken[] {
     return [];
   }
 }
-
-const general: StoreSchema["general"] = await store.get("general");
-const appearance: StoreSchema["appearance"] = await store.get("appearance");
-const playback: StoreSchema["playback"] = await store.get("playback");
-const integrations: StoreSchema["integrations"] = await store.get("integrations");
-const shortcuts: StoreSchema["shortcuts"] = await store.get("shortcuts");
-const lastFM: StoreSchema["lastfm"] = await store.get("lastfm");
 
 const disableHardwareAcceleration = ref<boolean>(general.disableHardwareAcceleration);
 const hideToTrayOnClose = ref<boolean>(general.hideToTrayOnClose);

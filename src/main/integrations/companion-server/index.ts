@@ -20,7 +20,7 @@ export default class CompanionServer implements IIntegration {
   private store: Conf<StoreSchema>;
   private memoryStore: MemoryStore<MemoryStoreSchema>;
   private ytmView: WebContentsView;
-  private storeListener: () => void | null = null;
+  private storeListener: (() => void) | null = null;
 
   private createServer() {
     this.fastifyServer = Fastify().withTypeProvider<TypeBoxTypeProvider>();
@@ -68,10 +68,9 @@ export default class CompanionServer implements IIntegration {
       });
     });
 
-    // Disconnect connections to the default namespace
-    this.fastifyServer.ready().then(() => {
-      this.fastifyServer.io.on("connection", socket => socket.disconnect());
-    });
+    // Disconnect connections to the default namespace. API clients use the
+    // authenticated versioned namespace instead.
+    io.on("connection", socket => socket.disconnect());
   }
 
   public provide(store: Conf<StoreSchema>, memoryStore: MemoryStore<MemoryStoreSchema>, ytmView: WebContentsView): void {
@@ -88,10 +87,17 @@ export default class CompanionServer implements IIntegration {
 
     if (!this.fastifyServer || (this.fastifyServer && !this.fastifyServer.server.listening)) {
       this.createServer();
-      await this.fastifyServer.listen({
-        host: this.listenIp,
-        port: this.listenPort
-      });
+      try {
+        await this.fastifyServer.listen({
+          host: this.listenIp,
+          port: this.listenPort
+        });
+      } catch (error) {
+        log.error("Companion server failed to start", error);
+        await this.fastifyServer.close().catch((): void => undefined);
+        this.fastifyServer = null;
+        return;
+      }
       this.storeListener = this.store.onDidChange("integrations", async (newState, oldState) => {
         if (newState.companionServerAuthTokens === oldState?.companionServerAuthTokens) return;
 
@@ -125,10 +131,12 @@ export default class CompanionServer implements IIntegration {
 
   public async disable() {
     if (this.fastifyServer) {
-      await this.fastifyServer.close();
+      await this.fastifyServer.close().catch(error => log.warn("Companion server failed to close cleanly", error));
       if (this.storeListener) {
         this.storeListener();
+        this.storeListener = null;
       }
+      this.fastifyServer = null;
     }
   }
 

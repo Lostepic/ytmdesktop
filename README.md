@@ -68,6 +68,7 @@ Version 3.2 is a focused runtime, startup, and recovery release:
 
 - Moves the app to the supported Electron 44 runtime with its newer Chromium, Node.js, and platform fixes.
 - Loads Settings state concurrently instead of waiting on ten sequential IPC requests.
+- Restores three-dot menus and dialogs after resuming a song by keeping YouTube Music's shared popup container visible; regression checks cover menu visibility and animation.
 - Deduplicates automatic and manual update checks and reports update progress reliably.
 - Reads the Windows update feed without consuming GitHub's unauthenticated API quota and distinguishes connection failures from an already-current installation.
 - Avoids enabling Squirrel updates in raw local packages that do not contain an updater.

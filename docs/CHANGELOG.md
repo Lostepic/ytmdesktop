@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.3 — Restore menus after session recovery
+
+- Fix three-dot menus and dialogs appearing to do nothing after restoring a song: the playback hint could hide YouTube Music's shared popup container.
+- Hide only the restored-playback hint, preserving popup layout and animations, and restore its styling if YouTube reuses it for another message.
+- Replace repeated whole-page text scans with searches limited to hint renderers.
+- Add Chromium regression checks for popup visibility, animation and hint reuse to pull-request validation.
+
 ## 3.2.2 — Windows update reliability
 
 - Read Squirrel update metadata from GitHub's stable latest-release download URL without consuming the unauthenticated Releases API quota.

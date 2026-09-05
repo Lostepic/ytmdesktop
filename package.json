@@ -1,7 +1,7 @@
 {
   "name": "youtube-music-desktop-app",
   "productName": "YTM Desktop",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "description": "A modern, high-performance YouTube Music desktop client",
   "main": ".vite/main/index.js",
   "private": true,
@@ -15,6 +15,7 @@
     "lint": "eslint --ext .ts,.tsx,.vue .",
     "lint:fix": "eslint --ext .ts,.tsx,.vue .",
     "typecheck": "vue-tsc --noEmit",
+    "test:ui": "node tests/playback-coachmark.cjs",
     "prettier": "prettier --check \"src/**/*.{ts,tsx,vue,js,css}\" \"config/**/*.ts\" \"*.{ts,json}\"",
     "prettier:fix": "prettier --write \"src/**/*.{ts,tsx,vue,js,css}\" \"config/**/*.ts\" \"*.{ts,json}\"",
     "check": "yarn typecheck && yarn lint && yarn prettier",

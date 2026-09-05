@@ -17,6 +17,7 @@ import hookPlayerApiEventsScript from "./scripts/hookplayerapievents.script?raw"
 import getPlaylistsScript from "./scripts/getplaylists.script?raw";
 import toggleLikeScript from "./scripts/togglelike.script?raw";
 import toggleDislikeScript from "./scripts/toggledislike.script?raw";
+import { suppressRestoredPlaybackCoachmark } from "./playback-coachmark";
 
 const store = new Store<StoreSchema>();
 
@@ -253,35 +254,6 @@ function createStyleSheet() {
     `)
   );
   document.head.appendChild(css);
-}
-
-function suppressRestoredPlaybackCoachmark(): void {
-  const label = "Start playback";
-  const findAndHide = (): boolean => {
-    const matches = Array.from(document.querySelectorAll<HTMLElement>("body *")).filter(element => element.textContent?.trim() === label);
-    if (matches.length === 0) return false;
-
-    let coachmark = matches.at(-1);
-    while (coachmark?.parentElement && coachmark.parentElement !== document.body && coachmark.parentElement.textContent?.trim() === label) {
-      coachmark = coachmark.parentElement;
-    }
-    coachmark?.style.setProperty("display", "none", "important");
-    return true;
-  };
-
-  if (findAndHide()) return;
-
-  let scanScheduled = false;
-  const observer = new MutationObserver(() => {
-    if (scanScheduled) return;
-    scanScheduled = true;
-    setTimeout(() => {
-      scanScheduled = false;
-      if (findAndHide()) observer.disconnect();
-    }, 50);
-  });
-  observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-  setTimeout(() => observer.disconnect(), 10_000);
 }
 
 function createMaterialSymbolsLink() {

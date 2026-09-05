@@ -28,6 +28,13 @@ jobs:
       - run: corepack enable
       - run: yarn install --immutable
       - run: yarn check
+      - name: Prepare Electron sandbox for browser tests
+        run: |
+          node node_modules/electron/install.js
+          sudo chown root:root node_modules/electron/dist/chrome-sandbox
+          sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
+      - name: Check popup visibility and animation
+        run: xvfb-run --auto-servernum yarn test:ui
 
   package:
     name: Package (${{ matrix.artifact }})

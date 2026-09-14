@@ -4919,9 +4919,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify@npm:5.12.1":
-  version: 5.12.1
-  resolution: "fastify@npm:5.12.1"
+"fastify@npm:5.12.3":
+  version: 5.12.3
+  resolution: "fastify@npm:5.12.3"
   dependencies:
     "@fastify/ajv-compiler": "npm:^4.0.5"
     "@fastify/error": "npm:^4.0.0"
@@ -4938,7 +4938,7 @@ __metadata:
     secure-json-parse: "npm:^4.0.0"
     semver: "npm:^7.6.0"
     toad-cache: "npm:^3.7.0"
-  checksum: 10c0/07e2219db3d7d522519fe16bfefa1768d3bbcb80a161762131db7315812af3f7a4cd131358985a9aeb84ab24c069a362ec3ef592a3a29eb4fa3446e77bbf6678
+  checksum: 10c0/ac46280066006375009ead35210971bfc0088c1efc5526029984cc2d5eb61d4a3721651ac9a0bf3b5b7faa2631cfc77862dc1051495eacc121e7b1a607d60871
   languageName: node
   linkType: hard
 
@@ -6768,9 +6768,9 @@ __metadata:
   linkType: hard
 
 "material-symbols@npm:^0.47.0":
-  version: 0.47.0
-  resolution: "material-symbols@npm:0.47.0"
-  checksum: 10c0/5deb930f1054906414b791b46c6bbd24ed9c2a49998e9a53dfd668336e80c4bdaeac46a059b35382cd49865655b0c3aabadf19d23725c768e1481844583b25ff
+  version: 0.47.2
+  resolution: "material-symbols@npm:0.47.2"
+  checksum: 10c0/788046df8f615125f71d659bf8108a96dee45373084d701ffd0236ce3f045127386fc93c70ecd798df5d632b818bcc9752cd2c01fcb0ce4030997b732ef887e8
   languageName: node
   linkType: hard
 
@@ -10198,7 +10198,7 @@ __metadata:
     eslint-import-resolver-typescript: "npm:^3.10.1"
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-vue: "npm:^9.33.0"
-    fastify: "npm:5.12.1"
+    fastify: "npm:5.12.3"
     husky: "npm:^9.1.7"
     lint-staged: "npm:^15.5.2"
     material-symbols: "npm:^0.47.0"

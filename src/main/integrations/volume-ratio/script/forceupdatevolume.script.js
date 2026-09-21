@@ -1,5 +1,5 @@
 (function () {
-  let volume = document.querySelector("ytmusic-player-bar").playerApi.getVolume();
-  document.querySelector("ytmusic-player-bar").playerApi.setVolume(volume);
+  let volume = window.__YTMD_PLAYER__.getPlayerApi().getVolume();
+  window.__YTMD_PLAYER__.getPlayerApi().setVolume(volume);
   window.__YTMD_HOOK__.ytmStore.dispatch({ type: "SET_VOLUME", payload: volume });
 });

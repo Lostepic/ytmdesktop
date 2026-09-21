@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.4 — Stream Deck and player compatibility
+
+- Restore Stream Deck commands after YouTube Music moved player state from custom elements to their internal controllers.
+- Resolve the current player/controller for playback, volume, seek, shuffle, likes, track metadata, playlist requests and sleep-timer controls, retaining compatibility with older layouts.
+- Add Electron regression tests that send real renderer IPC commands across direct, `inst` and `polymerController` layouts, including startup queueing and player API replacement.
+- Suppress the overlapping start-playback hint when restoring a direct watch URL as well as when navigating to a saved track, without hiding shared menus.
+- Include the seven dependency updates merged since 3.2.3: Electron 44.4.2, Fastify 5.12.5, Material Symbols, Prettier and compatible transitive/security updates.
+- Correct the Windows installer icon URL to use the maintained main branch.
+
 ## 3.2.3 — Restore menus after session recovery
 
 - Fix three-dot menus and dialogs appearing to do nothing after restoring a song: the playback hint could hide YouTube Music's shared popup container.

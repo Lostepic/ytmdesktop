@@ -45,7 +45,7 @@ const config: ForgeConfig = {
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      iconUrl: "https://raw.githubusercontent.com/Lostepic/ytmdesktop/development/src/assets/icons/ytmd.ico"
+      iconUrl: "https://raw.githubusercontent.com/Lostepic/ytmdesktop/main/src/assets/icons/ytmd.ico"
     }),
     new MakerZIP({}, ["darwin"]),
     new MakerRpm({

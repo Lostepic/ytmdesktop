@@ -33,7 +33,7 @@ jobs:
           node node_modules/electron/install.js
           sudo chown root:root node_modules/electron/dist/chrome-sandbox
           sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
-      - name: Check popup visibility and animation
+      - name: Check popup visibility, animation and player controls
         run: xvfb-run --auto-servernum yarn test:ui
 
   package:

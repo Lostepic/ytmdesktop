@@ -13,7 +13,7 @@
   <a href="https://github.com/Lostepic/ytmdesktop/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Lostepic/ytmdesktop?style=flat-square&label=release"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=main&style=flat-square&label=build"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/releases"><img alt="Release downloads" src="https://img.shields.io/github/downloads/Lostepic/ytmdesktop/total?style=flat-square&label=downloads"></a>
-  <img alt="Electron 44" src="https://img.shields.io/badge/Electron-44.1.1-47848f?style=flat-square&logo=electron">
+  <img alt="Electron 44" src="https://img.shields.io/badge/Electron-44.4.2-47848f?style=flat-square&logo=electron">
   <a href="LICENSE"><img alt="GPL-3.0 license" src="https://img.shields.io/github/license/Lostepic/ytmdesktop?style=flat-square"></a>
 </p>
 
@@ -79,6 +79,12 @@ Version 3.2 is a focused runtime, startup, and recovery release:
 - Refreshes Fastify, Vue, Material Symbols, TypeScript tooling, and security-patched transitive dependencies.
 - Removes obsolete serializer and WebSocket dependency copies; the recursive production audit completes with zero findings.
 - Keeps Dependabot patch and minor updates gated by quality, CodeQL, dependency review, and four-platform packaging checks.
+
+### Latest maintenance update: 3.2.4
+
+Restores Stream Deck playback controls for YouTube Music's newer internal component layout. Playback, volume, seek, shuffle, likes and track-state hooks now resolve the current component controller instead of relying on properties that YouTube no longer exposes on the HTML element. Older layouts remain supported, with automated command regression tests. This update also fixes the overlapping playback hint on restored watch pages and includes all seven dependency updates merged since 3.2.3, including Electron 44.4.2 and Fastify 5.12.5.
+
+Build-tool security fixes pin patched `tar` and `tmp` versions and replace the old ZIP extractor with [Electron's maintained extractor](https://github.com/electron/extract-zip). Pull requests now also check runtime and build dependencies for high/critical security advisories. Deprecation notices are tracked separately from security vulnerabilities.
 
 ## What changed in 3.1
 
@@ -198,10 +204,11 @@ yarn start
 
 ```bash
 yarn check
+yarn test:ui
 yarn package
 ```
 
-`yarn check` runs TypeScript validation, ESLint, and Prettier. `yarn package` creates the unpacked application for the current operating system.
+`yarn check` runs TypeScript validation, ESLint, and Prettier. `yarn test:ui` runs Electron checks for popup visibility, animation and Stream Deck renderer commands (use `xvfb-run --auto-servernum yarn test:ui` on headless Linux). `yarn package` creates the unpacked application for the current operating system.
 
 ### Installer creation
 

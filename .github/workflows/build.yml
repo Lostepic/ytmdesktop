@@ -28,6 +28,8 @@ jobs:
       - run: corepack enable
       - run: yarn install --immutable
       - run: yarn check
+      - name: Audit runtime and build dependencies
+        run: yarn npm audit --recursive --no-deprecations --severity high
       - name: Prepare Electron sandbox for browser tests
         run: |
           node node_modules/electron/install.js

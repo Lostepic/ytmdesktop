@@ -8,6 +8,8 @@
 - Suppress the overlapping start-playback hint when restoring a direct watch URL as well as when navigating to a saved track, without hiding shared menus.
 - Include the seven dependency updates merged since 3.2.3: Electron 44.4.2, Fastify 5.12.5, Material Symbols, Prettier and compatible transitive/security updates.
 - Correct the Windows installer icon URL to use the maintained main branch.
+- Harden build dependencies with patched `tar` and `tmp` resolutions and Electron's maintained ZIP extractor; the full recursive security audit now has no findings (excluding deprecation notices).
+- Gate pull requests on high/critical security findings in runtime and build dependencies, in addition to existing quality and platform packaging checks.
 
 ## 3.2.3 — Restore menus after session recovery
 

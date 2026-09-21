@@ -84,6 +84,8 @@ Version 3.2 is a focused runtime, startup, and recovery release:
 
 Restores Stream Deck playback controls for YouTube Music's newer internal component layout. Playback, volume, seek, shuffle, likes and track-state hooks now resolve the current component controller instead of relying on properties that YouTube no longer exposes on the HTML element. Older layouts remain supported, with automated command regression tests. This update also fixes the overlapping playback hint on restored watch pages and includes all seven dependency updates merged since 3.2.3, including Electron 44.4.2 and Fastify 5.12.5.
 
+Build-tool security fixes pin patched `tar` and `tmp` versions and replace the old ZIP extractor with [Electron's maintained extractor](https://github.com/electron/extract-zip). Pull requests now also check runtime and build dependencies for high/critical security advisories. Deprecation notices are tracked separately from security vulnerabilities.
+
 ## What changed in 3.1
 
 Version 3.1 focuses on dependency, security, and release reliability:

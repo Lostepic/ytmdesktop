@@ -87,5 +87,10 @@
       "eslint --cache --fix"
     ]
   },
-  "packageManager": "yarn@4.5.1"
+  "packageManager": "yarn@4.5.1",
+  "resolutions": {
+    "tar": "7.5.22",
+    "tmp": "0.2.7",
+    "extract-zip": "npm:@electron-internal/extract-zip@1.0.5"
+  }
 }

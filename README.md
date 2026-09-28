@@ -13,7 +13,7 @@
   <a href="https://github.com/Lostepic/ytmdesktop/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Lostepic/ytmdesktop?style=flat-square&label=release"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=main&style=flat-square&label=build"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/releases"><img alt="Release downloads" src="https://img.shields.io/github/downloads/Lostepic/ytmdesktop/total?style=flat-square&label=downloads"></a>
-  <img alt="Electron 44" src="https://img.shields.io/badge/Electron-44.4.2-47848f?style=flat-square&logo=electron">
+  <img alt="Electron 44" src="https://img.shields.io/badge/Electron-44.4.5-47848f?style=flat-square&logo=electron">
   <a href="LICENSE"><img alt="GPL-3.0 license" src="https://img.shields.io/github/license/Lostepic/ytmdesktop?style=flat-square"></a>
 </p>
 
@@ -80,7 +80,11 @@ Version 3.2 is a focused runtime, startup, and recovery release:
 - Removes obsolete serializer and WebSocket dependency copies; the recursive production audit completes with zero findings.
 - Keeps Dependabot patch and minor updates gated by quality, CodeQL, dependency review, and four-platform packaging checks.
 
-### Latest maintenance update: 3.2.4
+### Latest maintenance update: 3.2.5
+
+Includes the September 28 dependency updates: Electron 44.4.5, Material Symbols 0.47.5, TypeScript ESLint 8.70.1 and Prettier 3.9.9. All platform downloads are rebuilt, and installed Windows copies receive the new version through the automatic-update feed. The Stream Deck and security fixes below remain included.
+
+### Stream Deck compatibility update: 3.2.4
 
 Restores Stream Deck playback controls for YouTube Music's newer internal component layout. Playback, volume, seek, shuffle, likes and track-state hooks now resolve the current component controller instead of relying on properties that YouTube no longer exposes on the HTML element. Older layouts remain supported, with automated command regression tests. This update also fixes the overlapping playback hint on restored watch pages and includes all seven dependency updates merged since 3.2.3, including Electron 44.4.2 and Fastify 5.12.5.
 

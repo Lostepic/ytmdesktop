@@ -6749,9 +6749,9 @@ __metadata:
   linkType: hard
 
 "material-symbols@npm:^0.47.0":
-  version: 0.47.4
-  resolution: "material-symbols@npm:0.47.4"
-  checksum: 10c0/87d8e7ce52141636a15f7a53d0266e620c36866aebf8332ec35310295fb2bbd66330fc42f0e3fd654a6fda5305dfa2e9cd8eed1b60b1eb1e0a690ace97d0e278
+  version: 0.47.5
+  resolution: "material-symbols@npm:0.47.5"
+  checksum: 10c0/43077d980729790f37eeaa9590fb65776e16efe2e50bb6f62806c8dce712f39eb6498ac701e0858b45ae61edc91cdf468ab6da3ce2455295d6030c48eb234eac
   languageName: node
   linkType: hard
 

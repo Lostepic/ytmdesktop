@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.5 — Dependency maintenance
+
+- Update Electron from 44.4.2 to 44.4.5 and Material Symbols from 0.47.4 to 0.47.5.
+- Update the TypeScript ESLint parser/plugin to 8.70.1 and Prettier to 3.9.9.
+- Include both Dependabot updates merged on September 28, retaining the Stream Deck compatibility and build-dependency security fixes from 3.2.4.
+- Rebuild Windows, Linux, Intel Mac and Apple Silicon Mac downloads, including the Windows automatic-update feed.
+
 ## 3.2.4 — Stream Deck and player compatibility
 
 - Restore Stream Deck commands after YouTube Music moved player state from custom elements to their internal controllers.

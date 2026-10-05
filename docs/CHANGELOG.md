@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.2.6 — Dependency and security maintenance
+
+- Update fast-uri to 3.1.8 and Electron's undici dependency to 7.30.0, including their published security fixes.
+- Update Socket.IO to 4.8.4 and engine.io to 6.6.11, resolving the protocol-mismatch denial-of-service advisory and including upstream reliability fixes.
+- Update Electron to 44.5.1 and refresh Node.js types and TypeScript ESLint to 22.20.5 and 8.71.0.
+- Pin patched brace-expansion releases across the 1.x, 2.x and 5.x dependency ranges.
+- Keep the recursive runtime/build audit and temporarily exclude `braces` and `http-cache-semantics`, whose current high-severity advisories have no patched upstream release yet.
+- Rebuild Windows, Linux, Intel Mac and Apple Silicon Mac packages; installed Windows copies receive the update through the automatic-update feed.
+
 ## 3.2.5 — Dependency maintenance
 
 - Update Electron from 44.4.2 to 44.4.5 and Material Symbols from 0.47.4 to 0.47.5.

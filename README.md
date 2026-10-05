@@ -80,7 +80,11 @@ Version 3.2 is a focused runtime, startup, and recovery release:
 - Removes obsolete serializer and WebSocket dependency copies; the recursive production audit completes with zero findings.
 - Keeps Dependabot patch and minor updates gated by quality, CodeQL, dependency review, and four-platform packaging checks.
 
-### Latest maintenance update: 3.2.5
+### Latest maintenance update: 3.2.6
+
+Updates fast-uri to 3.1.8, undici to 7.30.0, Socket.IO to 4.8.4, engine.io to 6.6.11, and Electron to 44.5.1. It also refreshes TypeScript ESLint and Node.js types and pins patched brace-expansion releases. The recursive security audit covers runtime and build dependencies; `braces` and `http-cache-semantics` remain temporarily excluded because their current high-severity advisories have no upstream patched versions. All platform installers and archives are rebuilt, including the Windows automatic-update feed.
+
+### Previous maintenance update: 3.2.5
 
 Includes the September 28 dependency updates: Electron 44.4.5, Material Symbols 0.47.5, TypeScript ESLint 8.70.1 and Prettier 3.9.9. All platform downloads are rebuilt, and installed Windows copies receive the new version through the automatic-update feed. The Stream Deck and security fixes below remain included.
 

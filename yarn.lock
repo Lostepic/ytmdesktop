@@ -871,12 +871,12 @@ __metadata:
   linkType: hard
 
 "@fastify/cors@npm:^11.2.0":
-  version: 11.3.0
-  resolution: "@fastify/cors@npm:11.3.0"
+  version: 11.3.1
+  resolution: "@fastify/cors@npm:11.3.1"
   dependencies:
     fastify-plugin: "npm:^6.0.0"
     toad-cache: "npm:^3.7.0"
-  checksum: 10c0/2b37bdf7f5a6c48dd329aeb1ab213514515f285969acd803c72a75a044cb2b6c30077c5d09f4c72bcf4dd5ade00adb4d34696ea9dcc0ffc39bf95e6b76a8d4b0
+  checksum: 10c0/0413b7e8251ec59c6f1901d618ee375a9d60dcf5b07f5cc1482dd1800a6aef7b1ce0cd7728fee60681d1d1ce09a4256ccce7cee0a1e5ef7093364fcbd6d5c00b
   languageName: node
   linkType: hard
 
@@ -930,14 +930,14 @@ __metadata:
   linkType: hard
 
 "@fastify/rate-limit@npm:^11.1.0":
-  version: 11.2.0
-  resolution: "@fastify/rate-limit@npm:11.2.0"
+  version: 11.2.1
+  resolution: "@fastify/rate-limit@npm:11.2.1"
   dependencies:
     "@lukeed/ms": "npm:^2.0.2"
     fastify-plugin: "npm:^6.0.0"
     ip-address: "npm:^10.2.0"
     toad-cache: "npm:^3.7.0"
-  checksum: 10c0/f782431e2b3a1374cfb042e978789b0f2b1409c058d8ade40c8968c2728b8bcc185a808a2dad011ed9b1e746a9f9f810fa68fc01affb46cfbfc714a55c7b7f05
+  checksum: 10c0/a0501a7fe27b83048d54d71295d54dcbb6227599bc2506c3fd86f0f9c6d426ef45a2838aa17163353aa2973260088f6fbb24b16f29986427dac4ea9794dde922
   languageName: node
   linkType: hard
 
@@ -6733,10 +6733,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"material-symbols@npm:^0.47.0":
-  version: 0.47.5
-  resolution: "material-symbols@npm:0.47.5"
-  checksum: 10c0/43077d980729790f37eeaa9590fb65776e16efe2e50bb6f62806c8dce712f39eb6498ac701e0858b45ae61edc91cdf468ab6da3ce2455295d6030c48eb234eac
+"material-symbols@npm:^0.48.0":
+  version: 0.48.0
+  resolution: "material-symbols@npm:0.48.0"
+  checksum: 10c0/c830d360012acc3d1e0a0e82786cff08b3c49fa29e9e31d546e53c57179ea01c5ffca869306147a3f621856594137f53ba407109bb2dc804ffbedc48393be4f2
   languageName: node
   linkType: hard
 
@@ -10177,7 +10177,7 @@ __metadata:
     fastify: "npm:5.12.5"
     husky: "npm:^9.1.7"
     lint-staged: "npm:^15.5.2"
-    material-symbols: "npm:^0.47.0"
+    material-symbols: "npm:^0.48.0"
     prettier: "npm:3.9.9"
     socket.io: "npm:^4.8.3"
     ts-node: "npm:^10.9.2"

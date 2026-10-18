@@ -1,10 +1,22 @@
 # Changelog
 
+## 3.2.7 — Playback history and desktop reliability
+
+- Merge the October production and development Dependabot updates, including Electron 44.7.2, Fastify 5.12.7, Vue 3.5.44, Vite 6.4.4, TypeScript ESLint 8.71.2, Prettier 3.9.10 and source-map-js 1.2.2.
+- Scrobble repeated tracks correctly in Last.fm and ListenBrainz. Count observed listening time rather than paused time or seek position, handle missing queues, and replace the unbounded ListenBrainz video-ID history with one active play. Addresses upstream [#1835](https://github.com/ytmdesktop/ytmdesktop/issues/1835).
+- Restore saved windows inside the current monitor work area after display or resolution changes, including displays with negative coordinates. Addresses upstream [#1282](https://github.com/ytmdesktop/ytmdesktop/issues/1282).
+- Add Ctrl+W on Windows/Linux and Cmd+W on macOS to close the player using the configured close-to-tray behavior. Addresses upstream [#1802](https://github.com/ytmdesktop/ytmdesktop/issues/1802).
+- Cancel obsolete SponsorBlock requests, reject late results for previous tracks, and apply category changes immediately to the current track.
+- Update http-cache-semantics to 4.3.0 and remove its audit exception. Audit production dependencies without exceptions; the build audit temporarily ignores only the existing unpatched braces advisory, rather than all advisories for that package.
+- Raise brace-expansion security minimums to 1.1.21, 2.1.7 and 5.0.12 to include the newer CPU-exhaustion fixes while allowing compatible patch updates.
+- Add regression checks for scrobbling, monitor recovery, keyboard shortcuts and SponsorBlock response races. Verify release tags match the packaged version, build the requested tag on manual reruns, and publish release notes directly from this changelog.
+- Publish Windows, Linux, Intel Mac and native Apple Silicon Mac packages with the Windows update feed.
+
 ## 3.2.6 — Dependency and security maintenance
 
 - Update fast-uri to 3.1.8 and Electron's undici dependency to 7.30.0, including their published security fixes.
 - Update Socket.IO to 4.8.4 and engine.io to 6.6.11, resolving the protocol-mismatch denial-of-service advisory and including upstream reliability fixes.
-- Update Electron to 44.5.1 and refresh Node.js types and TypeScript ESLint to 22.20.5 and 8.71.0.
+- Retain Electron 44.4.5 and refresh Node.js types and TypeScript ESLint to 22.20.5 and 8.71.0. The previously listed Electron 44.5.1 update was not present in the packaged version.
 - Pin patched brace-expansion releases across the 1.x, 2.x and 5.x dependency ranges.
 - Keep the recursive runtime/build audit and temporarily exclude `braces` and `http-cache-semantics`, whose current high-severity advisories have no patched upstream release yet.
 - Rebuild Windows, Linux, Intel Mac and Apple Silicon Mac packages; installed Windows copies receive the update through the automatic-update feed.

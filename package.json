@@ -1,7 +1,7 @@
 {
   "name": "youtube-music-desktop-app",
   "productName": "YTM Desktop",
-  "version": "3.2.6",
+  "version": "3.2.7",
   "description": "A modern, high-performance YouTube Music desktop client",
   "main": ".vite/main/index.js",
   "private": true,
@@ -15,6 +15,7 @@
     "lint": "eslint --ext .ts,.tsx,.vue .",
     "lint:fix": "eslint --ext .ts,.tsx,.vue .",
     "typecheck": "vue-tsc --noEmit",
+    "test:unit": "node tests/maintenance.cjs",
     "test:ui": "node tests/playback-coachmark.cjs && node tests/player-controls.cjs",
     "prettier": "prettier --check \"src/**/*.{ts,tsx,vue,js,css}\" \"config/**/*.ts\" \"*.{ts,json}\"",
     "prettier:fix": "prettier --write \"src/**/*.{ts,tsx,vue,js,css}\" \"config/**/*.ts\" \"*.{ts,json}\"",
@@ -92,9 +93,9 @@
     "tar": "7.5.22",
     "tmp": "0.2.7",
     "extract-zip": "npm:@electron-internal/extract-zip@1.0.5",
-    "brace-expansion@npm:^1.1.7": "npm:1.1.20",
-    "brace-expansion@npm:^2.0.1": "npm:2.1.6",
-    "brace-expansion@npm:^2.0.2": "npm:2.1.6",
-    "brace-expansion@npm:^5.0.8": "npm:5.0.11"
+    "brace-expansion@npm:^1.1.7": "npm:^1.1.21",
+    "brace-expansion@npm:^2.0.1": "npm:^2.1.7",
+    "brace-expansion@npm:^2.0.2": "npm:^2.1.7",
+    "brace-expansion@npm:^5.0.8": "npm:^5.0.12"
   }
 }

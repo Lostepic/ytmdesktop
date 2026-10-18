@@ -6,6 +6,7 @@ import playerStateStore, { PlayerState, VideoDetails, VideoState } from "../../p
 import MemoryStore from "../../memory-store";
 
 import IIntegration from "../integration";
+import { ListeningSession } from "../listening-session";
 import { MemoryStoreSchema, StoreSchema } from "~shared/store/schema";
 import { LastfmErrorResponse, LastfmRequestBody, LastfmSessionResponse, LastfmTokenResponse } from "./schemas";
 import log from "electron-log";
@@ -16,9 +17,13 @@ export default class LastFM implements IIntegration {
 
   private isEnabled = false;
 
-  private possibleVideoIds: string[] | null;
+  private listeningSession = new ListeningSession();
+  private playSequence = 0;
+  private scrobbled = false;
+  private nowPlayingSent = false;
+  private sessionRequest: Promise<void> | null = null;
+  private lastSessionAttempt = 0;
   private lastfmDetails: StoreSchema["lastfm"] = null;
-  private scrobbleTimer: NodeJS.Timeout | null = null;
   private playerStateFunction: (state: PlayerState) => void;
 
   private async createToken(): Promise<string> {
@@ -69,52 +74,46 @@ export default class LastFM implements IIntegration {
 
   // ----------------------------------------------------------
 
+  private ensureSession(): void {
+    if (this.sessionRequest || Date.now() - this.lastSessionAttempt < 30_000) return;
+    this.lastSessionAttempt = Date.now();
+    this.sessionRequest = this.getSession()
+      .catch(error => log.warn("Last.fm authentication failed", error))
+      .finally(() => {
+        this.sessionRequest = null;
+      });
+  }
+
   private async updatePlayerState(state: PlayerState): Promise<void> {
     if (!this.isEnabled) {
       return;
     }
 
-    if (state.videoDetails && state.trackState === VideoState.Playing) {
-      // Check if the video has changed (TO DO: Fix song on repeat not scrobbling)
-
-      const videoIsPrepped = this.possibleVideoIds && this.possibleVideoIds.indexOf(state.videoDetails.id) !== -1;
-      const queueExists = state.queue && state.queue.items && state.queue.items.length > 0;
-
-      if (videoIsPrepped && queueExists) {
-        return;
-      }
-
-      // Store all the IDs of videos for this song.
-      this.possibleVideoIds = state.queue.items[state.queue.selectedItemIndex]?.counterparts?.map(item => item.videoId) || [];
-      this.possibleVideoIds.push(state.queue.items[state.queue.selectedItemIndex]?.videoId);
-
+    this.listeningSession.update(state);
+    if (this.playSequence !== this.listeningSession.sequence) {
+      this.playSequence = this.listeningSession.sequence;
+      this.scrobbled = false;
+      this.nowPlayingSent = false;
+    }
+    if (state.videoDetails && state.trackState === VideoState.Playing && !state.adPlaying) {
       if (!this.lastfmDetails || !this.lastfmDetails.sessionKey) {
-        this.getSession();
+        this.ensureSession();
         return;
       }
-
-      clearTimeout(this.scrobbleTimer);
-
-      // Track must be longer than 30 seconds
-      // https://www.last.fm/api/scrobbling "When is a scrobble a scrobble?"
-      if (state.videoDetails.durationSeconds < 30) {
+      const duration = state.videoDetails.durationSeconds;
+      if (!Number.isFinite(duration) || duration <= 30 || state.videoDetails.isLive) {
         return;
       }
-
-      this.updateNowPlaying(state.videoDetails);
-
-      this.lastfmDetails.scrobblePercent = this.store.get("lastfm.scrobblePercent");
-      const scrobblePercentDecimal = this.lastfmDetails.scrobblePercent / 100;
-      const scrobbleTimeRequired = Math.min(
-        // Scrobble the track if it has been played to the percent picked by the user
-        Math.round(state.videoDetails.durationSeconds * scrobblePercentDecimal),
-        // OR if it has been played for more than 4 minutes, scrobble maximum time: https://www.last.fm/api/scrobbling
-        240
-      );
-      const scrobbleTime = new Date().getTime();
-      this.scrobbleTimer = setTimeout(() => {
-        this.scrobbleSong(state.videoDetails, scrobbleTime);
-      }, scrobbleTimeRequired * 1000);
+      if (!this.nowPlayingSent) {
+        this.nowPlayingSent = true;
+        void this.updateNowPlaying(state.videoDetails);
+      }
+      const percent = this.store.get("lastfm.scrobblePercent");
+      const threshold = Math.min(duration * (Number.isFinite(percent) ? Math.max(1, Math.min(100, percent)) / 100 : 0.5), 240);
+      if (!this.scrobbled && this.listeningSession.listenedSeconds >= threshold) {
+        this.scrobbled = true;
+        void this.scrobbleSong(state.videoDetails, this.listeningSession.startedAt);
+      }
     }
   }
 
@@ -192,7 +191,7 @@ export default class LastFM implements IIntegration {
     this.lastfmDetails = this.getSettings();
 
     if (!this.lastfmDetails || !this.lastfmDetails.sessionKey) {
-      this.getSession();
+      this.ensureSession();
     }
 
     this.playerStateFunction = (state: PlayerState) => this.updatePlayerState(state);
@@ -206,6 +205,10 @@ export default class LastFM implements IIntegration {
 
     playerStateStore.removeEventListener(this.playerStateFunction);
     this.isEnabled = false;
+    this.listeningSession = new ListeningSession();
+    this.playSequence = 0;
+    this.scrobbled = false;
+    this.nowPlayingSent = false;
   }
 
   public getYTMScripts(): { name: string; script: string }[] {

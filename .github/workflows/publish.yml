@@ -39,10 +39,14 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.RELEASE_TAG }}
       - uses: actions/setup-node@v7
         with:
           node-version: 22
       - run: corepack enable
+      - name: Verify release tag matches the app version
+        run: node -e "if (process.env.RELEASE_TAG !== 'v' + require('./package.json').version) throw new Error('Release tag must match package.json version')"
       - run: yarn install --immutable
       - name: Build Windows and Linux package
         if: runner.os != 'macOS'
@@ -72,6 +76,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.RELEASE_TAG }}
       - uses: actions/download-artifact@v8
         with:
           pattern: release-*
@@ -82,9 +89,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const version = process.env.RELEASE_TAG.replace(/^v/, '');
+          const section = fs.readFileSync('docs/CHANGELOG.md', 'utf8').split(/^## /m).find(part => part.startsWith(version + ' — '));
+          if (!section) throw new Error('Missing changelog entry for ' + version);
+          fs.writeFileSync('release-notes.md', '## ' + section.trim() + '\n');
+          NODE
           mapfile -d '' files < <(find artifacts -type f -print0)
           if gh release view "${RELEASE_TAG}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release edit "${RELEASE_TAG}" --repo "${GITHUB_REPOSITORY}" --notes-file release-notes.md
             gh release upload "${RELEASE_TAG}" "${files[@]}" --repo "${GITHUB_REPOSITORY}" --clobber
           else
-            gh release create "${RELEASE_TAG}" "${files[@]}" --repo "${GITHUB_REPOSITORY}" --generate-notes --title "YTM Desktop ${RELEASE_TAG}"
+            gh release create "${RELEASE_TAG}" "${files[@]}" --repo "${GITHUB_REPOSITORY}" --notes-file release-notes.md --title "YTM Desktop ${RELEASE_TAG}"
           fi

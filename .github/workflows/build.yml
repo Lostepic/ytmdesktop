@@ -28,10 +28,13 @@ jobs:
       - run: corepack enable
       - run: yarn install --immutable
       - run: yarn check
-      # These two packages have high-severity advisories but no patched release yet.
-      # Keep the full audit enabled for every other runtime and build dependency.
+      - run: yarn test:unit
+      - name: Audit production dependencies without exceptions
+        run: yarn npm audit --recursive --environment production --no-deprecations --severity high
+      # Build-only braces has no patched release for GHSA-vfj7-8cjw-p6xm yet.
+      # Ignore only that advisory; new advisories for braces still fail this gate.
       - name: Audit runtime and build dependencies
-        run: yarn npm audit --recursive --no-deprecations --severity high --exclude braces --exclude http-cache-semantics
+        run: yarn npm audit --recursive --no-deprecations --severity high --ignore 1240992
       - name: Prepare Electron sandbox for browser tests
         run: |
           node node_modules/electron/install.js

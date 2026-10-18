@@ -5,6 +5,7 @@ import path from "path";
 import log from "electron-log";
 import playerStateStore, { PlayerState, VideoState } from "../../player-state-store";
 import { StoreSchema } from "~shared/store/schema";
+import { ListeningSession } from "../listening-session";
 
 type SponsorSegment = { segment: [number, number]; UUID: string; category: string; actionType: string };
 
@@ -19,7 +20,11 @@ export default class Enhancements {
   private lastExportText = "";
   private lastTelemetryWrite = 0;
   private lastProgress = 0;
-  private listenSubmitted = new Set<string>();
+  private listeningSession = new ListeningSession();
+  private listenSequence = 0;
+  private listenSubmitted = false;
+  private playingNowSent = false;
+  private sponsorRequest: AbortController | null = null;
   private telemetry = { launches: 1, tracksPlayed: 0, bufferingEvents: 0, playbackSeconds: 0, lastUpdated: "" };
   private previousState: PlayerState | null = null;
 
@@ -28,7 +33,24 @@ export default class Enhancements {
     this.view = view;
     this.integrationSettings = store.get("integrations");
     store.onDidChange("integrations", value => {
-      if (value) this.integrationSettings = value;
+      if (!value) return;
+      const sponsorChanged =
+        value.sponsorBlockEnabled !== this.integrationSettings.sponsorBlockEnabled ||
+        value.sponsorBlockSkipIntros !== this.integrationSettings.sponsorBlockSkipIntros ||
+        value.sponsorBlockSkipOutros !== this.integrationSettings.sponsorBlockSkipOutros;
+      if (value.listenBrainzEnabled !== this.integrationSettings.listenBrainzEnabled) {
+        this.listeningSession = new ListeningSession();
+        this.listenSequence = 0;
+        this.listenSubmitted = false;
+        this.playingNowSent = false;
+      }
+      if (sponsorChanged) {
+        this.sponsorRequest?.abort();
+        this.segments = [];
+        this.skipped.clear();
+      }
+      this.integrationSettings = value;
+      if (sponsorChanged && value.sponsorBlockEnabled && this.currentVideoId) void this.loadSponsorSegments(this.currentVideoId);
     });
     playerStateStore.addEventListener(state => void this.onState(state));
     void this.validatePluginManifests();
@@ -37,24 +59,43 @@ export default class Enhancements {
   private async onState(state: PlayerState): Promise<void> {
     const settings = this.integrationSettings;
     const videoId = state.videoDetails?.id ?? "";
+    this.listeningSession.update(state);
+    if (this.listenSequence !== this.listeningSession.sequence) {
+      this.listenSequence = this.listeningSession.sequence;
+      this.listenSubmitted = false;
+      this.playingNowSent = false;
+    }
 
     if (videoId && videoId !== this.currentVideoId) {
       this.currentVideoId = videoId;
+      this.sponsorRequest?.abort();
       this.segments = [];
       this.skipped.clear();
       this.lastProgress = 0;
       this.telemetry.tracksPlayed++;
       if (settings.sponsorBlockEnabled) void this.loadSponsorSegments(videoId);
-      if (settings.listenBrainzEnabled) void this.submitListen(state, "playing_now");
     }
 
     if (settings.sponsorBlockEnabled && state.trackState === VideoState.Playing) this.skipMarkedSegment(state.videoProgress);
     if (settings.nowPlayingExportEnabled && Date.now() - this.lastExport >= 1_000) void this.exportNowPlaying(state);
 
-    const threshold = Math.min((state.videoDetails?.durationSeconds ?? 0) / 2, 240);
-    if (settings.listenBrainzEnabled && videoId && state.videoProgress >= threshold && !this.listenSubmitted.has(videoId)) {
-      this.listenSubmitted.add(videoId);
-      void this.submitListen(state, "single");
+    const duration = state.videoDetails?.durationSeconds ?? 0;
+    if (settings.listenBrainzEnabled && videoId && state.trackState === VideoState.Playing && !state.adPlaying) {
+      if (!this.playingNowSent) {
+        this.playingNowSent = true;
+        void this.submitListen(state, "playing_now");
+      }
+      const threshold = Math.min(duration / 2, 240);
+      if (
+        Number.isFinite(duration) &&
+        duration > 30 &&
+        !state.videoDetails.isLive &&
+        !this.listenSubmitted &&
+        this.listeningSession.listenedSeconds >= threshold
+      ) {
+        this.listenSubmitted = true;
+        void this.submitListen(state, "single");
+      }
     }
 
     if (settings.localTelemetryEnabled) {
@@ -71,6 +112,8 @@ export default class Enhancements {
   }
 
   private async loadSponsorSegments(videoId: string): Promise<void> {
+    const controller = new AbortController();
+    this.sponsorRequest = controller;
     const settings = this.integrationSettings;
     const categories = ["sponsor"];
     if (settings.sponsorBlockSkipIntros) categories.push("intro");
@@ -80,15 +123,28 @@ export default class Enhancements {
       const response = await fetch(
         `https://sponsor.ajay.app/api/skipSegments?videoID=${encodeURIComponent(videoId)}&categories=${query}&actionTypes=[%22skip%22]`,
         {
-          signal: AbortSignal.timeout(8_000),
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(8_000)]),
           headers: { "User-Agent": `YTM-Desktop/${app.getVersion()}` }
         }
       );
       if (response.status === 404) return;
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      this.segments = (await response.json()) as SponsorSegment[];
+      const payload: unknown = await response.json();
+      if (!Array.isArray(payload)) throw new Error("Invalid SponsorBlock segment response");
+      const segments = payload.filter(
+        (item): item is SponsorSegment =>
+          item &&
+          typeof item.UUID === "string" &&
+          item.actionType === "skip" &&
+          Array.isArray(item.segment) &&
+          item.segment.length === 2 &&
+          item.segment.every(Number.isFinite) &&
+          item.segment[0] >= 0 &&
+          item.segment[1] > item.segment[0]
+      );
+      if (!controller.signal.aborted && this.currentVideoId === videoId && this.integrationSettings.sponsorBlockEnabled) this.segments = segments;
     } catch (error) {
-      log.warn("SponsorBlock lookup failed", error instanceof Error ? error.message : error);
+      if (!controller.signal.aborted) log.warn("SponsorBlock lookup failed", error instanceof Error ? error.message : error);
     }
   }
 
@@ -151,7 +207,7 @@ export default class Enhancements {
         release_name: details.album || undefined,
         additional_info: { origin_url: `https://music.youtube.com/watch?v=${details.id}`, media_player: "YTM Desktop" }
       },
-      ...(listenType === "single" ? { listened_at: Math.floor(Date.now() / 1000) } : {})
+      ...(listenType === "single" ? { listened_at: Math.floor(this.listeningSession.startedAt / 1000) } : {})
     };
     try {
       const response = await fetch("https://api.listenbrainz.org/1/submit-listens", {

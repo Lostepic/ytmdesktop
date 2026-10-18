@@ -80,9 +80,20 @@ Version 3.2 is a focused runtime, startup, and recovery release:
 - Removes obsolete serializer and WebSocket dependency copies; the recursive production audit completes with zero findings.
 - Keeps Dependabot patch and minor updates gated by quality, CodeQL, dependency review, and four-platform packaging checks.
 
-### Latest maintenance update: 3.2.6
+### Latest maintenance update: 3.2.7
 
-Updates fast-uri to 3.1.8, undici to 7.30.0, Socket.IO to 4.8.4, engine.io to 6.6.11, and Electron to 44.5.1. It also refreshes TypeScript ESLint and Node.js types and pins patched brace-expansion releases. The recursive security audit covers runtime and build dependencies; `braces` and `http-cache-semantics` remain temporarily excluded because their current high-severity advisories have no upstream patched versions. All platform installers and archives are rebuilt, including the Windows automatic-update feed.
+- Last.fm and ListenBrainz now record repeated tracks correctly and count actual listening instead of paused time or seek position.
+- Saved windows recover onto an available monitor after display or resolution changes.
+- Ctrl+W (Windows/Linux) and Cmd+W (macOS) close the player using your existing close-to-tray preference.
+- SponsorBlock drops stale responses when changing songs, and category changes take effect on the current track.
+- Includes all October Dependabot updates: Electron 44.7.2, Fastify 5.12.7, Vue 3.5.44, Vite 6.4.4 and refreshed development tooling.
+- Updates http-cache-semantics to 4.3.0 and removes its audit exception. Production dependencies are audited without exceptions; the build audit temporarily ignores only the specific unpatched `braces` advisory.
+
+These desktop and playback-history changes address suggestions and bug reports from the original project's community; the [changelog](docs/CHANGELOG.md) links the source issues. All platform installers and archives are rebuilt, including the Windows automatic-update feed.
+
+### Previous maintenance update: 3.2.6
+
+Updated fast-uri to 3.1.8, undici to 7.30.0, Socket.IO to 4.8.4 and engine.io to 6.6.11, alongside development tooling and patched brace-expansion releases. Electron remained pinned to 44.4.5 in this version; the earlier documentation listing 44.5.1 was incorrect.
 
 ### Previous maintenance update: 3.2.5
 

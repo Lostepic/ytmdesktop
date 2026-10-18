@@ -8,6 +8,7 @@
 - Add Ctrl+W on Windows/Linux and Cmd+W on macOS to close the player using the configured close-to-tray behavior. Addresses upstream [#1802](https://github.com/ytmdesktop/ytmdesktop/issues/1802).
 - Cancel obsolete SponsorBlock requests, reject late results for previous tracks, and apply category changes immediately to the current track.
 - Update http-cache-semantics to 4.3.0 and remove its audit exception. Audit production dependencies without exceptions; the build audit temporarily ignores only the existing unpatched braces advisory, rather than all advisories for that package.
+- Raise brace-expansion security minimums to 1.1.21, 2.1.7 and 5.0.12 to include the newer CPU-exhaustion fixes while allowing compatible patch updates.
 - Add regression checks for scrobbling, monitor recovery, keyboard shortcuts and SponsorBlock response races. Verify release tags match the packaged version, build the requested tag on manual reruns, and publish release notes directly from this changelog.
 - Publish Windows, Linux, Intel Mac and native Apple Silicon Mac packages with the Windows update feed.
 

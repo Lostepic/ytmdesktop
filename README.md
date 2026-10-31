@@ -62,6 +62,8 @@ The macOS archives use a verified ad-hoc bundle signature but are not yet Apple-
 
 The build badge reports validation of the protected `main` branch. Version tags build all platforms in parallel and publish every installer and archive directly to the matching GitHub Release.
 
+Pull requests also build the Windows and Linux installers, so installer-tool failures are caught before a release. Linux packaging uses Ubuntu 24.04 to keep the RPM toolchain compatible with the current Electron Forge maker.
+
 ## What changed in 3.2
 
 Version 3.2 is a focused runtime, startup, and recovery release:

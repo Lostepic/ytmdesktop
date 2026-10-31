@@ -44,6 +44,7 @@ export type StoreSchema = {
     companionServerAuthTokens: string | null; // array[object] | Encrypted for security
     companionServerCORSWildcardEnabled: boolean;
     discordPresenceEnabled: boolean;
+    discordShowPlaybackButton: boolean;
     lastFMEnabled: boolean;
     sponsorBlockEnabled: boolean;
     sponsorBlockSkipIntros: boolean;

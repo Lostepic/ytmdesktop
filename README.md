@@ -80,7 +80,17 @@ Version 3.2 is a focused runtime, startup, and recovery release:
 - Removes obsolete serializer and WebSocket dependency copies; the recursive production audit completes with zero findings.
 - Keeps Dependabot patch and minor updates gated by quality, CodeQL, dependency review, and four-platform packaging checks.
 
-### Latest maintenance update: 3.2.7
+### Latest maintenance update: 3.2.8
+
+- Discord Rich Presence reconnects automatically when Discord starts later or restarts, with retries capped at one per minute after backoff.
+- A new **Show Discord playback button** setting lets you hide the activity button while keeping track information visible.
+- Discord heartbeat and message framing are repaired; paused activity clears after 30 seconds without repeated timers or clear messages.
+- Settings can recover from an invisible window on Linux/X11 and restores correctly when hidden or minimized.
+- Includes the outstanding dependency updates and newer compatible patches: Electron 44.9.3, Vite 6.4.5, TypeScript ESLint 8.72.1, Material Symbols 0.48.2, fast-uri 3.1.9 and undici 7.30.1.
+
+The [changelog](docs/CHANGELOG.md) links the upstream community requests behind these improvements. All platform packages are rebuilt, including native Apple Silicon and the Windows automatic-update feed.
+
+### Previous maintenance update: 3.2.7
 
 - Last.fm and ListenBrainz now record repeated tracks correctly and count actual listening instead of paused time or seek position.
 - Saved windows recover onto an available monitor after display or resolution changes.
@@ -183,6 +193,10 @@ SponsorBlock is disabled by default. It requests community skip segments only af
 ### ListenBrainz
 
 ListenBrainz tokens are encrypted with the operating system's secure storage. Playing-now updates and completed listens are sent only while the integration is enabled.
+
+### Discord Rich Presence
+
+Enable **Settings → Integrations → Discord rich presence** to share your current track. The app reconnects automatically if Discord opens later or restarts. Disable **Show Discord playback button** in the same section to hide the playback button while retaining track information. Paused activity clears after 30 seconds; disabling the integration cancels its reconnect timer and pending connection attempts.
 
 ### Plugins
 

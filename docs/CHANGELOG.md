@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.2.8 — Discord recovery and integration reliability
+
+- Incorporate the pending Dependabot updates, using Electron 44.9.3, Vite 6.4.5, TypeScript ESLint 8.72.1, Material Symbols 0.48.2 and fast-uri 3.1.9. The newer patch releases supersede the older overlapping Electron, lint-tool and icon updates.
+- Update the Electron download tool's undici dependency to 7.30.1 to resolve the new high-severity advisories that blocked dependency PR builds.
+- Reconnect Discord Rich Presence automatically for as long as the integration is enabled, with one pending retry and a backoff capped at 60 seconds. Restore the current track on reconnect. Addresses upstream [#1838](https://github.com/ytmdesktop/ytmdesktop/issues/1838).
+- Add **Settings → Integrations → Show Discord playback button** so the activity's playback button can be hidden without disabling Rich Presence. Addresses upstream [#1851](https://github.com/ytmdesktop/ytmdesktop/issues/1851).
+- Correct Discord IPC heartbeat delivery, handle fragmented and combined frames, bound incoming frame sizes, and cancel outstanding connection attempts when disabling the integration.
+- Clear paused Discord activity after 30 seconds even when playback-state updates continue; avoid repeated clear messages, redundant pause timers and error-level logging when Discord simply is not running.
+- Show Settings after its document loads if the first-paint event never arrives, and restore hidden or minimized Settings windows when reopening. Addresses upstream [#1840](https://github.com/ytmdesktop/ytmdesktop/issues/1840).
+- Add regression tests for Discord retries beyond the old limit, heartbeat replies, stream framing, cancellation, button visibility, pause cleanup and Settings restoration.
+- Rebuild Windows, Linux, Intel Mac and native Apple Silicon Mac packages and the Windows automatic-update feed. Production audits remain strict; the existing build-only unpatched braces advisory remains the sole high-severity audit exception.
+
 ## 3.2.7 — Playback history and desktop reliability
 
 - Merge the October production and development Dependabot updates, including Electron 44.7.2, Fastify 5.12.7, Vue 3.5.44, Vite 6.4.4, TypeScript ESLint 8.71.2, Prettier 3.9.10 and source-map-js 1.2.2.

@@ -1,4 +1,11 @@
-import type { Input, Rectangle } from "electron";
+import type { BrowserWindow, Input, Rectangle } from "electron";
+
+export function showAuxiliaryWindow(window: BrowserWindow): void {
+  if (window.isDestroyed()) return;
+  if (window.isMinimized()) window.restore();
+  if (!window.isVisible()) window.show();
+  window.focus();
+}
 
 export function visibleWindowBounds(saved: Rectangle | null, workAreas: Rectangle[]): Rectangle {
   const primary = workAreas[0];

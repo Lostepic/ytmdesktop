@@ -34,6 +34,8 @@ export default class DiscordClient extends EventEmitter {
   private connectionPromise: Promise<void> | null = null;
   private ipcClient = new IPCClient();
   private connected = false;
+  private destroyed = false;
+  private cancelAttempt: (() => void) | null = null;
 
   constructor(clientId: string) {
     super();
@@ -42,6 +44,8 @@ export default class DiscordClient extends EventEmitter {
   }
 
   public connect() {
+    if (this.destroyed) return Promise.reject(new Error("Discord client has been destroyed"));
+    if (this.connected) return Promise.resolve();
     if (this.connectionPromise) return this.connectionPromise;
     this.ipcClient.removeAllListeners();
 
@@ -50,9 +54,10 @@ export default class DiscordClient extends EventEmitter {
     this.connectionPromise = new Promise(async (resolve, reject) => {
       log.debug("dipc: initiated connection loop over 10 ids");
       let id = 0;
-      while (id < 10) {
+      while (id < 10 && !this.destroyed) {
         try {
           await new Promise<void>((ipcResolve, ipcReject) => {
+            this.cancelAttempt = () => ipcReject(new Error("Discord connection cancelled"));
             const ipcPath = getIPCPath(id);
             log.debug("dipc: connecting to discord at", ipcPath);
             this.ipcClient.once("close", () => {
@@ -61,7 +66,7 @@ export default class DiscordClient extends EventEmitter {
               ipcReject();
             });
             this.ipcClient.once("error", error => {
-              log.error("dipc: socket error connecting to discord", error);
+              log.debug("dipc: socket unavailable", error);
             });
             this.ipcClient.once("connect", () => {
               log.debug("dipc: connected to discord at", ipcPath);
@@ -70,8 +75,10 @@ export default class DiscordClient extends EventEmitter {
             });
             this.ipcClient.connect(getIPCPath(id));
           });
-
+          this.cancelAttempt = null;
+          if (this.destroyed) break;
           this.connected = true;
+          this.ipcClient.on("error", error => log.warn("Discord IPC socket error", error));
           this.ipcClient.send(
             {
               v: 1,
@@ -91,6 +98,10 @@ export default class DiscordClient extends EventEmitter {
                 this.ipcClient.send(json, OPCode.PONG);
                 break;
               }
+              case OPCode.CLOSE: {
+                this.ipcClient.close();
+                break;
+              }
 
               default: {
                 break;
@@ -107,6 +118,7 @@ export default class DiscordClient extends EventEmitter {
         }
       }
 
+      this.cancelAttempt = null;
       this.connectionPromise = null;
       reject();
     });
@@ -124,6 +136,9 @@ export default class DiscordClient extends EventEmitter {
   }
 
   public destroy() {
+    this.destroyed = true;
+    this.cancelAttempt?.();
+    this.cancelAttempt = null;
     this.connected = false;
     this.removeAllListeners();
     this.ipcClient.destroy();

@@ -11,6 +11,8 @@ export enum OPCode {
 
 export default class IPCClient extends EventEmitter {
   private socket: Socket;
+  private pending: Buffer = Buffer.alloc(0);
+  private disposed = false;
 
   constructor() {
     super();
@@ -19,6 +21,7 @@ export default class IPCClient extends EventEmitter {
   }
 
   private createSocket() {
+    this.pending = Buffer.alloc(0);
     this.socket = new Socket();
     this.socket.on("connect", () => {
       this.emit("connect");
@@ -27,20 +30,30 @@ export default class IPCClient extends EventEmitter {
       this.emit("close", hadError);
     });
     this.socket.on("error", error => {
-      this.emit("error", error);
+      if (!this.disposed) this.emit("error", error);
     });
     this.socket.on("data", (buffer: Buffer) => {
-      try {
-        const op = buffer.readInt32LE(0);
-        const length = buffer.readInt32LE(4);
-        const json = JSON.parse(buffer.toString("utf-8", 8, 8 + length));
-
-        this.emit("data", {
-          op,
-          json
-        });
-      } catch {
-        /* invalid json provided, ignore */
+      if (this.disposed) return;
+      this.pending = this.pending.length ? Buffer.concat([this.pending, buffer]) : buffer;
+      while (this.pending.length >= 8) {
+        const op = this.pending.readUInt32LE(0);
+        const length = this.pending.readUInt32LE(4);
+        if (length > 1024 * 1024) {
+          this.pending = Buffer.alloc(0);
+          this.socket.destroy();
+          this.emit("error", new Error("Discord IPC frame exceeds the size limit"));
+          return;
+        }
+        if (this.pending.length < 8 + length) return;
+        const payload = this.pending.toString("utf8", 8, 8 + length);
+        this.pending = this.pending.subarray(8 + length);
+        let json: unknown;
+        try {
+          json = JSON.parse(payload);
+        } catch {
+          continue;
+        }
+        this.emit("data", op, json);
       }
     });
   }
@@ -60,11 +73,8 @@ export default class IPCClient extends EventEmitter {
     buffer.writeInt32LE(length, 4);
     buffer.write(json, 8, length);
 
-    if (this.socket.writable) {
+    if (this.socket.writable && !this.socket.destroyed) {
       this.socket.write(buffer);
-    } else {
-      this.socket.end();
-      this.createSocket();
     }
   }
 
@@ -76,7 +86,9 @@ export default class IPCClient extends EventEmitter {
   }
 
   public destroy() {
+    this.disposed = true;
     this.removeAllListeners();
+    this.pending = Buffer.alloc(0);
     this.socket.destroy();
   }
 }

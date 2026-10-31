@@ -57,9 +57,12 @@ export default class DiscordPresence implements IIntegration {
   private discordClient: DiscordClient = null;
   private enabled = false;
   private ready = false;
+  private showPlaybackButton = true;
+  private activityCleared = true;
   private activityDebounceTimeout: NodeJS.Timeout | null = null;
   private pauseTimeout: string | number | NodeJS.Timeout = null;
-  private connectionRetryTimeout: string | number | NodeJS.Timeout = null;
+  private connectionRetryTimeout: NodeJS.Timeout | null = null;
+  private hasFullMetadata = false;
   private stateCallback: (event: PlayerState) => void = null;
 
   private videoState: VideoState | null = null;
@@ -71,23 +74,22 @@ export default class DiscordPresence implements IIntegration {
   private UpdateActivity() {
     if (this.activityDebounceTimeout) return;
     this.activityDebounceTimeout = setTimeout(() => {
+      this.activityDebounceTimeout = null;
       if (!this.enabled || !this.ready || !this.discordClient) {
-        this.activityDebounceTimeout = null;
         return;
       }
       if (!this.videoDetails) {
-        this.discordClient.clearActivity();
-        this.activityDebounceTimeout = null;
+        this.clearActivity();
         return;
       }
       const { title, author, album, id, thumbnails, durationSeconds, channelId, albumId } = this.videoDetails;
-      const thumbnail = getHighestResThumbnail(thumbnails);
+      const thumbnail = getHighestResThumbnail(thumbnails ?? []);
       this.discordClient.setActivity({
         type: DiscordActivityType.Listening,
         status_display_type: 1,
-        details: stringLimit(title, 128, 2),
+        details: stringLimit(title ?? "", 128, 2),
         details_url: `https://music.youtube.com/watch?v=${id}`,
-        state: stringLimit(author, 128, 2),
+        state: stringLimit(author ?? "", 128, 2),
         state_url: `https://music.youtube.com/channel/${channelId}`,
         timestamps: {
           start: this.videoState === VideoState.Playing ? Date.now() - this.progress * 1000 : undefined,
@@ -101,15 +103,23 @@ export default class DiscordPresence implements IIntegration {
           small_text: getSmallImageText(this.videoState)
         },
         instance: false,
-        buttons: [
-          {
-            label: "Play on YTMDesktop",
-            url: `ytmd://play/${id}`
-          }
-        ]
+        buttons: this.showPlaybackButton
+          ? [
+              {
+                label: "Play on YTMDesktop",
+                url: `ytmd://play/${id}`
+              }
+            ]
+          : []
       });
-      this.activityDebounceTimeout = null;
+      this.activityCleared = false;
     }, 1000);
+  }
+
+  private clearActivity(): void {
+    if (!this.ready || !this.discordClient || this.activityCleared) return;
+    this.discordClient.clearActivity();
+    this.activityCleared = true;
   }
 
   private playerStateChanged(state: PlayerState) {
@@ -117,51 +127,60 @@ export default class DiscordPresence implements IIntegration {
 
     const { videoDetails, videoProgress, trackState, hasFullMetadata } = state;
     if (!videoDetails) {
-      this.discordClient.clearActivity();
+      this.videoDetails = null;
+      this.clearActivity();
       return;
     }
     const oldState = this.videoState ?? null;
     const oldId = this.videoDetails?.id ?? null;
     const oldProgress = this.progress ?? null;
+    const metadataBecameReady = hasFullMetadata && !this.hasFullMetadata;
+    this.hasFullMetadata = hasFullMetadata;
     this.videoState = trackState;
     this.videoDetails = videoDetails;
     this.progress = Math.floor(videoProgress);
     if (
       hasFullMetadata &&
-      (oldState !== this.videoState || oldId !== this.videoDetails.id || Math.abs(this.progress - oldProgress) > 1 || oldProgress > this.progress)
+      (metadataBecameReady ||
+        oldState !== this.videoState ||
+        oldId !== this.videoDetails.id ||
+        Math.abs(this.progress - oldProgress) > 1 ||
+        oldProgress > this.progress)
     ) {
       this.UpdateActivity();
     }
 
-    clearTimeout(this.pauseTimeout);
-    this.pauseTimeout = null;
-    if (state.trackState == VideoState.Playing) return;
-    this.pauseTimeout = setTimeout(() => {
-      if (!this.discordClient || !this.ready) return;
-      this.discordClient.clearActivity();
+    if (state.trackState === VideoState.Playing) {
+      clearTimeout(this.pauseTimeout);
       this.pauseTimeout = null;
-    }, 30 * 1000);
+    } else if (oldState !== trackState || oldId !== videoDetails.id) {
+      clearTimeout(this.pauseTimeout);
+      this.pauseTimeout = setTimeout(() => {
+        this.clearActivity();
+        this.pauseTimeout = null;
+      }, 30 * 1000);
+    }
   }
 
-  public provide(memoryStore: MemoryStore<MemoryStoreSchema>): void {
+  public provide(memoryStore: MemoryStore<MemoryStoreSchema>, showPlaybackButton = true): void {
     this.memoryStore = memoryStore;
+    if (this.showPlaybackButton !== showPlaybackButton) {
+      this.showPlaybackButton = showPlaybackButton;
+      if (this.ready && !this.activityCleared) this.UpdateActivity();
+    }
   }
 
   private retryDiscordConnection() {
-    if (!this.enabled) return;
-    if (this.connectionRetries >= 30) {
-      this.memoryStore.set("discordPresenceConnectionFailed", true);
-      return;
-    }
-
-    this.connectionRetries++;
-    log.info(`Connecting to Discord attempt ${this.connectionRetries}/30`);
-
-    clearTimeout(this.connectionRetryTimeout);
+    if (!this.enabled || this.connectionRetryTimeout) return;
+    this.connectionRetries = Math.min(this.connectionRetries + 1, 5);
+    const delay = Math.min(5_000 * 2 ** (this.connectionRetries - 1), 60_000);
+    this.memoryStore.set("discordPresenceConnectionFailed", true);
     this.connectionRetryTimeout = setTimeout(() => {
-      if (!this.discordClient) return;
+      this.connectionRetryTimeout = null;
+      if (!this.enabled || !this.discordClient) return;
       this.discordClient.connect().catch(() => this.retryDiscordConnection());
-    }, 5 * 1000);
+    }, delay);
+    this.connectionRetryTimeout.unref();
   }
 
   public enable(): void {
@@ -170,9 +189,17 @@ export default class DiscordPresence implements IIntegration {
     this.discordClient = new DiscordClient(DISCORD_CLIENT_ID);
 
     this.discordClient.on("connect", () => {
+      if (!this.enabled) return;
+      clearTimeout(this.connectionRetryTimeout);
+      this.connectionRetryTimeout = null;
       this.ready = true;
       this.connectionRetries = 0;
+      this.videoDetails = null;
+      this.videoState = null;
+      this.hasFullMetadata = false;
+      this.activityCleared = true;
       this.memoryStore.set("discordPresenceConnectionFailed", false);
+      this.playerStateChanged(playerStateStore.getState());
     });
     this.discordClient.on("close", () => {
       log.info("Discord connection closed");

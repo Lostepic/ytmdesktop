@@ -96,6 +96,7 @@ const companionServerEnabled = ref<boolean>(integrations.companionServerEnabled)
 const companionServerAuthTokens = ref<AuthToken[]>([]);
 const companionServerCORSWildcardEnabled = ref<boolean>(integrations.companionServerCORSWildcardEnabled);
 const discordPresenceEnabled = ref<boolean>(integrations.discordPresenceEnabled);
+const discordShowPlaybackButton = ref<boolean>(integrations.discordShowPlaybackButton ?? true);
 const lastFMEnabled = ref<boolean>(integrations.lastFMEnabled);
 const sponsorBlockEnabled = ref<boolean>(integrations.sponsorBlockEnabled ?? false);
 const sponsorBlockSkipIntros = ref<boolean>(integrations.sponsorBlockSkipIntros ?? false);
@@ -149,6 +150,7 @@ store.onDidAnyChange(async newState => {
   if (currentTab.value === 4) await refreshCompanionTokens(newState.integrations.companionServerAuthTokens);
   companionServerCORSWildcardEnabled.value = newState.integrations.companionServerCORSWildcardEnabled;
   discordPresenceEnabled.value = newState.integrations.discordPresenceEnabled;
+  discordShowPlaybackButton.value = newState.integrations.discordShowPlaybackButton ?? true;
   lastFMEnabled.value = newState.integrations.lastFMEnabled;
   sponsorBlockEnabled.value = newState.integrations.sponsorBlockEnabled ?? false;
   sponsorBlockSkipIntros.value = newState.integrations.sponsorBlockSkipIntros ?? false;
@@ -245,6 +247,7 @@ async function settingsChanged() {
       companionServerEnabled: companionServerEnabled.value,
       companionServerCORSWildcardEnabled: companionServerCORSWildcardEnabled.value,
       discordPresenceEnabled: discordPresenceEnabled.value,
+      discordShowPlaybackButton: discordShowPlaybackButton.value,
       lastFMEnabled: lastFMEnabled.value,
       sponsorBlockEnabled: sponsorBlockEnabled.value,
       sponsorBlockSkipIntros: sponsorBlockSkipIntros.value,
@@ -760,8 +763,16 @@ window.ytmd.handleUpdateDownloaded(() => {
             </div>
           </YTMDSetting>
           <YTMDSetting v-model="discordPresenceEnabled" type="checkbox" name="Discord rich presence" @change="settingsChanged" />
+          <YTMDSetting
+            v-if="discordPresenceEnabled"
+            v-model="discordShowPlaybackButton"
+            type="checkbox"
+            name="Show Discord playback button"
+            description="Include the Play on YTM Desktop button in your Discord activity."
+            @change="settingsChanged"
+          />
           <div v-if="discordPresenceEnabled && discordPresenceConnectionFailed" class="setting indented">
-            <p class="discord-failure">Discord connection could not be established after 30 attempts</p>
+            <p class="discord-failure">Discord is unavailable. Reconnecting automatically.</p>
             <button @click="restartDiscordPresence">Retry</button>
           </div>
           <YTMDSetting

@@ -13,7 +13,7 @@
   <a href="https://github.com/Lostepic/ytmdesktop/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Lostepic/ytmdesktop?style=flat-square&label=release"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=main&style=flat-square&label=build"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/releases"><img alt="Release downloads" src="https://img.shields.io/github/downloads/Lostepic/ytmdesktop/total?style=flat-square&label=downloads"></a>
-  <img alt="Electron 44" src="https://img.shields.io/badge/Electron-44.4.5-47848f?style=flat-square&logo=electron">
+  <img alt="Electron 45" src="https://img.shields.io/badge/Electron-45.3.3-47848f?style=flat-square&logo=electron">
   <a href="LICENSE"><img alt="GPL-3.0 license" src="https://img.shields.io/github/license/Lostepic/ytmdesktop?style=flat-square"></a>
 </p>
 
@@ -64,6 +64,21 @@ The build badge reports validation of the protected `main` branch. Version tags 
 
 Pull requests also build the Windows and Linux installers, so installer-tool failures are caught before a release. Linux packaging uses Ubuntu 24.04 to keep the RPM toolchain compatible with the current Electron Forge maker.
 
+## What changed in 3.3
+
+Version 3.3.0 upgrades the app runtime and build toolchain together:
+
+- Electron 45.3.3 brings Chromium 156 and Node.js 24.22.3.
+- Forge 8.0.1 and Vite 8.3.8 replace the older packaging and bundling stack; every window uses the new CommonJS preload output paths.
+- Fastify 5.12.8, TypeBox 1.4.7, its provider 6.3.0 and Conf 16 modernize companion validation and settings storage while preserving saved settings and existing Stream Deck command formats.
+- ESLint 10 uses a flat configuration with current Vue and TypeScript plugins; Yarn is updated to 4.18.1 and CI uses Node.js 24.
+- The volume-ratio script no longer leaks globals or logs every volume read, and the companion server registers its shutdown cleanup before startup completes.
+- New checks exercise saved settings, authenticated companion commands, compiled entry points, the actual Vite-built sandbox preload and Settings at 80% interface scale on every platform.
+
+TypeScript is deliberately on 6.0.3: the current TypeScript ESLint release supports versions below 6.1, so TypeScript 7 is not yet a compatible upgrade. Node type declarations follow the app's Node.js 24 runtime. Production dependencies have no audit findings; high/critical build audits run without exceptions. A moderate `minimatch` advisory remains in the lint tool's dependency tree.
+
+See the [changelog](docs/CHANGELOG.md) for the dependency details and included PR updates.
+
 ## What changed in 3.2
 
 Version 3.2 is a focused runtime, startup, and recovery release:
@@ -82,7 +97,7 @@ Version 3.2 is a focused runtime, startup, and recovery release:
 - Removes obsolete serializer and WebSocket dependency copies; the recursive production audit completes with zero findings.
 - Keeps Dependabot patch and minor updates gated by quality, CodeQL, dependency review, and four-platform packaging checks.
 
-### Latest maintenance update: 3.2.8
+### Previous maintenance update: 3.2.8
 
 - Discord Rich Presence reconnects automatically when Discord starts later or restarts, with retries capped at one per minute after backoff.
 - A new **Show Discord playback button** setting lets you hide the activity button while keeping track information visible.
@@ -223,8 +238,8 @@ The update feed is verified against each Windows release: it offers the newest v
 
 ### Requirements
 
-- Node.js 22.12 or newer
-- Corepack with Yarn 4.5.1
+- Node.js 24.22 or newer
+- Corepack with Yarn 4.18.1 (selected by `package.json`)
 - Platform packaging tools when building installers
 
 ```bash
@@ -239,11 +254,13 @@ yarn start
 
 ```bash
 yarn check
+yarn test:unit
 yarn test:ui
 yarn package
+yarn test:built
 ```
 
-`yarn check` runs TypeScript validation, ESLint, and Prettier. `yarn test:ui` runs Electron checks for popup visibility, animation and Stream Deck renderer commands (use `xvfb-run --auto-servernum yarn test:ui` on headless Linux). `yarn package` creates the unpacked application for the current operating system.
+`yarn check` runs TypeScript validation, ESLint, and Prettier. `yarn test:unit` covers integrations, companion authentication/commands and settings persistence. `yarn test:ui` runs Electron checks for popup visibility, animation and Stream Deck renderer commands. `yarn package` creates the unpacked application; `yarn test:built` then validates its compiled paths and runs player controls through the Vite-built preload. Prefix Electron test commands with `xvfb-run --auto-servernum` on headless Linux.
 
 ### Installer creation
 

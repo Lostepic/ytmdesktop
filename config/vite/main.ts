@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import { defineConfig } from "vite";
 
-let gitBranch: string = "";
+let gitBranch: string;
 try {
   gitBranch = execSync("git rev-parse --abbrev-ref HEAD").toString();
 } catch (e) {
@@ -25,7 +25,7 @@ const devBuild = gitBranch !== "HEAD" && process.env.NODE_ENV === "development";
 export default defineConfig({
   build: {
     outDir: ".vite/main",
-    rollupOptions: {
+    rolldownOptions: {
       external: ["bufferutil", "utf-8-validate"]
     }
   },

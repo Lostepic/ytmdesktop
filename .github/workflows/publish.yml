@@ -43,7 +43,7 @@ jobs:
           ref: ${{ env.RELEASE_TAG }}
       - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
       - run: corepack enable
       - name: Verify release tag matches the app version
         run: node -e "if (process.env.RELEASE_TAG !== 'v' + require('./package.json').version) throw new Error('Release tag must match package.json version')"

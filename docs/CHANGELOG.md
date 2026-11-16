@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.3.0 — Runtime and toolchain upgrade
+
+- Incorporate the pending production/development Dependabot PRs and unreleased merged updates, including Fastify 5.12.8, Vue 3.5.45, Fastify CORS 11.4.3, rate-limit 11.2.2, Material Symbols 0.49.0 and current compatible transitive dependencies.
+- Upgrade Electron to 45.3.3 (Chromium 156, Node.js 24.22.3), Forge to 8.0.1, fuses to 2.1.3, Vite to 8.3.8 and the Vue plugin to 6.0.11. Migrate main/preload entry points to `.cjs` and renderer chunk configuration to Rolldown.
+- Upgrade Conf to 16 and migrate companion schemas to TypeBox 1.4.7/provider 6.3.0 without changing authentication or command formats.
+- Register companion realtime listeners and asynchronous shutdown hooks during plugin setup rather than adding hooks after Fastify is ready.
+- Migrate ESLint to 10.15 with flat configuration, Vue linting 10.12.1, import-x 4.18.1 and TypeScript ESLint 8.72.2. Upgrade Prettier to 3.10.1 and lint-staged to 17.6.1; remove the legacy ESLint configuration and ts-node dependency.
+- Upgrade Yarn to 4.18.1 and build/CI Node.js to 24. TypeScript 6.0.3 is the newest compatible compiler line for the current lint tooling; TypeScript 7 is excluded by its peer support range.
+- Fix the volume-ratio descriptor assignment leaking globals, remove per-read logging and delete an unused player helper.
+- Add tests for saved settings and credentials, authenticated companion commands, volume-ratio behavior, compiled output paths, the actual sandboxed Vite preload and built Settings navigation at 80% scale on all four build targets.
+- Remove the obsolete ZIP-extractor and brace-expansion overrides. The old unpatched braces dependency is gone, so high/critical audits now run without exceptions. Production audits have no findings; one moderate minimatch advisory remains in lint tooling.
+- Rebuild Windows, Linux, Intel Mac and native Apple Silicon Mac downloads and the Windows automatic-update feed.
+
 ## 3.2.8 — Discord recovery and integration reliability
 
 - Incorporate the pending Dependabot updates, using Electron 44.9.3, Vite 6.4.5, TypeScript ESLint 8.72.1, Material Symbols 0.48.2 and fast-uri 3.1.9. The newer patch releases supersede the older overlapping Electron, lint-tool and icon updates.

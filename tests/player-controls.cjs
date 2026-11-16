@@ -6,24 +6,29 @@ const path = require("node:path");
 if (!process.versions.electron) {
   (async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ytmd-player-test-"));
-    const preload = path.join(dir, "preload.cjs");
+    const built = process.argv.includes("--built");
+    const preload = built ? path.join(__dirname, "../.vite/renderer/windows/ytmview/preload.cjs") : path.join(dir, "preload.cjs");
     // Bundle the production preload, including its real IPC command handler.
-    await require("esbuild").build({
-      entryPoints: [path.join(__dirname, "../src/renderer/ytmview/preload.ts")],
-      outfile: preload,
-      bundle: true,
-      platform: "node",
-      external: ["electron"],
-      plugins: [
-        {
-          name: "raw-scripts",
-          setup(build) {
-            build.onResolve({ filter: /\?raw$/ }, args => ({ path: require.resolve(path.resolve(args.resolveDir, args.path.slice(0, -4))), namespace: "raw" }));
-            build.onLoad({ filter: /.*/, namespace: "raw" }, args => ({ contents: fs.readFileSync(args.path, "utf8"), loader: "text" }));
+    if (!built)
+      await require("esbuild").build({
+        entryPoints: [path.join(__dirname, "../src/renderer/ytmview/preload.ts")],
+        outfile: preload,
+        bundle: true,
+        platform: "node",
+        external: ["electron"],
+        plugins: [
+          {
+            name: "raw-scripts",
+            setup(build) {
+              build.onResolve({ filter: /\?raw$/ }, args => ({
+                path: require.resolve(path.resolve(args.resolveDir, args.path.slice(0, -4))),
+                namespace: "raw"
+              }));
+              build.onLoad({ filter: /.*/, namespace: "raw" }, args => ({ contents: fs.readFileSync(args.path, "utf8"), loader: "text" }));
+            }
           }
-        }
-      ]
-    });
+        ]
+      });
     const env = { ...process.env };
     delete env.ELECTRON_RUN_AS_NODE;
     const result = require("node:child_process").spawnSync(require("electron"), [__filename, preload, dir], { env, stdio: "inherit" });

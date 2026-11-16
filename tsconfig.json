@@ -5,16 +5,15 @@
     "moduleResolution": "NodeNext",
     "allowJs": true,
     "skipLibCheck": true,
+    "strict": false,
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
-    "baseUrl": ".",
     "outDir": "dist",
     "resolveJsonModule": true,
     "paths": {
-      "*": ["node_modules/*"],
-      "~shared/*": ["src/shared/*"],
-      "~assets/*": ["src/assets/*"]
+      "~shared/*": ["./src/shared/*"],
+      "~assets/*": ["./src/assets/*"]
     }
   }
 }

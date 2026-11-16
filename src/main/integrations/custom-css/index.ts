@@ -4,7 +4,6 @@ import Conf from "conf";
 
 import IIntegration from "../integration";
 import { StoreSchema } from "~shared/store/schema";
-import { Unsubscribe } from "conf/dist/source/types";
 
 export default class CustomCSS implements IIntegration {
   private ytmView: WebContentsView;
@@ -13,7 +12,7 @@ export default class CustomCSS implements IIntegration {
   private hasInjectedOnce = false;
 
   private customCSSKey: string | null = null;
-  private storeListener: Unsubscribe | null = null;
+  private storeListener: (() => void) | null = null;
   private ipcListener: () => void | null = null;
 
   private currentWatcher: fs.FSWatcher | null = null;

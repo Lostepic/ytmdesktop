@@ -3,8 +3,8 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { execSync } from "node:child_process";
 
-let gitBranch: string = "";
-let gitCommitHash: string = "";
+let gitBranch: string;
+let gitCommitHash: string;
 try {
   gitBranch = execSync("git rev-parse --abbrev-ref HEAD").toString();
   gitCommitHash = execSync("git rev-parse HEAD").toString();
@@ -26,16 +26,18 @@ try {
 export default defineConfig({
   root: "src/renderer",
   build: {
+    // Preload targets share this output tree and must survive renderer rebuilds.
+    emptyOutDir: false,
     outDir: "../../.vite/renderer",
-    rollupOptions: {
+    rolldownOptions: {
       input: {
         main_window: "src/renderer/windows/main/index.html",
         settings_window: "src/renderer/windows/settings/index.html",
         authorize_companion_window: "src/renderer/windows/authorize-companion/index.html"
       },
       output: {
-        manualChunks: {
-          vue: ["vue"]
+        codeSplitting: {
+          groups: [{ name: "vue", test: /[\\/]node_modules[\\/]@?vue[\\/]/ }]
         }
       }
     }

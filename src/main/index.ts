@@ -1079,7 +1079,7 @@ const createOrShowSettingsWindow = (): void => {
     webPreferences: {
       sandbox: true,
       contextIsolation: true,
-      preload: path.join(__dirname, `../renderer/windows/settings/preload.js`),
+      preload: path.join(__dirname, `../renderer/windows/settings/preload.cjs`),
       devTools: store.get("developer.enableDevTools")
     }
   });
@@ -1161,7 +1161,7 @@ const createYTMView = (): void => {
       // minimized or hidden so background playback does not underrun.
       backgroundThrottling: false,
       partition: app.isPackaged ? "persist:ytmview" : "persist:ytmview-dev",
-      preload: path.join(__dirname, `../renderer/windows/ytmview/preload.js`),
+      preload: path.join(__dirname, `../renderer/windows/ytmview/preload.cjs`),
       autoplayPolicy: store.get("playback.continueWhereYouLeftOffPaused") ? "document-user-activation-required" : "no-user-gesture-required"
     }
   });
@@ -1421,7 +1421,7 @@ const createMainWindow = (): void => {
     webPreferences: {
       sandbox: true,
       contextIsolation: true,
-      preload: path.join(__dirname, `../renderer/windows/main/preload.js`),
+      preload: path.join(__dirname, `../renderer/windows/main/preload.cjs`),
       devTools: store.get("developer.enableDevTools")
     }
   });

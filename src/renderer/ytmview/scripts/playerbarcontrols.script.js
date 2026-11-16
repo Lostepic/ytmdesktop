@@ -1,11 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 (function () {
-  function isExperimentEnabled(experimentFlag) {
-    const flag = window.ytcfg.data_.EXPERIMENT_FLAGS[experimentFlag];
-    if (flag && typeof flag === "string") return flag === "false" ? false : true;
-    return !!flag;
-  }
-
   const ytmStore = window.__YTMD_HOOK__.ytmStore;
 
   let ytmdControlButtons = {};

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
+import { EQUALIZER_FREQUENCIES, EQUALIZER_PRESETS, EqualizerStatus, normalizeEqualizerSettings } from "~shared/audio";
 import KeybindInput from "../../components/KeybindInput.vue";
 import YTMDSetting from "../../components/YTMDSetting.vue";
 import { ThemePreset, TrayIconStyle } from "~shared/store/schema";
@@ -28,7 +29,8 @@ const [
   playback,
   integrations,
   shortcuts,
-  lastFM
+  lastFM,
+  initialEqualizerStatus
 ] = await Promise.all([
   window.ytmd.getAppVersion(),
   window.ytmd.isAppUpdateAvailable(),
@@ -39,7 +41,8 @@ const [
   store.get("playback"),
   store.get("integrations"),
   store.get("shortcuts"),
-  store.get("lastfm")
+  store.get("lastfm"),
+  memoryStore.get("equalizerStatus")
 ]);
 
 const currentTab = ref(1);
@@ -91,12 +94,32 @@ const continueWhereYouLeftOffPaused = ref<boolean>(playback.continueWhereYouLeft
 const enableSpeakerFill = ref<boolean>(playback.enableSpeakerFill);
 const progressInTaskbar = ref<boolean>(playback.progressInTaskbar);
 const ratioVolume = ref<boolean>(playback.ratioVolume);
+const equalizer = ref(normalizeEqualizerSettings(playback.equalizer));
+const equalizerStatus = ref<EqualizerStatus | null>(initialEqualizerStatus || null);
+const equalizerPreset = computed(
+  () => Object.keys(EQUALIZER_PRESETS).find(name => EQUALIZER_PRESETS[name].every((gain, i) => gain === equalizer.value.gains[i])) ?? "Custom"
+);
+function saveEqualizer() {
+  store.set("playback.equalizer", normalizeEqualizerSettings(equalizer.value));
+}
+function selectEqualizerPreset(event: Event) {
+  const preset = EQUALIZER_PRESETS[(event.target as HTMLSelectElement).value];
+  if (preset) {
+    equalizer.value.gains = [...preset];
+    saveEqualizer();
+  }
+}
+function resetEqualizer() {
+  equalizer.value = { ...normalizeEqualizerSettings(null), enabled: equalizer.value.enabled };
+  saveEqualizer();
+}
 
 const companionServerEnabled = ref<boolean>(integrations.companionServerEnabled);
 const companionServerAuthTokens = ref<AuthToken[]>([]);
 const companionServerCORSWildcardEnabled = ref<boolean>(integrations.companionServerCORSWildcardEnabled);
 const discordPresenceEnabled = ref<boolean>(integrations.discordPresenceEnabled);
 const discordShowPlaybackButton = ref<boolean>(integrations.discordShowPlaybackButton ?? true);
+const discordActivityDisplay = ref<number>(integrations.discordActivityDisplay ?? 1);
 const lastFMEnabled = ref<boolean>(integrations.lastFMEnabled);
 const sponsorBlockEnabled = ref<boolean>(integrations.sponsorBlockEnabled ?? false);
 const sponsorBlockSkipIntros = ref<boolean>(integrations.sponsorBlockSkipIntros ?? false);
@@ -145,12 +168,14 @@ store.onDidAnyChange(async newState => {
   enableSpeakerFill.value = newState.playback.enableSpeakerFill;
   progressInTaskbar.value = newState.playback.progressInTaskbar;
   ratioVolume.value = newState.playback.ratioVolume;
+  equalizer.value = normalizeEqualizerSettings(newState.playback.equalizer);
 
   companionServerEnabled.value = newState.integrations.companionServerEnabled;
   if (currentTab.value === 4) await refreshCompanionTokens(newState.integrations.companionServerAuthTokens);
   companionServerCORSWildcardEnabled.value = newState.integrations.companionServerCORSWildcardEnabled;
   discordPresenceEnabled.value = newState.integrations.discordPresenceEnabled;
   discordShowPlaybackButton.value = newState.integrations.discordShowPlaybackButton ?? true;
+  discordActivityDisplay.value = newState.integrations.discordActivityDisplay ?? 1;
   lastFMEnabled.value = newState.integrations.lastFMEnabled;
   sponsorBlockEnabled.value = newState.integrations.sponsorBlockEnabled ?? false;
   sponsorBlockSkipIntros.value = newState.integrations.sponsorBlockSkipIntros ?? false;
@@ -194,6 +219,7 @@ const companionServerAuthWindowEnabled = ref<boolean>(await memoryStore.get("com
 const autoUpdaterDisabled = ref<boolean>(await memoryStore.get("autoUpdaterDisabled"));
 
 memoryStore.onStateChanged(newState => {
+  equalizerStatus.value = newState.equalizerStatus ?? null;
   discordPresenceConnectionFailed.value = newState.discordPresenceConnectionFailed;
 
   shortcutsPlayPauseRegisterFailed.value = newState.shortcutsPlayPauseRegisterFailed;
@@ -241,13 +267,15 @@ async function settingsChanged() {
       continueWhereYouLeftOffPaused: continueWhereYouLeftOffPaused.value,
       progressInTaskbar: progressInTaskbar.value,
       enableSpeakerFill: enableSpeakerFill.value,
-      ratioVolume: ratioVolume.value
+      ratioVolume: ratioVolume.value,
+      equalizer: normalizeEqualizerSettings(equalizer.value)
     },
     integrations: {
       companionServerEnabled: companionServerEnabled.value,
       companionServerCORSWildcardEnabled: companionServerCORSWildcardEnabled.value,
       discordPresenceEnabled: discordPresenceEnabled.value,
       discordShowPlaybackButton: discordShowPlaybackButton.value,
+      discordActivityDisplay: discordActivityDisplay.value,
       lastFMEnabled: lastFMEnabled.value,
       sponsorBlockEnabled: sponsorBlockEnabled.value,
       sponsorBlockSkipIntros: sponsorBlockSkipIntros.value,
@@ -583,10 +611,10 @@ window.ytmd.handleUpdateDownloaded(() => {
             <div>
               <strong>Best available source quality</strong>
               <p>
-                YTM Desktop uses YouTube Music's highest stream available to your account. Premium supports up to 256 kbps AAC/Opus; the original upload and
-                your connection can set a lower limit.
+                YouTube Music supplies the stream. Select High audio quality in YouTube Music when available; your account, the source and connection set the
+                limit. EQ shapes the sound but cannot recover detail missing from the source.
               </p>
-              <small>Keep hardware acceleration enabled and Speaker fill off for the cleanest, unprocessed playback.</small>
+              <small>For unprocessed playback, leave EQ and Speaker fill off. No sample rate or output device is forced.</small>
             </div>
           </div>
           <YTMDSetting
@@ -626,6 +654,68 @@ window.ytmd.handleUpdateDownloaded(() => {
             description="Use a smoother volume curve for finer low-volume control."
             @change="settingsChanged"
           />
+          <section class="equalizer" aria-label="Equalizer">
+            <YTMDSetting
+              v-model="equalizer.enabled"
+              type="checkbox"
+              name="10-band equalizer"
+              description="Optional tone controls. Off by default; flat settings leave original playback untouched until processing is needed."
+              @change="saveEqualizer"
+            />
+            <div class="eq-toolbar">
+              <label
+                >Preset
+                <select :value="equalizerPreset" @change="selectEqualizerPreset">
+                  <option v-for="(_gains, name) in EQUALIZER_PRESETS" :key="name" :value="name">{{ name }}</option>
+                  <option value="Custom" disabled>Custom</option>
+                </select></label
+              >
+              <button type="button" @click="resetEqualizer">Reset to flat</button>
+            </div>
+            <div class="eq-bands">
+              <label v-for="(frequency, i) in EQUALIZER_FREQUENCIES" :key="frequency" class="eq-band">
+                <span
+                  >{{ frequency >= 1000 ? frequency / 1000 + " kHz" : frequency + " Hz" }}
+                  <output>{{ equalizer.gains[i] > 0 ? "+" : "" }}{{ equalizer.gains[i] }} dB</output></span
+                >
+                <input
+                  v-model.number="equalizer.gains[i]"
+                  type="range"
+                  min="-12"
+                  max="12"
+                  step="0.5"
+                  :aria-label="frequency + ' Hz gain in dB'"
+                  @change="saveEqualizer"
+                />
+              </label>
+            </div>
+            <YTMDSetting
+              :model-value="equalizer.preampDb"
+              type="range"
+              name="Preamp (dB)"
+              :min="-12"
+              :max="6"
+              :step="0.5"
+              @update:model-value="equalizer.preampDb = Number($event)"
+              @change="saveEqualizer"
+            />
+            <YTMDSetting
+              v-model="equalizer.automaticHeadroom"
+              type="checkbox"
+              name="Automatic headroom"
+              description="Attenuate boosted curves to reduce clipping risk without compression. Switch off only if you manage output levels yourself."
+              @change="saveEqualizer"
+            />
+            <p class="eq-status" role="status">
+              {{ equalizerStatus?.message ?? "Enable the equalizer and start playback to apply a curve." }}
+              <span v-if="Number.isFinite(equalizerStatus?.preampDb)"> Effective preamp: {{ equalizerStatus.preampDb.toFixed(1) }} dB.</span>
+              <span v-if="Number.isFinite(equalizerStatus?.sampleRate)"> Output: {{ equalizerStatus.sampleRate / 1000 }} kHz.</span>
+            </p>
+            <p class="eq-note">
+              Changes apply when you release a slider. Bypass disconnects the filters; after first use, audio stays routed through Web Audio until the page
+              reloads. Some protected or cross-origin sources cannot be processed.
+            </p>
+          </section>
         </div>
 
         <div v-if="currentTab === 4 || settingsSearch.trim()" class="integrations-tab">
@@ -768,6 +858,14 @@ window.ytmd.handleUpdateDownloaded(() => {
             type="checkbox"
             name="Show Discord playback button"
             description="Include the Play on YTM Desktop button in your Discord activity."
+            @change="settingsChanged"
+          />
+          <YTMDSetting
+            v-if="discordPresenceEnabled"
+            v-model="discordActivityDisplay"
+            type="select"
+            name="Discord activity headline"
+            :options-map="{ 0: 'App name', 1: 'Artist', 2: 'Song title' }"
             @change="settingsChanged"
           />
           <div v-if="discordPresenceEnabled && discordPresenceConnectionFailed" class="setting indented">
@@ -1146,6 +1244,76 @@ window.ytmd.handleUpdateDownloaded(() => {
 .integration-intro code {
   color: #ddd9df;
   user-select: text;
+}
+
+.equalizer {
+  margin-top: 22px;
+  padding-top: 12px;
+  border-top: 1px solid #35313c;
+}
+.eq-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 16px 0 22px;
+  flex-wrap: wrap;
+}
+.eq-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.eq-toolbar select,
+.eq-toolbar button {
+  background: #25222c;
+  color: #f6f3fa;
+  border: 1px solid #49414f;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font: inherit;
+}
+.eq-bands {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 28px;
+  margin: 16px 0;
+}
+.eq-band {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.eq-band span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+}
+.eq-band output {
+  font-variant-numeric: tabular-nums;
+  color: #c4bccc;
+}
+.eq-band input {
+  width: 100%;
+  margin: 0;
+  accent-color: #ff4949;
+}
+.eq-status,
+.eq-note {
+  line-height: 1.5;
+  font-size: 13px;
+  color: #c4bccc;
+  margin-top: 14px;
+}
+.eq-note {
+  font-size: 12px;
+}
+@media (max-width: 800px) {
+  .eq-bands {
+    grid-template-columns: 1fr;
+  }
 }
 
 .quality-card {

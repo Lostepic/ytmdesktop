@@ -18,6 +18,9 @@ export default class Enhancements {
   private skipped = new Set<string>();
   private lastExport = 0;
   private lastExportText = "";
+  private lastExportPayload = "";
+  private exportInProgress = false;
+  private exportDirectoryReady = false;
   private lastTelemetryWrite = 0;
   private lastProgress = 0;
   private listeningSession = new ListeningSession();
@@ -158,6 +161,7 @@ export default class Enhancements {
   }
 
   private async exportNowPlaying(state: PlayerState): Promise<void> {
+    if (this.exportInProgress) return;
     this.lastExport = Date.now();
     const directory = path.join(app.getPath("documents"), "YTM Desktop");
     const details = state.videoDetails;
@@ -169,20 +173,36 @@ export default class Enhancements {
       artwork: details?.thumbnails?.at(-1)?.url ?? "",
       duration: details?.durationSeconds ?? 0,
       progress: state.videoProgress,
-      playing: state.trackState === VideoState.Playing,
-      updatedAt: new Date().toISOString()
+      playing: state.trackState === VideoState.Playing
     };
+    const signature = JSON.stringify(payload);
+    if (signature === this.lastExportPayload) return;
     const text = payload.title ? `${payload.artist} — ${payload.title}` : "";
+    this.exportInProgress = true;
     try {
-      await fs.mkdir(directory, { recursive: true });
-      const writes: Array<Promise<void>> = [fs.writeFile(path.join(directory, "now-playing.json"), JSON.stringify(payload, null, 2), "utf8")];
-      if (text !== this.lastExportText) {
-        this.lastExportText = text;
-        writes.push(fs.writeFile(path.join(directory, "now-playing.txt"), text, "utf8"));
+      if (!this.exportDirectoryReady) {
+        await fs.mkdir(directory, { recursive: true });
+        this.exportDirectoryReady = true;
       }
-      await Promise.all(writes);
+      const atomicWrite = async (name: string, value: string) => {
+        const destination = path.join(directory, name);
+        await fs.writeFile(destination + ".tmp", value, "utf8");
+        await fs.rename(destination + ".tmp", destination);
+      };
+      const writes: Array<Promise<void>> = [atomicWrite("now-playing.json", JSON.stringify({ ...payload, updatedAt: new Date().toISOString() }, null, 2))];
+      if (text !== this.lastExportText) {
+        writes.push(atomicWrite("now-playing.txt", text));
+      }
+      const results = await Promise.allSettled(writes);
+      const failed = results.find(result => result.status === "rejected");
+      if (failed?.status === "rejected") throw failed.reason;
+      this.lastExportText = text;
+      this.lastExportPayload = signature;
     } catch (error) {
+      this.exportDirectoryReady = false;
       log.warn("Now-playing export failed", error);
+    } finally {
+      this.exportInProgress = false;
     }
   }
 

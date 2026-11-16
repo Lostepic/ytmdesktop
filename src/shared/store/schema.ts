@@ -1,3 +1,5 @@
+import type { EqualizerSettings, EqualizerStatus } from "../audio";
+
 export enum TrayIconStyle {
   Auto = 0,
   White = 1,
@@ -38,6 +40,7 @@ export type StoreSchema = {
     enableSpeakerFill: boolean;
     progressInTaskbar: boolean;
     ratioVolume: boolean;
+    equalizer: EqualizerSettings;
   };
   integrations: {
     companionServerEnabled: boolean;
@@ -45,6 +48,7 @@ export type StoreSchema = {
     companionServerCORSWildcardEnabled: boolean;
     discordPresenceEnabled: boolean;
     discordShowPlaybackButton: boolean;
+    discordActivityDisplay: number;
     lastFMEnabled: boolean;
     sponsorBlockEnabled: boolean;
     sponsorBlockSkipIntros: boolean;
@@ -90,6 +94,7 @@ export type StoreSchema = {
 };
 
 export type MemoryStoreSchema = {
+  equalizerStatus: EqualizerStatus;
   discordPresenceConnectionFailed: boolean;
   shortcutsPlayPauseRegisterFailed: boolean;
   shortcutsNextRegisterFailed: boolean;

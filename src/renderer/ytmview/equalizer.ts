@@ -60,6 +60,15 @@ export class EqualizerController {
     });
   };
 
+  private activate = (): void => {
+    // A pre-gesture resume() may remain pending indefinitely. Retry from the
+    // interaction itself instead of letting the in-flight guard suppress it.
+    if (this.context && this.context.state !== "running" && this.context.state !== "closed") {
+      void this.context.resume().catch(() => {});
+    }
+    this.schedule();
+  };
+
   private observe(): void {
     if (this.observer) return;
     this.observer = new MutationObserver(records => {
@@ -76,13 +85,15 @@ export class EqualizerController {
         this.schedule();
     });
     this.observer.observe(this.document.body, { childList: true, subtree: true });
-    for (const event of ["loadedmetadata", "play", "pointerdown", "keydown", "visibilitychange"]) this.document.addEventListener(event, this.schedule, true);
+    for (const event of ["loadedmetadata", "play", "visibilitychange"]) this.document.addEventListener(event, this.schedule, true);
+    for (const event of ["pointerdown", "pointerup", "keydown"]) this.document.addEventListener(event, this.activate, true);
   }
 
   private stopObserving(): void {
     this.observer?.disconnect();
     this.observer = null;
-    for (const event of ["loadedmetadata", "play", "pointerdown", "keydown", "visibilitychange"]) this.document.removeEventListener(event, this.schedule, true);
+    for (const event of ["loadedmetadata", "play", "visibilitychange"]) this.document.removeEventListener(event, this.schedule, true);
+    for (const event of ["pointerdown", "pointerup", "keydown"]) this.document.removeEventListener(event, this.activate, true);
   }
 
   private isSafeSource(element: HTMLMediaElement): boolean {

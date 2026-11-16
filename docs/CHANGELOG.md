@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.4.0 — Equalizer and integration efficiency
+
+- Add an optional native Web Audio ten-band equalizer (31 Hz–16 kHz), four presets, ±12 dB band gains, preamp, bypass and processing status in Settings → Playback. Persist changes on slider release rather than every input event.
+- Keep default off/initial flat playback free of audio contexts and media observers. Use native DSP nodes without per-sample JavaScript, forced resampling or output-device changes. Reuse media sources safely across player replacement and bypass; avoid known protected or unsafe cross-origin sources.
+- Measure the combined filter response for automatic headroom, with smoothing and a margin to reduce clipping risk. EQ changes tone, not source bitrate; document YouTube's own quality settings and Web Audio bypass limitations accurately.
+- Add a Discord activity headline selector for app name, artist or song title, preserving artist as the default. Addresses upstream [#1857](https://github.com/ytmdesktop/ytmdesktop/issues/1857).
+- Include `thumbnailUrl` and `thumbnails` in companion playlist replies when artwork is supplied by YouTube; use empty values when absent rather than requesting credentials or inventing artwork. Addresses upstream [#1782](https://github.com/ytmdesktop/ytmdesktop/issues/1782).
+- Resolve successful playlist requests immediately and clear their timeout/listener; ignore replies from other renderer senders.
+- Avoid unchanged now-playing writes and overlapping exports, create the export directory only as needed, retry failed writes and atomically replace text/JSON files. `updatedAt` now means the last changed export, not a heartbeat.
+- Fix the remaining moderate lint-tool minimatch advisory with a scoped patched dependency. Verify typed-parser project discovery; the full recursive runtime/build audit has no findings or exclusions. Raise CI audit gates to moderate severity.
+- Add native Electron EQ routing/headroom/source-reuse tests, built Settings EQ persistence/layout checks at 80% scale, companion artwork/cleanup tests, Discord headline coverage and export concurrency/retry tests.
+- Rebuild Windows, Linux, Intel Mac and native Apple Silicon downloads with the Windows automatic-update feed.
+
 ## 3.3.0 — Runtime and toolchain upgrade
 
 - Incorporate the pending production/development Dependabot PRs and unreleased merged updates, including Fastify 5.12.8, Vue 3.5.45, Fastify CORS 11.4.3, rate-limit 11.2.2, Material Symbols 0.49.0 and current compatible transitive dependencies.

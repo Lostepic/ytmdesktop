@@ -14,6 +14,10 @@ if (!process.versions.electron) {
   const { app, BrowserWindow, ipcMain } = require("electron");
   app.setPath("userData", process.argv[2]);
   const values = { general: {}, appearance: { zoom: 80 }, playback: {}, integrations: {}, shortcuts: {}, lastfm: {} };
+  const saved = [];
+  ipcMain.on("settings:set", (_event, key, value) => {
+    saved.push([key, value]);
+  });
   ipcMain.handle("settings:get", (_event, key) => values[key] ?? {});
   ipcMain.handle("memoryStore:get", () => false);
   const preloadSource = fs.readFileSync(path.join(__dirname, "../src/renderer/windows/settings/preload.ts"), "utf8");
@@ -49,9 +53,32 @@ if (!process.versions.electron) {
         assert.ok((await text()).includes("Startup, notifications, and desktop behaviour."));
         await window.webContents.executeJavaScript("[...document.querySelectorAll('button')].find(b => b.textContent.trim().endsWith('Appearance')).click()");
         assert.ok((await text()).includes("Interface scale"));
+        await window.webContents.executeJavaScript("[...document.querySelectorAll('button')].find(b => b.textContent.trim().endsWith('Playback')).click()");
+        assert.ok((await text()).includes("10-band equalizer"));
+        assert.equal(await window.webContents.executeJavaScript("document.querySelectorAll('.eq-band input[type=range]').length"), 10);
+        await window.webContents.executeJavaScript(
+          "(() => { const select = document.querySelector('.eq-toolbar select'); select.value = 'Bass boost'; select.dispatchEvent(new Event('change', {bubbles:true})); })()"
+        );
+        await new Promise(resolve => setTimeout(resolve, 100));
+        assert.ok(
+          saved.some(([key, value]) => key === "playback.equalizer" && value.gains[0] === 4),
+          "preset must persist through the built preload"
+        );
+        await window.webContents.executeJavaScript(
+          "(() => { const slider = [...document.querySelectorAll('.equalizer .ytmd-setting')].find(b => b.textContent.includes('Preamp (dB)')).querySelector('input[type=range]'); slider.value = '-3.5'; slider.dispatchEvent(new Event('input', {bubbles:true})); slider.dispatchEvent(new Event('change', {bubbles:true})); })()"
+        );
+        await new Promise(resolve => setTimeout(resolve, 100));
+        assert.ok(
+          saved.some(([key, value]) => key === "playback.equalizer" && value.preampDb === -3.5),
+          "range values must persist as numbers"
+        );
+        const layout = await window.webContents.executeJavaScript(
+          "[...document.querySelectorAll('.eq-band')].every(b => b.getBoundingClientRect().width > 100 && b.scrollWidth <= b.clientWidth + 1)"
+        );
+        assert.ok(layout, "EQ labels and sliders must fit at 80% interface scale");
         await window.webContents.executeJavaScript("[...document.querySelectorAll('button')].find(b => b.textContent.trim().endsWith('About')).click()");
         assert.ok((await text()).includes(require("../package.json").version));
-        console.log("PASS: Vite-built Settings loads General, Appearance and About at 80% scale with the sandbox preload");
+        console.log("PASS: Vite-built Settings navigation, ten EQ bands, preset persistence and layout at 80% scale with the sandbox preload");
         clearTimeout(timeout);
         app.exit(0);
       } catch (error) {

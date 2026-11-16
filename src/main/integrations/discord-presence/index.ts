@@ -58,6 +58,7 @@ export default class DiscordPresence implements IIntegration {
   private enabled = false;
   private ready = false;
   private showPlaybackButton = true;
+  private activityDisplay = 1;
   private activityCleared = true;
   private activityDebounceTimeout: NodeJS.Timeout | null = null;
   private pauseTimeout: string | number | NodeJS.Timeout = null;
@@ -86,7 +87,7 @@ export default class DiscordPresence implements IIntegration {
       const thumbnail = getHighestResThumbnail(thumbnails ?? []);
       this.discordClient.setActivity({
         type: DiscordActivityType.Listening,
-        status_display_type: 1,
+        status_display_type: this.activityDisplay,
         details: stringLimit(title ?? "", 128, 2),
         details_url: `https://music.youtube.com/watch?v=${id}`,
         state: stringLimit(author ?? "", 128, 2),
@@ -162,10 +163,12 @@ export default class DiscordPresence implements IIntegration {
     }
   }
 
-  public provide(memoryStore: MemoryStore<MemoryStoreSchema>, showPlaybackButton = true): void {
+  public provide(memoryStore: MemoryStore<MemoryStoreSchema>, showPlaybackButton = true, activityDisplay = 1): void {
     this.memoryStore = memoryStore;
-    if (this.showPlaybackButton !== showPlaybackButton) {
+    const display = [0, 1, 2].includes(activityDisplay) ? activityDisplay : 1;
+    if (this.showPlaybackButton !== showPlaybackButton || this.activityDisplay !== display) {
       this.showPlaybackButton = showPlaybackButton;
+      this.activityDisplay = display;
       if (this.ready && !this.activityCleared) this.UpdateActivity();
     }
   }

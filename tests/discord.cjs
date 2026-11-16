@@ -206,6 +206,11 @@ async function load(file, mocks = {}, globals = {}) {
   presence.provide(memory, false);
   await advance(1000);
   assert.equal(clients[0].activities.at(-1).buttons.length, 0);
+  for (const display of [2, 0, 1, 99]) {
+    presence.provide(memory, false, display);
+    await advance(1000);
+    assert.equal(clients[0].activities.at(-1).status_display_type, display === 99 ? 1 : display);
+  }
   const paused = { ...state, trackState: 0 };
   presence.playerStateChanged(paused);
   for (let i = 0; i < 40; i++) {

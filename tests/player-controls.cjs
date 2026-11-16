@@ -72,6 +72,13 @@ if (!process.versions.electron) {
           mute:()=>calls.push(['mute']), unMute:()=>calls.push(['unmute']), seekTo:v=>calls.push(['seek',v])
         };
         const element = document.querySelector('ytmusic-player-bar');
+        element.addEventListener('yt-action', e => {
+          if (e.detail.actionName !== 'yt-service-request') return;
+          e.detail.returnValue.push({ajaxPromise:Promise.resolve({data:{contents:[{addToPlaylistRenderer:{playlists:[
+            {playlistAddToOptionRenderer:{playlistId:'art',title:{runs:[{text:'Artwork'}]},thumbnail:{thumbnails:[{url:'https://example.com/cover.jpg',width:240,height:240}]}}},
+            {playlistAddToOptionRenderer:{playlistId:'none',title:{runs:[{text:'No artwork'}]}}}
+          ]}}]}})});
+        });
         window.bar = ${mode === "direct" ? "element" : `(element.${mode} = {})`};
         Object.assign(bar,{playerApi:api,playing:false,queue:{shuffle:()=>calls.push(['shuffle'])}});
         const likeElement=document.querySelector('ytmusic-like-button-renderer');
@@ -169,6 +176,13 @@ if (!process.versions.electron) {
         );
         assert.equal(latestStoreState[2], 42, `${mode}: volume state reaches companion integrations`);
         assert.equal(latestStoreState[3], false, `${mode}: mute state reaches companion integrations`);
+        const playlistReply = new Promise(resolve => ipcMain.once(`ytmView:getPlaylists:response:${mode}`, (_event, value) => resolve(value)));
+        win.webContents.send("ytmView:getPlaylists", mode);
+        const playlists = await playlistReply;
+        assert.equal(playlists[0].thumbnailUrl, "https://example.com/cover.jpg");
+        assert.equal(playlists[0].thumbnails[0].width, 240);
+        assert.equal(playlists[1].thumbnailUrl, "");
+        assert.deepEqual(playlists[1].thumbnails, []);
         await evaluate("bar.playerApi = {...bar.playerApi, pauseVideo:()=>calls.push(['replacement'])}");
         await send("pause");
         assert.deepEqual(await evaluate("calls.at(-1)"), ["replacement"], "Commands must resolve the current player API, not cache it");

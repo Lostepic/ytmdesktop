@@ -64,6 +64,17 @@ The build badge reports validation of the protected `main` branch. Version tags 
 
 Pull requests also build the Windows and Linux installers, so installer-tool failures are caught before a release. Linux packaging uses Ubuntu 24.04 to keep the RPM toolchain compatible with the current Electron Forge maker.
 
+## What changed in 3.4
+
+- Adds an optional ten-band equalizer with presets, per-band gain, preamp, automatic headroom and live processing status in **Settings → Playback**.
+- Leaves the original playback path untouched while EQ is off or initially flat; uses native audio nodes only when processing is requested.
+- Adds a Discord activity headline selector (app, artist or song), based on an upstream community request.
+- Includes playlist artwork in companion responses when YouTube supplies it, and clears successful request timers immediately.
+- Reduces now-playing export disk activity with unchanged-state detection, atomic file replacement and one in-flight export.
+- Fixes the remaining moderate lint-tool advisory with a narrowly scoped patched dependency and a typed-parser regression test. The complete recursive audit now has zero findings, with no exclusions; CI also blocks moderate advisories.
+
+See the [changelog](docs/CHANGELOG.md) for upstream issue links, testing and release details.
+
 ## What changed in 3.3
 
 Version 3.3.0 upgrades the app runtime and build toolchain together:
@@ -75,7 +86,7 @@ Version 3.3.0 upgrades the app runtime and build toolchain together:
 - The volume-ratio script no longer leaks globals or logs every volume read, and the companion server registers its shutdown cleanup before startup completes.
 - New checks exercise saved settings, authenticated companion commands, compiled entry points, the actual Vite-built sandbox preload and Settings at 80% interface scale on every platform.
 
-TypeScript is deliberately on 6.0.3: the current TypeScript ESLint release supports versions below 6.1, so TypeScript 7 is not yet a compatible upgrade. Node type declarations follow the app's Node.js 24 runtime. Production dependencies have no audit findings; high/critical build audits run without exceptions. A moderate `minimatch` advisory remains in the lint tool's dependency tree.
+TypeScript is deliberately on 6.0.3: the current TypeScript ESLint release supports versions below 6.1, so TypeScript 7 is not yet a compatible upgrade. Node type declarations follow the app's Node.js 24 runtime. The moderate lint-tool advisory reported with 3.3.0 is resolved in 3.4.0.
 
 See the [changelog](docs/CHANGELOG.md) for the dependency details and included PR updates.
 
@@ -174,9 +185,15 @@ See the [changelog](docs/CHANGELOG.md) for the concise release history.
 
 ## Audio quality
 
-YTM Desktop uses the highest source stream YouTube Music makes available to the signed-in account. YouTube Music Premium currently provides up to 256 kbps AAC/Opus; the original upload and connection quality can impose a lower ceiling.
+YouTube Music controls the source stream. Select **High** in YouTube Music's own audio-quality settings when available to your account; the app does not silently override this preference. Google documents Premium high-quality streams up to 256 kbps AAC/Opus, rather than lossless audio; source uploads, account access and connection conditions can limit the result. See [Google's quality guide](https://support.google.com/youtubemusic/answer/9076559).
 
 The app keeps hardware acceleration enabled by default and prevents background renderer throttling. Speaker fill remains optional because channel processing changes the output rather than increasing source quality.
+
+### Optional equalizer
+
+Open **Settings → Playback → 10-band equalizer**. Choose Flat, Bass boost, Vocal clarity or Treble lift, or adjust ten bands from 31 Hz to 16 kHz by ±12 dB. Changes save on slider release. Automatic headroom measures the combined curve and attenuates boosts to reduce clipping risk without adding a compressor; it is enabled by default. Boosting frequencies cannot recover missing source detail or increase bitrate.
+
+EQ is off by default. Off/initially flat settings create no audio context or media observer. Once processing has attached, bypass disconnects the filters but keeps the existing Web Audio connection until the player page reloads. No sample rate or output device is forced. Known protected media and sources that cannot safely use Web Audio are left unprocessed; the status line explains activation and source limitations. Leave EQ and Speaker fill off for unprocessed playback.
 
 ## Desktop integrations
 
@@ -195,6 +212,8 @@ The pairing window closes automatically after five minutes. Existing authorizati
 ### Now-playing export
 
 Enable **Now-playing export** to write these local files:
+
+Files are replaced atomically and only when exported state changes. `updatedAt` records the latest changed export, not a heartbeat; paused, unchanged playback no longer rewrites files every second.
 
 ```text
 Documents/YTM Desktop/now-playing.json

@@ -90,6 +90,8 @@ interface CompanionServerAPIv1Options extends FastifyPluginOptions {
 type Playlist = {
   id: string;
   title: string;
+  thumbnails?: { url: string; width: number; height: number }[];
+  thumbnailUrl?: string;
 };
 
 const authorizationWindows: BrowserWindow[] = [];
@@ -441,20 +443,30 @@ const CompanionServerAPIv1: FastifyPluginCallback<CompanionServerAPIv1Options> =
       if (ytmView) {
         const requestId = crypto.randomUUID();
 
-        const playlistsResponseListener = (event: Electron.IpcMainEvent, playlists: Playlist[]) => {
-          if (event.sender !== ytmView.webContents) return;
-          response.send(playlists);
-        };
-        ipcMain.once(`ytmView:getPlaylists:response:${requestId}`, playlistsResponseListener);
-
-        ytmView.webContents.send(`ytmView:getPlaylists`, requestId);
-
-        await new Promise((_resolve, reject) =>
-          setTimeout(() => {
-            ipcMain.removeListener(`ytmView:getPlaylists:response:${requestId}`, playlistsResponseListener);
+        const channel = `ytmView:getPlaylists:response:${requestId}`;
+        const playlists = await new Promise<Playlist[]>((resolve, reject) => {
+          const cleanup = () => {
+            clearTimeout(timeout);
+            ipcMain.removeListener(channel, listener);
+          };
+          const listener = (event: Electron.IpcMainEvent, playlists: Playlist[]) => {
+            if (event.sender !== ytmView.webContents) return;
+            cleanup();
+            resolve(playlists);
+          };
+          const timeout = setTimeout(() => {
+            cleanup();
             reject(new YouTubeMusicTimeOutError());
-          }, 1000 * 30)
-        );
+          }, 30_000);
+          ipcMain.on(channel, listener);
+          try {
+            ytmView.webContents.send("ytmView:getPlaylists", requestId);
+          } catch (error) {
+            cleanup();
+            reject(error);
+          }
+        });
+        response.send(playlists);
       } else {
         throw new YouTubeMusicUnavailableError();
       }

@@ -19,6 +19,7 @@ import toggleLikeScript from "./scripts/togglelike.script?raw";
 import toggleDislikeScript from "./scripts/toggledislike.script?raw";
 import playerCompatibilityScript from "./scripts/playercompatibility.script?raw";
 import { suppressRestoredPlaybackCoachmark } from "./playback-coachmark";
+import { EqualizerController } from "./equalizer";
 
 const store = new Store<StoreSchema>();
 
@@ -421,6 +422,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   let playerControlsReady = false;
+  // Optional audio processing cannot block player hooks or remote commands.
+  void (async () => {
+    const equalizer = new EqualizerController(document, status => ipcRenderer.send("ytmView:equalizerStatus", status));
+    equalizer.update((await store.get("playback"))?.equalizer);
+    store.onDidAnyChange(state => equalizer.update(state.playback?.equalizer));
+  })().catch(error => console.warn("Equalizer setup failed", error));
   let volumeDelta = 10;
   const pendingRemoteCommands: Array<{ command: string; value: unknown }> = [];
   ipcRenderer.on("remoteControl:execute", (_event, command: string, value: unknown) => {
@@ -805,9 +812,15 @@ window.addEventListener("DOMContentLoaded", async () => {
     const playlists = [];
     for (const rawPlaylist of rawPlaylists) {
       const playlist = rawPlaylist.playlistAddToOptionRenderer;
+      const images = playlist.thumbnail?.thumbnails ?? playlist.thumbnailRenderer?.playlistVideoThumbnailRenderer?.thumbnail?.thumbnails ?? [];
+      const thumbnails = (Array.isArray(images) ? images : [])
+        .filter((image: { url?: unknown }) => typeof image?.url === "string" && /^https?:\/\//.test(image.url))
+        .map((image: { url: string; width?: number; height?: number }) => ({ url: image.url, width: image.width ?? 0, height: image.height ?? 0 }));
       playlists.push({
         id: playlist.playlistId,
-        title: getYTMTextRun(playlist.title.runs)
+        title: getYTMTextRun(playlist.title.runs),
+        thumbnailUrl: thumbnails.at(-1)?.url ?? "",
+        thumbnails
       });
     }
     ipcRenderer.send(`ytmView:getPlaylists:response:${requestId}`, playlists);

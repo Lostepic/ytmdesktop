@@ -4,8 +4,17 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const vm = require("node:vm");
+const EventEmitter = require("node:events");
 
 (async () => {
+  const root = path.resolve(__dirname, "..");
+  const parsed = require("typescript-eslint").parser.parseForESLint(fs.readFileSync(path.join(root, "src/shared/store/schema.ts"), "utf8"), {
+    filePath: path.join(root, "src/shared/store/schema.ts"),
+    project: "tsconfig.json",
+    tsconfigRootDir: root
+  });
+  assert.ok(parsed.services.program, "patched minimatch must preserve typed parser project discovery");
+  console.log("PASS: lint parser discovers typed projects with patched minimatch");
   const { default: Conf } = await import("conf");
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "ytmd-upgrade-test-"));
   const store = new Conf({ cwd: directory, defaults: { integrations: {} } });
@@ -25,6 +34,7 @@ const vm = require("node:vm");
     external: ["electron", "electron-log", "conf", "fastify", "socket.io"]
   });
   const module = { exports: {} };
+  const ipcMain = new EventEmitter();
   vm.runInNewContext(outputFiles[0].text, {
     module,
     exports: module.exports,
@@ -37,7 +47,7 @@ const vm = require("node:vm");
     TextEncoder,
     TextDecoder,
     require: name => {
-      if (name === "electron") return { ipcMain: { on() {}, off() {} }, safeStorage: { decryptString: bytes => bytes.toString() } };
+      if (name === "electron") return { ipcMain, safeStorage: { decryptString: bytes => bytes.toString() } };
       if (name === "electron-log") return { warn() {}, info() {}, error() {} };
       return require(name);
     }
@@ -56,7 +66,20 @@ const vm = require("node:vm");
     ).toString("hex")
   );
   const companion = new module.exports.default();
-  companion.provide(store, { get: () => false }, { webContents: { send: (...args) => commands.push(args) } });
+  let playlistChannel;
+  const playlists = [{ id: "test-list", title: "Test playlist", thumbnails: [{ url: "https://example.com/art.jpg", width: 240, height: 240 }] }];
+  const webContents = {
+    send: (...args) => {
+      if (args[0] === "ytmView:getPlaylists") {
+        playlistChannel = `ytmView:getPlaylists:response:${args[1]}`;
+        queueMicrotask(() => {
+          ipcMain.emit(playlistChannel, { sender: {} }, [{ id: "untrusted" }]);
+          ipcMain.emit(playlistChannel, { sender: webContents }, playlists);
+        });
+      } else commands.push(args);
+    }
+  };
+  companion.provide(store, { get: () => false }, { webContents });
   companion.createServer();
   const server = companion.fastifyServer;
   try {
@@ -81,6 +104,11 @@ const vm = require("node:vm");
     assert.equal(response.statusCode, 200);
     assert.ok(Object.hasOwn(response.json(), "player"));
     console.log("PASS: TypeBox 1/Fastify validates existing authenticated Stream Deck commands and rejects invalid input");
+    response = await server.inject({ method: "GET", url: "/api/v1/playlists", headers: { authorization: tokens[0] } });
+    assert.equal(response.statusCode, 200, response.body);
+    assert.deepEqual(response.json(), playlists);
+    assert.equal(ipcMain.listenerCount(playlistChannel), 0);
+    console.log("PASS: companion playlist artwork, trusted reply validation and request listener cleanup");
   } finally {
     await server.close();
   }

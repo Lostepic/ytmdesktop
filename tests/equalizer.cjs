@@ -41,9 +41,13 @@ if (!process.versions.electron) {
     });
     const env = { ...process.env };
     delete env.ELECTRON_RUN_AS_NODE;
-    const result = require("node:child_process").spawnSync(require("electron"), [__filename, directory], { env, stdio: "inherit" });
-    if (result.error) console.error(result.error);
-    process.exit(result.status ?? 1);
+    for (const requireGesture of [false, true]) {
+      env.YTM_EQ_REQUIRE_GESTURE = requireGesture ? "1" : "";
+      const result = require("node:child_process").spawnSync(require("electron"), [__filename, directory], { env, stdio: "inherit" });
+      if (result.error) console.error(result.error);
+      if (result.status !== 0) process.exit(result.status ?? 1);
+    }
+    process.exit(0);
   })().catch(error => {
     console.error(error);
     process.exit(1);
@@ -71,7 +75,12 @@ if (!process.versions.electron) {
       try {
         const window = new BrowserWindow({
           show: false,
-          webPreferences: { sandbox: true, contextIsolation: true, autoplayPolicy: "no-user-gesture-required", preload: path.join(directory, "preload.cjs") }
+          webPreferences: {
+            sandbox: true,
+            contextIsolation: true,
+            autoplayPolicy: process.env.YTM_EQ_REQUIRE_GESTURE ? "document-user-activation-required" : "no-user-gesture-required",
+            preload: path.join(directory, "preload.cjs")
+          }
         });
         await window.loadURL("data:text/html,<html><body><ytmusic-player></ytmusic-player></body></html>");
         const snapshot = () =>
@@ -103,6 +112,14 @@ if (!process.versions.electron) {
         await newVideo();
         const boost = { enabled: true, gains: [0, 0, 0, 0, 0, 12, 0, 0, 0, 0], automaticHeadroom: true, preampDb: 0 };
         configure(boost);
+        if (process.env.YTM_EQ_REQUIRE_GESTURE) {
+          await waitFor("suspended");
+          assert.equal((await snapshot()).sources, 0, "blocked audio must not capture the media element");
+          window.webContents.debugger.attach("1.3");
+          await window.webContents.debugger.sendCommand("Input.dispatchMouseEvent", { type: "mousePressed", x: 10, y: 10, button: "left", clickCount: 1 });
+          await window.webContents.debugger.sendCommand("Input.dispatchMouseEvent", { type: "mouseReleased", x: 10, y: 10, button: "left", clickCount: 1 });
+          window.webContents.debugger.detach();
+        }
         await waitFor("active");
         let result = await snapshot();
         assert.equal(result.contexts, 1);
@@ -138,7 +155,7 @@ if (!process.versions.electron) {
         result = await snapshot();
         assert.deepEqual(result.gains.slice(0, 3), [0, 12, -12]);
         console.log(
-          "PASS: isolated Web Audio EQ, zero-allocation flat/off mode, measured headroom, bypass, media replacement/reuse and unsafe-source rejection"
+          `PASS: isolated Web Audio EQ (${process.env.YTM_EQ_REQUIRE_GESTURE ? "gesture-required activation" : "autoplay allowed"}), zero-allocation flat/off mode, measured headroom, bypass, media replacement/reuse and unsafe-source rejection`
         );
         clearTimeout(timeout);
         app.exit(0);

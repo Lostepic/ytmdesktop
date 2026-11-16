@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.4.1 — Equalizer activation reliability
+
+- Retry a browser-blocked AudioContext directly on player mouse, touch or keyboard interaction. A pending pre-gesture resume request no longer prevents EQ activation when opening the player with a saved curve.
+- Run the native EQ regression suite with both autoplay allowed and document-user-activation required, including a real browser input event. Confirm blocked contexts never capture a media element before activation.
+- Include all 3.4.0 EQ, advisory, companion, Discord and export improvements; rebuild every platform and the Windows automatic-update feed.
+
 ## 3.4.0 — Equalizer and integration efficiency
 
 - Add an optional native Web Audio ten-band equalizer (31 Hz–16 kHz), four presets, ±12 dB band gains, preamp, bypass and processing status in Settings → Playback. Persist changes on slider release rather than every input event.

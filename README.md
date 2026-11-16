@@ -66,6 +66,8 @@ Pull requests also build the Windows and Linux installers, so installer-tool fai
 
 ## What changed in 3.4
 
+The current 3.4.1 maintenance build also fixes EQ activation when the browser requires a first player interaction, with automated coverage for both autoplay policies.
+
 - Adds an optional ten-band equalizer with presets, per-band gain, preamp, automatic headroom and live processing status in **Settings → Playback**.
 - Leaves the original playback path untouched while EQ is off or initially flat; uses native audio nodes only when processing is requested.
 - Adds a Discord activity headline selector (app, artist or song), based on an upstream community request.

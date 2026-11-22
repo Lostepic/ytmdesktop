@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.4.2 — Dependency maintenance
+
+- Update Electron from 45.3.3 to 45.4.1, including upstream engine fixes. See the [Electron release notes](https://github.com/electron/electron/releases/tag/v45.4.1).
+- Update Vue to 3.5.46, Fastify error helpers to 4.3.0 and rate limiting to 11.3.0 without changing companion authentication or command formats.
+- Update TypeScript ESLint to 8.73.0 and lint-staged to 17.6.2. Raise the declared esbuild and Node.js type minimums to the already-resolved 0.28.2 and 24.19.2 versions; keep types aligned with the Node.js 24 runtime.
+- Update the Corepack-selected Yarn release to 4.19.0 and verify immutable installation with the refreshed lockfile.
+- Remove the temporary lint-tool minimatch override: the updated parser depends on the patched major directly. Retain the typed-project discovery regression test and strict audit gates without exclusions.
+- Refresh compatible transitive dependencies, including engine.io 6.6.12, fast-json-stringify 7.3.9, find-my-way 9.10.2, minimatch 11.0.9 and undici 8.13.1. Deduplicate Fastify, Vue compiler/shared and TypeScript ESLint dependency copies.
+- Keep TypeScript on 6.0.3 because the current lint parser's supported peer range excludes TypeScript 7. Verify GitHub Actions references remain on current supported releases.
+- Preserve the EQ, Stream Deck, Discord, settings and export behavior with the existing native and built-app regression suites. Rebuild Windows, Linux, Intel Mac and native Apple Silicon downloads and the Windows automatic-update feed.
+
 ## 3.4.1 — Equalizer activation reliability
 
 - Retry a browser-blocked AudioContext directly on player mouse, touch or keyboard interaction. A pending pre-gesture resume request no longer prevents EQ activation when opening the player with a saved curve.

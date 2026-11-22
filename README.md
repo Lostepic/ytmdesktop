@@ -13,7 +13,7 @@
   <a href="https://github.com/Lostepic/ytmdesktop/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Lostepic/ytmdesktop?style=flat-square&label=release"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=main&style=flat-square&label=build"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/releases"><img alt="Release downloads" src="https://img.shields.io/github/downloads/Lostepic/ytmdesktop/total?style=flat-square&label=downloads"></a>
-  <img alt="Electron 45" src="https://img.shields.io/badge/Electron-45.3.3-47848f?style=flat-square&logo=electron">
+  <img alt="Electron 45" src="https://img.shields.io/badge/Electron-45.4.1-47848f?style=flat-square&logo=electron">
   <a href="LICENSE"><img alt="GPL-3.0 license" src="https://img.shields.io/github/license/Lostepic/ytmdesktop?style=flat-square"></a>
 </p>
 
@@ -66,7 +66,9 @@ Pull requests also build the Windows and Linux installers, so installer-tool fai
 
 ## What changed in 3.4
 
-The current 3.4.1 maintenance build also fixes EQ activation when the browser requires a first player interaction, with automated coverage for both autoplay policies.
+The current 3.4.2 maintenance build updates Electron to 45.4.1, Vue to 3.5.46, Fastify error/rate-limit helpers and TypeScript ESLint to 8.73.0. It refreshes compatible transitive dependencies and removes duplicate dependency copies. The lint tooling now uses patched minimatch natively, so the temporary override is no longer needed; the full audit remains clean. TypeScript stays on 6.0.3 because the lint tooling does not yet support TypeScript 7.
+
+The EQ activation fix from 3.4.1 remains included, with automated coverage for both autoplay policies.
 
 - Adds an optional ten-band equalizer with presets, per-band gain, preamp, automatic headroom and live processing status in **Settings → Playback**.
 - Leaves the original playback path untouched while EQ is off or initially flat; uses native audio nodes only when processing is requested.
@@ -260,7 +262,7 @@ The update feed is verified against each Windows release: it offers the newest v
 ### Requirements
 
 - Node.js 24.22 or newer
-- Corepack with Yarn 4.18.1 (selected by `package.json`)
+- Corepack with Yarn 4.19.0 (selected by `package.json`)
 - Platform packaging tools when building installers
 
 ```bash

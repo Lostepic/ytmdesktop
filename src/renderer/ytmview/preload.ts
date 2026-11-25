@@ -20,6 +20,7 @@ import toggleDislikeScript from "./scripts/toggledislike.script?raw";
 import playerCompatibilityScript from "./scripts/playercompatibility.script?raw";
 import { suppressRestoredPlaybackCoachmark } from "./playback-coachmark";
 import { EqualizerController } from "./equalizer";
+import { installDragScroll } from "../drag-scroll";
 
 const store = new Store<StoreSchema>();
 
@@ -70,6 +71,46 @@ function createStyleSheet() {
       *::-webkit-scrollbar-track { background: transparent; }
       *::-webkit-scrollbar-thumb { background: #403c47; border: 3px solid transparent; border-radius: 999px; background-clip: padding-box; }
       *::-webkit-scrollbar-thumb:hover { background-color: #595461; }
+
+      html.ytmd-small-browse {
+        --ytmusic-guide-width: 0px !important;
+        --ytmusic-mini-guide-width: 0px !important;
+        --ytmusic-player-bar-height: 0px !important;
+        --ytmusic-nav-bar-height: 0px !important;
+      }
+      html.ytmd-small-browse ytmusic-app-layout {
+        --ytmusic-guide-width: 0px !important;
+        --ytmusic-mini-guide-width: 0px !important;
+        --ytmusic-player-bar-height: 0px !important;
+        --ytmusic-nav-bar-height: 0px !important;
+      }
+      html.ytmd-small-browse ytmusic-guide-renderer,
+      html.ytmd-small-browse ytmusic-mini-guide-renderer,
+      html.ytmd-small-browse ytmusic-nav-bar,
+      html.ytmd-small-browse ytmusic-player-bar { display: none !important; }
+      html.ytmd-small-browse ytmusic-app-layout > #content {
+        margin-inline-start: 0 !important;
+        width: 100% !important;
+      }
+      html.ytmd-small-browse,
+      html.ytmd-small-browse body,
+      html.ytmd-small-browse ytmusic-app-layout > #content { overflow-x: clip !important; }
+      html.ytmd-small-browse ytmusic-browse-response,
+      html.ytmd-small-browse ytmusic-search-page {
+        --ytmusic-content-width: min(100vw - 24px, 1040px) !important;
+      }
+      html.ytmd-small-browse ytmusic-responsive-list-item-renderer,
+      html.ytmd-small-browse ytmusic-player-queue-item { min-height: 52px; }
+      html.ytmd-small-browse ytmusic-shelf-renderer,
+      html.ytmd-small-browse ytmusic-carousel-shelf-renderer { scroll-margin-top: 10px; }
+      html.ytmd-small-browse * { scrollbar-width: auto; scrollbar-color: #6a6177 transparent; }
+      html.ytmd-small-browse ytmusic-responsive-list-item-renderer,
+      html.ytmd-small-browse ytmusic-two-row-item-renderer { user-select: none; }
+      @media (max-width: 600px) {
+        html.ytmd-small-browse ytmusic-responsive-list-item-renderer { min-height: 60px; }
+        html.ytmd-small-browse ytmusic-responsive-list-item-renderer #menu,
+        html.ytmd-small-browse ytmusic-two-row-item-renderer #menu { min-width: 44px; min-height: 44px; }
+      }
 
       ytmusic-nav-bar {
         background: #0d0d13 !important;
@@ -445,7 +486,42 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   // Apply the lightweight visual shell immediately. Player and integration
   // hooks can finish in the background without exposing an unstyled page.
-  createStyleSheet();
+  if (location.origin === "https://music.youtube.com") {
+    createStyleSheet();
+    let removeDrag: (() => void) | undefined;
+    const applyTouchBrowse = (enabled: boolean) => {
+      document.documentElement.classList.toggle("ytmd-small-browse", enabled);
+      if (!enabled) {
+        removeDrag?.();
+        removeDrag = undefined;
+        return;
+      }
+      removeDrag ??= installDragScroll(document, (event, axis) => {
+        const nodes = event.composedPath().filter((node): node is HTMLElement => node instanceof HTMLElement);
+        if (nodes.some(node => node.matches("ytmusic-player-bar, ytmusic-nav-bar, ytmusic-guide-renderer, ytmusic-popup-container"))) return null;
+        return (
+          nodes.find(node => {
+            const style = getComputedStyle(node);
+            return axis === "x"
+              ? node.clientWidth > 0 && node.scrollWidth > node.clientWidth + 1 && /auto|scroll/.test(style.overflowX)
+              : node.clientHeight > 0 && node.scrollHeight > node.clientHeight + 1 && /auto|scroll/.test(style.overflowY);
+          }) ?? (axis === "y" ? (document.scrollingElement as HTMLElement | null) : null)
+        );
+      });
+    };
+    let settingsReceived = false;
+    store.onDidAnyChange((state, previous) => {
+      if (state.appearance?.smallDisplayMode === previous.appearance?.smallDisplayMode) return;
+      settingsReceived = true;
+      applyTouchBrowse(state.appearance?.smallDisplayMode === true);
+    });
+    void store
+      .get("appearance")
+      .then(appearance => {
+        if (!settingsReceived) applyTouchBrowse(appearance?.smallDisplayMode === true);
+      })
+      .catch(() => {});
+  }
 
   const hooked = await waitForCondition(async () => {
     return (
@@ -567,25 +643,20 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   async function executeRemoteCommand(command: string, value: unknown): Promise<void> {
     switch (command) {
-      case "playPause": {
-        (
-          await webFrame.executeJavaScript(`
-            (function() {
-              window.__YTMD_PLAYER__.getPlayerBar().playing ? window.__YTMD_PLAYER__.getPlayerApi().pauseVideo() : window.__YTMD_PLAYER__.getPlayerApi().playVideo();
-            })
-          `)
-        )();
-        break;
-      }
-
+      case "playPause":
       case "play": {
-        (
-          await webFrame.executeJavaScript(`
-            (function() {
-              window.__YTMD_PLAYER__.getPlayerApi().playVideo();
-            })
-          `)
-        )();
+        // Play is an explicit transport request. Keep the page's autoplay
+        // policy intact and apply activation to the call in this view, not
+        // to a function returned after the script's activation has expired.
+        await webFrame.executeJavaScript(
+          `void (() => {
+            const player = window.__YTMD_PLAYER__;
+            const api = player.getPlayerApi();
+            if (${command === "playPause"} && player.getPlayerBar().playing) api.pauseVideo();
+            else api.playVideo();
+          })()`,
+          true
+        );
         break;
       }
 
@@ -745,49 +816,32 @@ window.addEventListener("DOMContentLoaded", async () => {
         break;
 
       case "playQueueIndex": {
-        const index = Number(value);
+        const selection = typeof value === "object" && value !== null ? (value as { index?: unknown; id?: unknown }) : { index: value };
+        const index = selection.index;
+        if (typeof index !== "number" || !Number.isSafeInteger(index) || index < 0) break;
+        const expectedId = typeof selection.id === "string" ? selection.id : null;
 
-        (
-          await webFrame.executeJavaScript(`
-            (function(index) {
-              const state = window.__YTMD_HOOK__.ytmStore.getState();
-              const queue = state.queue;
-
-              const maxQueueIndex = state.queue.items.length - 1;
-              const maxAutoMixQueueIndex = Math.max(state.queue.automixItems.length - 1, 0);
-
-              let useAutoMix = false;
-              if (index > maxQueueIndex) {
-                index = index - state.queue.items.length;
-                useAutoMix = true;
-              }
-
-              let song = null;
-              if (!useAutoMix) {
-                song = queue.items[index];
-              } else {
-                song = queue.automixItems[index];
-              }
-
-              let playlistPanelVideoRenderer;
-              if (song.playlistPanelVideoRenderer) {
-                playlistPanelVideoRenderer = song.playlistPanelVideoRenderer;
-              } else if (song.playlistPanelVideoWrapperRenderer) {
-                playlistPanelVideoRenderer = song.playlistPanelVideoWrapperRenderer.primaryRenderer.playlistPanelVideoRenderer;
-              }
+        await webFrame.executeJavaScript(
+          `void (function(index, expectedId) {
+              const queue = window.__YTMD_HOOK__?.ytmStore?.getState()?.queue;
+              const length = queue?.items?.length ?? 0;
+              const song = index < length ? queue.items[index] : queue?.automixItems?.[index - length];
+              const renderer = song?.playlistPanelVideoRenderer ?? song?.playlistPanelVideoWrapperRenderer?.primaryRenderer?.playlistPanelVideoRenderer;
+              const endpoint = renderer?.navigationEndpoint?.watchEndpoint;
+              if (!endpoint || (expectedId !== null && (renderer.videoId ?? endpoint.videoId) !== expectedId)) return;
 
               document.dispatchEvent(
                 new CustomEvent("yt-navigate", {
                   detail: {
                     endpoint: {
-                      watchEndpoint: playlistPanelVideoRenderer.navigationEndpoint.watchEndpoint
+                      watchEndpoint: endpoint
                     }
                   }
                 })
               );
-            })
-          `)
-        )(index);
+            })(${index}, ${JSON.stringify(expectedId)})`,
+          true
+        );
 
         break;
       }

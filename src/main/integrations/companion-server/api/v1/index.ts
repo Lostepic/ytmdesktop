@@ -3,6 +3,7 @@ import Conf from "conf";
 import { FastifyPluginCallback, FastifyPluginOptions } from "fastify";
 import { StoreSchema } from "~shared/store/schema";
 import playerStateStore, { PlayerState, RepeatMode } from "../../../../player-state-store";
+import { isolatedRendererPreferences } from "../../../../renderer-isolation";
 import { createAuthToken, getIsTemporaryAuthCodeValidAndRemove, getTemporaryAuthCode, isAuthValid, isAuthValidMiddleware } from "../../api-shared/auth";
 import { fastifyRateLimit } from "@fastify/rate-limit";
 import crypto from "crypto";
@@ -320,8 +321,7 @@ const CompanionServerAPIv1: FastifyPluginCallback<CompanionServerAPIv1Options> =
           height: 36
         },
         webPreferences: {
-          sandbox: true,
-          contextIsolation: true,
+          ...isolatedRendererPreferences,
           preload: path.join(__dirname, `../renderer/windows/authorize-companion/preload.cjs`),
           additionalArguments: [requestId, authData.appName, request.body.code]
         }

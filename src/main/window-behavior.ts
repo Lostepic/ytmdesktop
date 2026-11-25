@@ -7,7 +7,7 @@ export function showAuxiliaryWindow(window: BrowserWindow): void {
   window.focus();
 }
 
-export function visibleWindowBounds(saved: Rectangle | null, workAreas: Rectangle[]): Rectangle {
+export function visibleWindowBounds(saved: Rectangle | null, workAreas: Rectangle[], minimum = { width: 720, height: 500 }): Rectangle {
   const primary = workAreas[0];
   const valid = saved && Object.values(saved).every(Number.isFinite) && saved.width > 0 && saved.height > 0;
   const bounds = valid ? saved : { x: primary.x, y: primary.y, width: 1280, height: 720 };
@@ -22,8 +22,8 @@ export function visibleWindowBounds(saved: Rectangle | null, workAreas: Rectangl
       area = candidate;
     }
   }
-  const width = Math.min(Math.max(720, bounds.width), area.width);
-  const height = Math.min(Math.max(500, bounds.height), area.height);
+  const width = Math.min(Math.max(minimum.width, bounds.width), area.width);
+  const height = Math.min(Math.max(minimum.height, bounds.height), area.height);
   const x = valid && greatestOverlap ? Math.max(area.x, Math.min(bounds.x, area.x + area.width - width)) : area.x + (area.width - width) / 2;
   const y = valid && greatestOverlap ? Math.max(area.y, Math.min(bounds.y, area.y + area.height - height)) : area.y + (area.height - height) / 2;
   return { x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height) };

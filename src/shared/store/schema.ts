@@ -33,6 +33,7 @@ export type StoreSchema = {
     trayIconStyle: TrayIconStyle;
     themePreset: ThemePreset;
     compactMode: boolean;
+    smallDisplayMode: boolean;
   };
   playback: {
     continueWhereYouLeftOff: boolean;

@@ -4,6 +4,9 @@ An independent, open-source desktop client for YouTube Music on Windows, macOS, 
 
 [![Release](https://img.shields.io/github/v/release/Lostepic/ytmdesktop?style=flat-square)](https://github.com/Lostepic/ytmdesktop/releases/latest)
 [![Build](https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=main&style=flat-square)](https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml)
+[![Release builds](https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/publish.yml?style=flat-square&label=release%20builds)](https://github.com/Lostepic/ytmdesktop/actions/workflows/publish.yml)
+[![Total downloads](https://img.shields.io/github/downloads/Lostepic/ytmdesktop/total?style=flat-square)](https://github.com/Lostepic/ytmdesktop/releases)
+[![Electron version](https://img.shields.io/github/package-json/dependency-version/Lostepic/ytmdesktop/dev/electron?style=flat-square&logo=electron)](package.json)
 [![GPL-3.0](https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square)](LICENSE)
 
 [Downloads](https://github.com/Lostepic/ytmdesktop/releases/latest) · [User guide](docs/USER-GUIDE.md) · [Changelog](docs/CHANGELOG.md) · [Development](docs/DEVELOPMENT.md)

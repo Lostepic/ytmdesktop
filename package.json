@@ -1,8 +1,8 @@
 {
   "name": "youtube-music-desktop-app",
   "productName": "YTM Desktop",
-  "version": "3.5.2",
-  "description": "A modern, high-performance YouTube Music desktop client",
+  "version": "3.5.3",
+  "description": "An independent, open-source desktop client for YouTube Music",
   "main": ".vite/main/index.cjs",
   "private": true,
   "scripts": {

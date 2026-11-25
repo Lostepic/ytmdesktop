@@ -1083,6 +1083,7 @@ window.ytmd.handleUpdateDownloaded(() => {
 .content {
   overflow: auto;
   flex-grow: 1;
+  min-width: 0;
   padding: 30px clamp(24px, 5vw, 64px) 44px;
   background: radial-gradient(circle at 100% 0%, rgba(184, 43, 67, 0.1), transparent 28%);
 }
@@ -1112,6 +1113,7 @@ window.ytmd.handleUpdateDownloaded(() => {
   background: #111117;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .sidebar li:not(.brand) {
@@ -1176,6 +1178,51 @@ window.ytmd.handleUpdateDownloaded(() => {
 
 .sidebar .push {
   flex-grow: 1;
+}
+
+@media (max-height: 500px) {
+  .content {
+    padding-block-start: 14px;
+  }
+  .sidebar .brand {
+    margin-block: 4px;
+    padding-block: 8px;
+  }
+  .sidebar li button {
+    padding-block: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .content-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    flex: none;
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .sidebar .brand,
+  .sidebar .push {
+    display: none;
+  }
+  .sidebar li:not(.brand) {
+    margin: 3px;
+  }
+  .sidebar li button {
+    min-height: 44px;
+    padding-inline: 10px;
+    white-space: nowrap;
+  }
+  .content {
+    min-height: 0;
+    padding-inline: 16px;
+  }
 }
 
 .page-heading {

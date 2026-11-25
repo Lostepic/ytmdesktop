@@ -78,6 +78,19 @@ if (!process.versions.electron) {
         assert.ok(layout, "EQ labels and sliders must fit at 80% interface scale");
         await window.webContents.executeJavaScript("[...document.querySelectorAll('button')].find(b => b.textContent.trim().endsWith('About')).click()");
         assert.ok((await text()).includes(require("../package.json").version));
+        window.webContents.setZoomFactor(1);
+        for (const [width, height] of [[800, 436], [520, 320]]) {
+          window.setContentSize(width, height);
+          await new Promise(resolve => setTimeout(resolve, 120));
+          const result = await window.webContents.executeJavaScript(`(() => {
+            const title = document.querySelector('.titlebar').getBoundingClientRect();
+            const search = document.querySelector('[aria-label="Search settings"]').getBoundingClientRect();
+            const content = document.querySelector('.content');
+            const viewport = content.getBoundingClientRect();
+            return {title: title.top, below: search.top >= title.bottom, inside:search.bottom <= viewport.bottom && viewport.bottom <= innerHeight + 1};
+          })()`);
+          assert.ok(result.title >= 0 && result.below && result.inside, `Settings fit at ${width} × ${height}: ${JSON.stringify(result)}`);
+        }
         console.log("PASS: Vite-built Settings navigation, ten EQ bands, preset persistence and layout at 80% scale with the sandbox preload");
         clearTimeout(timeout);
         app.exit(0);

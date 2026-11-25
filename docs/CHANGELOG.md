@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.5.3 — Settings fit on small displays
+
+- Keep Settings inside the player display's usable area, including the Echo Show 5 through spacedesk. Opening Settings no longer places the title bar above the screen.
+- Keep Settings content scrollable on short displays and use horizontal section navigation on narrow windows.
+- Add regression tests for small work areas and the packaged Settings layout.
+- Shorten the README, link the user guide and development documentation, and clarify the existing GPL-3.0-only license and upstream credits.
+
 ## 3.5.2 — Echo Show 5 and small-display playback
 
 - Add **Small Display mode** for the Echo Show 5 via spacedesk on Windows and other compact displays. Open it with the tablet button or in **Settings → Appearance**; the display picker moves the app to the desired screen.

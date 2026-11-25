@@ -2,7 +2,13 @@
 
 [Project home](../README.md) · [Downloads](https://github.com/Lostepic/ytmdesktop/releases/latest) · [User guide](USER-GUIDE.md)
 
-These captures show the app with sample tracks and artwork.
+Screenshots use public music or demo tracks, with no personal account details.
+
+## Desktop player
+
+The standard desktop layout keeps navigation and search visible alongside album artwork, the playback bar, and the Up Next queue.
+
+![Desktop player showing the sidebar, album artwork, Up Next queue, and playback controls](../screenshots/desktop-player.png)
 
 ## Small Display mode
 
@@ -11,6 +17,18 @@ Now Playing keeps the artwork and transport controls side by side in landscape a
 ![Landscape Now Playing with artwork beside large playback controls](../screenshots/small-display.png)
 
 ![Portrait Now Playing with artwork above the playback controls](../screenshots/small-display-portrait.png)
+
+### Browse
+
+Swipe across the recommendations or use the bottom bar to switch between Home, Explore, Library, and Now Playing.
+
+![Small Display Browse showing recommendations, mood filters, and the bottom navigation bar](../screenshots/small-display-browse.png)
+
+### Search
+
+The search field stays above the results, with filters for artists, albums, songs, and more. Playback controls stay within reach on the bottom bar.
+
+![Small Display Search showing a search for Tycho, result filters, and matching songs](../screenshots/small-display-search.png)
 
 ### Up Next
 

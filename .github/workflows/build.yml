@@ -72,6 +72,9 @@ jobs:
       - name: Build Windows and Linux installers
         if: runner.os != 'macOS'
         run: yarn make --arch ${{ matrix.arch }}
+      - name: Verify packaged Windows startup
+        if: runner.os == 'Windows'
+        run: yarn test:windows-startup
       - name: Package macOS application
         if: runner.os == 'macOS'
         run: yarn package --arch ${{ matrix.arch }}

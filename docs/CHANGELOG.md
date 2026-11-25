@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.5.2 — Echo Show 5 and small-display playback
+
+- Add **Small Display mode** for the Echo Show 5 via spacedesk on Windows and other compact displays. Open it with the tablet button or in **Settings → Appearance**; the display picker moves the app to the desired screen.
+- Replace the desktop browse chrome in this mode with a top search field and bottom Home, Explore, Library, Now playing, and Play/Pause controls. Search and browse without stopping the current track.
+- Give songs larger touch targets and support vertical scrolling and sideways swipes across album rows without an accidental click on release.
+- Use stacked artwork and playback controls on narrow portrait screens and a side-by-side layout on short, wide screens. **Up Next** opens at the current track with large rows and page controls.
+- Fix the first **Play** press on a remembered track after launch. Playback still starts paused if configured; no new track selection is needed.
+- Keep the existing sign-in, settings, and renderer protections. Deduplicate player snapshots, send queue updates only while the queue is open, and coalesce web-view resize updates. Add packaged Windows startup coverage alongside the sandboxed player and touch-layout tests.
+- Update [Electron to 45.5.0](https://releases.electronjs.org/release/v45.5.0), TypeScript ESLint to 8.74.0, and Node.js 24 types to 24.19.4. Keep TypeScript at 6.0.3 because the current lint parser does not support TypeScript 7.
+
 ## 3.4.2 — Dependency maintenance
 
 - Update Electron from 45.3.3 to 45.4.1, including upstream engine fixes. See the [Electron release notes](https://github.com/electron/electron/releases/tag/v45.4.1).

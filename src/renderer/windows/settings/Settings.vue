@@ -88,6 +88,15 @@ const zoom = ref<number>(appearance.zoom);
 const trayIconStyle = ref<number>(appearance.trayIconStyle);
 const themePreset = ref<number>(appearance.themePreset ?? ThemePreset.Midnight);
 const compactMode = ref<boolean>(appearance.compactMode ?? false);
+const smallDisplayMode = ref<boolean>(appearance.smallDisplayMode ?? false);
+function changeSmallDisplayMode() {
+  if (smallDisplayMode.value) compactMode.value = false;
+  void settingsChanged();
+}
+function changeCompactMode() {
+  if (compactMode.value) smallDisplayMode.value = false;
+  void settingsChanged();
+}
 
 const continueWhereYouLeftOff = ref<boolean>(playback.continueWhereYouLeftOff);
 const continueWhereYouLeftOffPaused = ref<boolean>(playback.continueWhereYouLeftOffPaused);
@@ -162,6 +171,7 @@ store.onDidAnyChange(async newState => {
   trayIconStyle.value = newState.appearance.trayIconStyle;
   themePreset.value = newState.appearance.themePreset ?? ThemePreset.Midnight;
   compactMode.value = newState.appearance.compactMode ?? false;
+  smallDisplayMode.value = newState.appearance.smallDisplayMode ?? false;
 
   continueWhereYouLeftOff.value = newState.playback.continueWhereYouLeftOff;
   continueWhereYouLeftOffPaused.value = newState.playback.continueWhereYouLeftOffPaused;
@@ -260,7 +270,8 @@ async function settingsChanged() {
       zoom: zoom.value,
       trayIconStyle: trayIconStyle.value,
       themePreset: themePreset.value,
-      compactMode: compactMode.value
+      compactMode: compactMode.value,
+      smallDisplayMode: smallDisplayMode.value
     },
     playback: {
       continueWhereYouLeftOff: continueWhereYouLeftOff.value,
@@ -561,7 +572,14 @@ window.ytmd.handleUpdateDownloaded(() => {
             type="checkbox"
             name="Compact mini-player"
             description="Keep a small always-on-top player focused on the current track and controls."
-            @change="settingsChanged"
+            @change="changeCompactMode"
+          />
+          <YTMDSetting
+            v-model="smallDisplayMode"
+            type="checkbox"
+            name="Small display mode"
+            description="A touch-friendly now-playing view for Echo Show, spacedesk and small secondary screens. Also available from the tablet button in the title bar."
+            @change="changeSmallDisplayMode"
           />
           <YTMDSetting
             v-model="alwaysShowVolumeSlider"

@@ -13,7 +13,7 @@
   <a href="https://github.com/Lostepic/ytmdesktop/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Lostepic/ytmdesktop?style=flat-square&label=release"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=main&style=flat-square&label=build"></a>
   <a href="https://github.com/Lostepic/ytmdesktop/releases"><img alt="Release downloads" src="https://img.shields.io/github/downloads/Lostepic/ytmdesktop/total?style=flat-square&label=downloads"></a>
-  <img alt="Electron 45" src="https://img.shields.io/badge/Electron-45.4.1-47848f?style=flat-square&logo=electron">
+  <img alt="Electron 45" src="https://img.shields.io/badge/Electron-45.5.0-47848f?style=flat-square&logo=electron">
   <a href="LICENSE"><img alt="GPL-3.0 license" src="https://img.shields.io/github/license/Lostepic/ytmdesktop?style=flat-square"></a>
 </p>
 
@@ -64,9 +64,17 @@ The build badge reports validation of the protected `main` branch. Version tags 
 
 Pull requests also build the Windows and Linux installers, so installer-tool failures are caught before a release. Linux packaging uses Ubuntu 24.04 to keep the RPM toolchain compatible with the current Electron Forge maker.
 
+## What's new in 3.5.2
+
+- **Echo Show 5 and other small displays:** Turn on [Small Display mode](#small-displays-and-tablets) with the tablet button. On Windows, use the display picker to move YTM Desktop to your Echo Show through spacedesk.
+- **Browse and search:** Search songs, albums and artists at the top. Home, Explore, Library, Now playing, and Play/Pause stay within reach along the bottom. Scroll vertically or swipe sideways across album rows without accidentally opening a track.
+- **Now playing and Up Next:** Tall screens stack the artwork above the playback controls; short, wide screens keep them side by side. The queue opens at the current track with large rows and page buttons.
+- **First play after reopening:** Start the remembered track with one press of Play, without choosing a new song or turning autoplay on.
+- **Reliability:** Keep renderer isolation and encrypted sign-in in place, avoid redundant player updates, and check that both Windows renderers start in the actual packaged build. Includes the latest compatible dependency updates.
+
 ## What changed in 3.4
 
-The current 3.4.2 maintenance build updates Electron to 45.4.1, Vue to 3.5.46, Fastify error/rate-limit helpers and TypeScript ESLint to 8.73.0. It refreshes compatible transitive dependencies and removes duplicate dependency copies. The lint tooling now uses patched minimatch natively, so the temporary override is no longer needed; the full audit remains clean. TypeScript stays on 6.0.3 because the lint tooling does not yet support TypeScript 7.
+The 3.4.2 maintenance build updated Electron to 45.4.1, Vue to 3.5.46, Fastify error/rate-limit helpers and TypeScript ESLint to 8.73.0. It refreshed compatible transitive dependencies and removed duplicate dependency copies. The lint tooling uses patched minimatch natively, so the temporary override was removed. TypeScript stays on 6.0.3 because the lint tooling does not yet support TypeScript 7.
 
 The EQ activation fix from 3.4.1 remains included, with automated coverage for both autoplay policies.
 
@@ -186,6 +194,17 @@ Version 3.0 is a substantial modernization of the inherited desktop client:
 - Added reproducible validation, packaging, Dependabot, and tag-based releases.
 
 See the [changelog](docs/CHANGELOG.md) for the concise release history.
+
+## Small displays and tablets
+
+In builds with **Small Display mode**, click the tablet icon in the title bar or turn the mode on in **Settings → Appearance**. Use the monitor button to move the window onto your secondary display and the fullscreen button to fill it. The same layout works on the Echo Show through spacedesk and on other Windows-connected touch displays; it is not a separate tablet app.
+
+- **Up Next** opens at the current track and gives you large rows to tap. Swipe, drag, use the scroll wheel, or tap the up/down buttons to move through the list.
+- **Browse music** puts search at the top and **Home**, **Explore**, **Library**, and **Now playing** along the bottom. Swipe up and down to browse, or sideways across album rows. The bottom bar also has Play/Pause, so you can browse without leaving the current track.
+- On a tall, narrow screen, **Now playing** stacks the artwork above the title and playback controls. Short and wide displays keep the side-by-side layout.
+- The desktop icon brings back the regular layout. Your account, queue, and audio settings stay with the same player.
+
+When testing a Windows preview, run `yarn test:windows-startup` after `yarn package`. It checks whether both renderers start in the packaged executable with a temporary, signed-out profile. A successful build alone does not verify startup, and this test does not read or reset the installed profile.
 
 ## Audio quality
 

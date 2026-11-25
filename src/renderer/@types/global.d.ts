@@ -2,6 +2,7 @@ import { WindowsEventArguments } from "~shared/types";
 import Store from "../store-ipc/store";
 import { StoreSchema, MemoryStoreSchema } from "~shared/store/schema";
 import MemoryStore from "../store-ipc/memory-store";
+import type { SmallDisplayPlayer, SmallDisplayPresentation, SmallDisplayCommand, SmallDisplayQueue, SmallDisplayBrowsePage } from "~shared/small-display";
 
 declare global {
   interface Window {
@@ -28,6 +29,24 @@ declare global {
       getCode(): string;
 
       // Main window specific
+      smallDisplay: {
+        sandboxed: boolean;
+        getPresentation(): Promise<SmallDisplayPresentation>;
+        getState(): Promise<SmallDisplayPlayer>;
+        setMode(enabled: boolean): void;
+        browse(browsing: boolean): void;
+        browsePage(page: SmallDisplayBrowsePage): void;
+        search(query: string): void;
+        back(): void;
+        fullscreen(): void;
+        chooseDisplay(): void;
+        watchQueue(open: boolean): void;
+        playQueueItem(index: number, id: string): void;
+        onQueue(callback: (value: SmallDisplayQueue) => void): () => void;
+        command(command: SmallDisplayCommand, value?: number | string): void;
+        onPresentation(callback: (value: SmallDisplayPresentation) => void): () => void;
+        onState(callback: (value: SmallDisplayPlayer) => void): () => void;
+      };
       switchFocus(context: "main" | "ytm"): void;
 
       // YTM view specific

@@ -380,8 +380,8 @@ class PlayerStateStore {
     muted: boolean | null,
     adPlaying: boolean | null
   ) {
-    const queueItems = queueState ? queueState.items?.map(mapYTMQueueItems) : [];
-    const automixItems = queueState ? queueState.automixItems?.map(mapYTMQueueItems) : [];
+    const queueItems = queueState?.items?.map(mapYTMQueueItems) ?? [];
+    const automixItems = queueState?.automixItems?.map(mapYTMQueueItems) ?? [];
     this.queue = queueState
       ? {
           // automixItems comes from an autoplay queue that isn't pushed yet to the main queue. A radio will never have automixItems (weird YTM distinction from autoplay vs radio)
@@ -394,7 +394,7 @@ class PlayerStateStore {
           repeatMode: transformRepeatMode(queueState.repeatMode),
           // YTM has a native selectedItemIndex property but that isn't updated correctly so we calculate it ourselves
           selectedItemIndex: queueItems.findIndex(item => {
-            return item.selected;
+            return item?.selected === true;
           })
         }
       : null;

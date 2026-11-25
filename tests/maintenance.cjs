@@ -65,6 +65,8 @@ function state(progress, overrides = {}) {
   const oversized = visibleWindowBounds({ x: 0, y: 0, width: 4000, height: 2000 }, [primary]);
   assert.equal(oversized.width, primary.width);
   assert.equal(oversized.height, primary.height);
+  const smallBounds = { x: -1800, y: 50, width: 420, height: 360 };
+  assert.equal(JSON.stringify(visibleWindowBounds(smallBounds, [primary, left], { width: 320, height: 300 })), JSON.stringify(smallBounds));
   assert.ok(Number.isFinite(visibleWindowBounds({ ...saved, x: NaN }, [primary]).x));
   const input = { type: "keyDown", key: "w", control: true, meta: false, alt: false, shift: false, isAutoRepeat: false };
   assert.equal(isCloseWindowShortcut(input, false), true);

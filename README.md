@@ -1,6 +1,6 @@
 # YTM Desktop
 
-An independent, open-source desktop client for YouTube Music on Windows, macOS, and Linux.
+An independent, open-source YouTube Music desktop app for Windows, macOS, and Linux, with a touch-friendly player for small displays and integrations for your desktop setup.
 
 [![Release](https://img.shields.io/github/v/release/Lostepic/ytmdesktop?style=flat-square)](https://github.com/Lostepic/ytmdesktop/releases/latest)
 [![Build](https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=main&style=flat-square)](https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml)
@@ -9,9 +9,9 @@ An independent, open-source desktop client for YouTube Music on Windows, macOS, 
 [![Electron version](https://img.shields.io/github/package-json/dependency-version/Lostepic/ytmdesktop/dev/electron?style=flat-square&logo=electron)](package.json)
 [![GPL-3.0](https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square)](LICENSE)
 
-[Downloads](https://github.com/Lostepic/ytmdesktop/releases/latest) · [User guide](docs/USER-GUIDE.md) · [Changelog](docs/CHANGELOG.md) · [Development](docs/DEVELOPMENT.md)
+[Downloads](https://github.com/Lostepic/ytmdesktop/releases/latest) · [Screenshots](docs/SHOWCASE.md) · [User guide](docs/USER-GUIDE.md) · [Changelog](docs/CHANGELOG.md) · [Development](docs/DEVELOPMENT.md)
 
-![YTM Desktop home screen](screenshots/player-home.png)
+[![Small Display mode showing album artwork and touch-friendly playback controls](screenshots/small-display.png)](docs/SHOWCASE.md)
 
 ## Install
 
@@ -25,11 +25,9 @@ Get the installer for your platform from [GitHub Releases](https://github.com/Lo
 
 ## Highlights
 
-- **Small Display mode:** Touch-friendly Browse, Search, Now Playing, and Up Next for compact screens, including Echo Show 5 connected through spacedesk on Windows.
-- **Playback:** Optional ten-band EQ, themes, global shortcuts, and resume-on-launch. Stream quality is set by YouTube Music.
-- **Integrations:** Stream Deck companion support, now-playing export for OBS, Discord Rich Presence, Last.fm, ListenBrainz, and optional SponsorBlock.
-
-**New in 3.5.3:** Settings opens within the display’s usable area, so the title bar and search box stay on-screen on the Echo Show 5. See the [full changelog](docs/CHANGELOG.md).
+- **[Small Display mode](docs/SHOWCASE.md#small-display-mode):** Touch-friendly browsing, search, playback, and queue controls for compact screens. Works with an Echo Show 5 used as a Windows display through spacedesk.
+- **[Playback and sound](docs/SHOWCASE.md#playback-and-sound):** Ten-band EQ with presets, resume-on-launch, global shortcuts, and built-in themes. YouTube Music still sets the source stream quality.
+- **[Plugins and devices](docs/SHOWCASE.md#plugins-and-devices):** Stream Deck support, local now-playing export for OBS, Discord Rich Presence, Last.fm, ListenBrainz, and optional SponsorBlock.
 
 ## License and credits
 

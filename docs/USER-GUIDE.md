@@ -26,4 +26,4 @@ Now-playing export supplies local text and JSON files for OBS or other tools. Sp
 
 ## Screenshots
 
-[Now Playing](../screenshots/now-playing.png) · [Integrations](../screenshots/settings-integrations.png) · [Playback](../screenshots/settings-playback.png) · [Shortcuts](../screenshots/settings-shortcuts.png) · [General settings](../screenshots/settings-general.png) · [Companions](../screenshots/settings-authorized-companions.png)
+See the [screenshot gallery](SHOWCASE.md) for Small Display mode, Up Next, playback settings, and integrations.

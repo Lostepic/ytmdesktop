@@ -29,6 +29,23 @@ export function visibleWindowBounds(saved: Rectangle | null, workAreas: Rectangl
   return { x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height) };
 }
 
+export function settingsWindowPlacement(parent: Rectangle, workArea: Rectangle) {
+  const width = Math.min(800, workArea.width);
+  const height = Math.min(600, workArea.height);
+  const target = {
+    x: parent.x + (parent.width - width) / 2,
+    y: parent.y + (parent.height - height) / 2,
+    width,
+    height
+  };
+
+  return {
+    ...visibleWindowBounds(target, [workArea], { width: 1, height: 1 }),
+    minWidth: Math.min(520, width),
+    minHeight: Math.min(320, height)
+  };
+}
+
 export function isCloseWindowShortcut(input: Input, isMac: boolean): boolean {
   return (
     input.type === "keyDown" &&

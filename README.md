@@ -1,333 +1,35 @@
-<p align="center">
-  <img src="src/assets/icons/ytmd.png" width="104" height="104" alt="YTM Desktop icon">
-</p>
+# YTM Desktop
 
-<h1 align="center">YTM Desktop</h1>
+An independent, open-source desktop client for YouTube Music on Windows, macOS, and Linux.
 
-<p align="center">
-  A maintained, modern desktop client for YouTube Music.<br>
-  Built for reliable playback, desktop integration, privacy, and extensibility.
-</p>
+[![Release](https://img.shields.io/github/v/release/Lostepic/ytmdesktop?style=flat-square)](https://github.com/Lostepic/ytmdesktop/releases/latest)
+[![Build](https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=main&style=flat-square)](https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml)
+[![GPL-3.0](https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square)](LICENSE)
 
-<p align="center">
-  <a href="https://github.com/Lostepic/ytmdesktop/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Lostepic/ytmdesktop?style=flat-square&label=release"></a>
-  <a href="https://github.com/Lostepic/ytmdesktop/actions/workflows/build.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/Lostepic/ytmdesktop/build.yml?branch=main&style=flat-square&label=build"></a>
-  <a href="https://github.com/Lostepic/ytmdesktop/releases"><img alt="Release downloads" src="https://img.shields.io/github/downloads/Lostepic/ytmdesktop/total?style=flat-square&label=downloads"></a>
-  <img alt="Electron 45" src="https://img.shields.io/badge/Electron-45.5.0-47848f?style=flat-square&logo=electron">
-  <a href="LICENSE"><img alt="GPL-3.0 license" src="https://img.shields.io/github/license/Lostepic/ytmdesktop?style=flat-square"></a>
-</p>
+[Downloads](https://github.com/Lostepic/ytmdesktop/releases/latest) · [User guide](docs/USER-GUIDE.md) · [Changelog](docs/CHANGELOG.md) · [Development](docs/DEVELOPMENT.md)
 
-## Screenshots
+![YTM Desktop home screen](screenshots/player-home.png)
 
-<p align="center">
-  <img src="screenshots/player-home.png" alt="YTM Desktop home screen" width="900">
-</p>
+## Install
 
-| Now playing                                                                  | Integrations and devices                                                                  |
-| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| <img src="screenshots/now-playing.png" alt="YTM Desktop now-playing screen"> | <img src="screenshots/settings-integrations.png" alt="YTM Desktop integrations settings"> |
+Get the installer for your platform from [GitHub Releases](https://github.com/Lostepic/ytmdesktop/releases/latest).
 
-<details>
-<summary>More settings screens</summary>
+| Platform | Download |
+| --- | --- |
+| Windows x64 | `Setup.exe` |
+| macOS | `darwin-arm64` ZIP for Apple Silicon; `darwin-x64` ZIP for Intel |
+| Linux x64 | `.deb` for Debian/Ubuntu; `.rpm` for Fedora/RHEL |
 
-| Playback                                                                          | Keyboard shortcuts                                                                          |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| <img src="screenshots/settings-playback.png" alt="YTM Desktop playback settings"> | <img src="screenshots/settings-shortcuts.png" alt="YTM Desktop keyboard shortcut settings"> |
+## Highlights
 
-| General                                                                         | Authorized companions                                                                                      |
-| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| <img src="screenshots/settings-general.png" alt="YTM Desktop general settings"> | <img src="screenshots/settings-authorized-companions.png" alt="YTM Desktop authorized companion settings"> |
+- **Small Display mode:** Touch-friendly Browse, Search, Now Playing, and Up Next for compact screens, including Echo Show 5 connected through spacedesk on Windows.
+- **Playback:** Optional ten-band EQ, themes, global shortcuts, and resume-on-launch. Stream quality is set by YouTube Music.
+- **Integrations:** Stream Deck companion support, now-playing export for OBS, Discord Rich Presence, Last.fm, ListenBrainz, and optional SponsorBlock.
 
-</details>
+**New in 3.5.3:** Settings opens within the display’s usable area, so the title bar and search box stay on-screen on the Echo Show 5. See the [full changelog](docs/CHANGELOG.md).
 
-## Download
+## License and credits
 
-Download the current maintained version from [GitHub Releases](https://github.com/Lostepic/ytmdesktop/releases/latest). Every release is built for Windows, macOS, and Linux.
+The app source is open source under [GPL-3.0-only](LICENSE). It incorporates work by the [original YouTube Music Desktop App project](https://github.com/ytmdesktop/ytmdesktop) and its contributors.
 
-| Platform            | Download                                           | Installation                                                                                                                              |
-| ------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Windows x64         | `YTM.Desktop-<version>.Setup.exe`                  | Run the Squirrel installer. Updates are delivered automatically from this repository.                                                     |
-| macOS Apple Silicon | `YTM.Desktop-darwin-arm64-<version>.zip`           | Native build for M1, M2, M3, M4, and later Apple Silicon Macs running macOS 13 or newer. Extract it and move YTM Desktop to Applications. |
-| macOS Intel         | `YTM.Desktop-darwin-x64-<version>.zip`             | Intel build for macOS 13 or newer. Apple Silicon users should not use this Rosetta build.                                                 |
-| Debian/Ubuntu x64   | `youtube-music-desktop-app_<version>_amd64.deb`    | Install with your graphical package manager or `sudo apt install ./<file>.deb`.                                                           |
-| Fedora/RHEL x64     | `youtube-music-desktop-app-<version>-1.x86_64.rpm` | Install with your graphical package manager or `sudo dnf install ./<file>.rpm`.                                                           |
-
-`RELEASES` and the `.nupkg` file are Windows automatic-update metadata, not manual installers.
-
-Installers are published as GitHub **Release assets**, so the repository's **Packages** section is intentionally empty. GitHub Packages is a registry for reusable libraries and container images; it is not the download location for this desktop application.
-
-The Windows installer is currently unsigned, so Microsoft Defender SmartScreen may show an unknown-publisher warning. Removing that warning requires release signing with a publicly trusted Windows code-signing certificate; never bypass security warnings for installers downloaded anywhere other than this repository's Releases page.
-
-The macOS archives use a verified ad-hoc bundle signature but are not yet Apple-notarized. On first launch, macOS may require approval in **System Settings → Privacy & Security**. Apple Silicon users should download the `arm64` archive to avoid Rosetta translation and its additional CPU and memory overhead.
-
-The build badge reports validation of the protected `main` branch. Version tags build all platforms in parallel and publish every installer and archive directly to the matching GitHub Release.
-
-Pull requests also build the Windows and Linux installers, so installer-tool failures are caught before a release. Linux packaging uses Ubuntu 24.04 to keep the RPM toolchain compatible with the current Electron Forge maker.
-
-## What's new in 3.5.2
-
-- **Echo Show 5 and other small displays:** Turn on [Small Display mode](#small-displays-and-tablets) with the tablet button. On Windows, use the display picker to move YTM Desktop to your Echo Show through spacedesk.
-- **Browse and search:** Search songs, albums and artists at the top. Home, Explore, Library, Now playing, and Play/Pause stay within reach along the bottom. Scroll vertically or swipe sideways across album rows without accidentally opening a track.
-- **Now playing and Up Next:** Tall screens stack the artwork above the playback controls; short, wide screens keep them side by side. The queue opens at the current track with large rows and page buttons.
-- **First play after reopening:** Start the remembered track with one press of Play, without choosing a new song or turning autoplay on.
-- **Reliability:** Keep renderer isolation and encrypted sign-in in place, avoid redundant player updates, and check that both Windows renderers start in the actual packaged build. Includes the latest compatible dependency updates.
-
-## What changed in 3.4
-
-The 3.4.2 maintenance build updated Electron to 45.4.1, Vue to 3.5.46, Fastify error/rate-limit helpers and TypeScript ESLint to 8.73.0. It refreshed compatible transitive dependencies and removed duplicate dependency copies. The lint tooling uses patched minimatch natively, so the temporary override was removed. TypeScript stays on 6.0.3 because the lint tooling does not yet support TypeScript 7.
-
-The EQ activation fix from 3.4.1 remains included, with automated coverage for both autoplay policies.
-
-- Adds an optional ten-band equalizer with presets, per-band gain, preamp, automatic headroom and live processing status in **Settings → Playback**.
-- Leaves the original playback path untouched while EQ is off or initially flat; uses native audio nodes only when processing is requested.
-- Adds a Discord activity headline selector (app, artist or song), based on an upstream community request.
-- Includes playlist artwork in companion responses when YouTube supplies it, and clears successful request timers immediately.
-- Reduces now-playing export disk activity with unchanged-state detection, atomic file replacement and one in-flight export.
-- Fixes the remaining moderate lint-tool advisory with a narrowly scoped patched dependency and a typed-parser regression test. The complete recursive audit now has zero findings, with no exclusions; CI also blocks moderate advisories.
-
-See the [changelog](docs/CHANGELOG.md) for upstream issue links, testing and release details.
-
-## What changed in 3.3
-
-Version 3.3.0 upgrades the app runtime and build toolchain together:
-
-- Electron 45.3.3 brings Chromium 156 and Node.js 24.22.3.
-- Forge 8.0.1 and Vite 8.3.8 replace the older packaging and bundling stack; every window uses the new CommonJS preload output paths.
-- Fastify 5.12.8, TypeBox 1.4.7, its provider 6.3.0 and Conf 16 modernize companion validation and settings storage while preserving saved settings and existing Stream Deck command formats.
-- ESLint 10 uses a flat configuration with current Vue and TypeScript plugins; Yarn is updated to 4.18.1 and CI uses Node.js 24.
-- The volume-ratio script no longer leaks globals or logs every volume read, and the companion server registers its shutdown cleanup before startup completes.
-- New checks exercise saved settings, authenticated companion commands, compiled entry points, the actual Vite-built sandbox preload and Settings at 80% interface scale on every platform.
-
-TypeScript is deliberately on 6.0.3: the current TypeScript ESLint release supports versions below 6.1, so TypeScript 7 is not yet a compatible upgrade. Node type declarations follow the app's Node.js 24 runtime. The moderate lint-tool advisory reported with 3.3.0 is resolved in 3.4.0.
-
-See the [changelog](docs/CHANGELOG.md) for the dependency details and included PR updates.
-
-## What changed in 3.2
-
-Version 3.2 is a focused runtime, startup, and recovery release:
-
-- Moves the app to the supported Electron 44 runtime with its newer Chromium, Node.js, and platform fixes.
-- Loads Settings state concurrently instead of waiting on ten sequential IPC requests.
-- Restores three-dot menus and dialogs after resuming a song by keeping YouTube Music's shared popup container visible; regression checks cover menu visibility and animation.
-- Deduplicates automatic and manual update checks and reports update progress reliably.
-- Reads the Windows update feed without consuming GitHub's unauthenticated API quota and distinguishes connection failures from an already-current installation.
-- Avoids enabling Squirrel updates in raw local packages that do not contain an updater.
-- Batches playback-state persistence, skips unchanged writes, and avoids sending state to destroyed renderers.
-- Makes YouTube Music renderer recovery safer after a crash.
-- Handles companion-server startup and shutdown failures without bringing down the application.
-- Prevents Discord Rich Presence from becoming stuck after an empty track update or missing artwork.
-- Refreshes Fastify, Vue, Material Symbols, TypeScript tooling, and security-patched transitive dependencies.
-- Removes obsolete serializer and WebSocket dependency copies; the recursive production audit completes with zero findings.
-- Keeps Dependabot patch and minor updates gated by quality, CodeQL, dependency review, and four-platform packaging checks.
-
-### Previous maintenance update: 3.2.8
-
-- Discord Rich Presence reconnects automatically when Discord starts later or restarts, with retries capped at one per minute after backoff.
-- A new **Show Discord playback button** setting lets you hide the activity button while keeping track information visible.
-- Discord heartbeat and message framing are repaired; paused activity clears after 30 seconds without repeated timers or clear messages.
-- Settings can recover from an invisible window on Linux/X11 and restores correctly when hidden or minimized.
-- Includes the outstanding dependency updates and newer compatible patches: Electron 44.9.3, Vite 6.4.5, TypeScript ESLint 8.72.1, Material Symbols 0.48.2, fast-uri 3.1.9 and undici 7.30.1.
-
-The [changelog](docs/CHANGELOG.md) links the upstream community requests behind these improvements. All platform packages are rebuilt, including native Apple Silicon and the Windows automatic-update feed.
-
-### Previous maintenance update: 3.2.7
-
-- Last.fm and ListenBrainz now record repeated tracks correctly and count actual listening instead of paused time or seek position.
-- Saved windows recover onto an available monitor after display or resolution changes.
-- Ctrl+W (Windows/Linux) and Cmd+W (macOS) close the player using your existing close-to-tray preference.
-- SponsorBlock drops stale responses when changing songs, and category changes take effect on the current track.
-- Includes all October Dependabot updates: Electron 44.7.2, Fastify 5.12.7, Vue 3.5.44, Vite 6.4.4 and refreshed development tooling.
-- Updates http-cache-semantics to 4.3.0 and removes its audit exception. Production dependencies are audited without exceptions; the build audit temporarily ignores only the specific unpatched `braces` advisory.
-
-These desktop and playback-history changes address suggestions and bug reports from the original project's community; the [changelog](docs/CHANGELOG.md) links the source issues. All platform installers and archives are rebuilt, including the Windows automatic-update feed.
-
-### Previous maintenance update: 3.2.6
-
-Updated fast-uri to 3.1.8, undici to 7.30.0, Socket.IO to 4.8.4 and engine.io to 6.6.11, alongside development tooling and patched brace-expansion releases. Electron remained pinned to 44.4.5 in this version; the earlier documentation listing 44.5.1 was incorrect.
-
-### Previous maintenance update: 3.2.5
-
-Includes the September 28 dependency updates: Electron 44.4.5, Material Symbols 0.47.5, TypeScript ESLint 8.70.1 and Prettier 3.9.9. All platform downloads are rebuilt, and installed Windows copies receive the new version through the automatic-update feed. The Stream Deck and security fixes below remain included.
-
-### Stream Deck compatibility update: 3.2.4
-
-Restores Stream Deck playback controls for YouTube Music's newer internal component layout. Playback, volume, seek, shuffle, likes and track-state hooks now resolve the current component controller instead of relying on properties that YouTube no longer exposes on the HTML element. Older layouts remain supported, with automated command regression tests. This update also fixes the overlapping playback hint on restored watch pages and includes all seven dependency updates merged since 3.2.3, including Electron 44.4.2 and Fastify 5.12.5.
-
-Build-tool security fixes pin patched `tar` and `tmp` versions and replace the old ZIP extractor with [Electron's maintained extractor](https://github.com/electron/extract-zip). Pull requests now also check runtime and build dependencies for high/critical security advisories. Deprecation notices are tracked separately from security vulnerabilities.
-
-## What changed in 3.1
-
-Version 3.1 focuses on dependency, security, and release reliability:
-
-- Restores reliable Stream Deck playback controls by registering commands before optional interface enhancements and queueing commands until the player is ready.
-- Adds direct access to the maintained GitHub repository from **Settings → About**.
-- Starts and reveals YouTube Music earlier by running update checks and independent integrations concurrently.
-- Reduces production navigation overhead by avoiding high-volume renderer and Electron event logging.
-- Updates compatible production, development, and transitive dependencies, including security fixes for `engine.io` and `js-yaml`.
-- Preserved Stream Deck and companion-server compatibility through the Conf and Fastify upgrades.
-- Added grouped Dependabot updates with guarded patch/minor automation.
-- Added required CodeQL, dependency-review, ownership, quality, and cross-platform packaging checks.
-- Established `main` as the protected default and stable release branch.
-- Kept Windows, macOS, Debian/Ubuntu, and Fedora/RHEL downloads together on GitHub Releases.
-- Deferred incompatible toolchain majors until they can receive a dedicated migration and regression cycle.
-
-The final 3.1.6 maintenance release includes the repository shortcut and all Stream Deck, startup, native Apple Silicon, packaging, updater, and dependency improvements delivered throughout the 3.1 series.
-
-## What changed in 3.0
-
-Version 3.0 is a substantial modernization of the inherited desktop client:
-
-- Migrated the embedded player from deprecated `BrowserView` APIs to `WebContentsView`.
-- Updated Electron, Vue, Vite, Fastify, Socket.IO, and build tooling.
-- Reworked IPC validation, navigation boundaries, authorization, lifecycle cleanup, and crash recovery.
-- Redesigned the application frame, loading experience, settings window, and injected YouTube Music styling.
-- Added Midnight, OLED, Ocean, and Violet themes.
-- Added settings search and an always-on-top compact mini-player.
-- Kept Chromium's media pipeline unthrottled during background and minimized playback.
-- Improved session restoration, playback timestamps, taskbar progress, global shortcuts, and volume controls.
-- Added SponsorBlock sponsor/intro/outro controls.
-- Added ListenBrainz scrobbling alongside Last.fm and Discord Rich Presence.
-- Added OBS and Stream Deck friendly now-playing exports.
-- Expanded the authenticated local companion API and Stream Deck support.
-- Added permission-gated declarative plugin manifests without unrestricted Node.js execution.
-- Added optional local-only playback and buffering telemetry.
-- Added reproducible validation, packaging, Dependabot, and tag-based releases.
-
-See the [changelog](docs/CHANGELOG.md) for the concise release history.
-
-## Small displays and tablets
-
-In builds with **Small Display mode**, click the tablet icon in the title bar or turn the mode on in **Settings → Appearance**. Use the monitor button to move the window onto your secondary display and the fullscreen button to fill it. The same layout works on the Echo Show through spacedesk and on other Windows-connected touch displays; it is not a separate tablet app.
-
-- **Up Next** opens at the current track and gives you large rows to tap. Swipe, drag, use the scroll wheel, or tap the up/down buttons to move through the list.
-- **Browse music** puts search at the top and **Home**, **Explore**, **Library**, and **Now playing** along the bottom. Swipe up and down to browse, or sideways across album rows. The bottom bar also has Play/Pause, so you can browse without leaving the current track.
-- On a tall, narrow screen, **Now playing** stacks the artwork above the title and playback controls. Short and wide displays keep the side-by-side layout.
-- The desktop icon brings back the regular layout. Your account, queue, and audio settings stay with the same player.
-
-When testing a Windows preview, run `yarn test:windows-startup` after `yarn package`. It checks whether both renderers start in the packaged executable with a temporary, signed-out profile. A successful build alone does not verify startup, and this test does not read or reset the installed profile.
-
-## Audio quality
-
-YouTube Music controls the source stream. Select **High** in YouTube Music's own audio-quality settings when available to your account; the app does not silently override this preference. Google documents Premium high-quality streams up to 256 kbps AAC/Opus, rather than lossless audio; source uploads, account access and connection conditions can limit the result. See [Google's quality guide](https://support.google.com/youtubemusic/answer/9076559).
-
-The app keeps hardware acceleration enabled by default and prevents background renderer throttling. Speaker fill remains optional because channel processing changes the output rather than increasing source quality.
-
-### Optional equalizer
-
-Open **Settings → Playback → 10-band equalizer**. Choose Flat, Bass boost, Vocal clarity or Treble lift, or adjust ten bands from 31 Hz to 16 kHz by ±12 dB. Changes save on slider release. Automatic headroom measures the combined curve and attenuates boosts to reduce clipping risk without adding a compressor; it is enabled by default. Boosting frequencies cannot recover missing source detail or increase bitrate.
-
-EQ is off by default. Off/initially flat settings create no audio context or media observer. Once processing has attached, bypass disconnects the filters but keeps the existing Web Audio connection until the player page reloads. No sample rate or output device is forced. Known protected media and sources that cannot safely use Web Audio are left unprocessed; the status line explains activation and source limitations. Leave EQ and Speaker fill off for unprocessed playback.
-
-## Desktop integrations
-
-### Stream Deck and companion API
-
-Enable **Companion and plugin server** in Settings. The authenticated API listens locally on `127.0.0.1:9863`.
-
-To connect the official Stream Deck plugin:
-
-1. Open **Settings → Integrations** and enable **Pair a Stream Deck or companion**.
-2. Select the YTMD Connector action in Stream Deck and press **Authorize**.
-3. Approve the authorization prompt in YTM Desktop.
-
-The pairing window closes automatically after five minutes. Existing authorizations remain encrypted locally and can be revoked from the authorized companions list.
-
-### Now-playing export
-
-Enable **Now-playing export** to write these local files:
-
-Files are replaced atomically and only when exported state changes. `updatedAt` records the latest changed export, not a heartbeat; paused, unchanged playback no longer rewrites files every second.
-
-```text
-Documents/YTM Desktop/now-playing.json
-Documents/YTM Desktop/now-playing.txt
-```
-
-They can be consumed by OBS text sources, Stream Deck actions, and local automation.
-
-### SponsorBlock
-
-SponsorBlock is disabled by default. It requests community skip segments only after being enabled. Sponsors can be skipped independently from optional intro and outro categories.
-
-### ListenBrainz
-
-ListenBrainz tokens are encrypted with the operating system's secure storage. Playing-now updates and completed listens are sent only while the integration is enabled.
-
-### Discord Rich Presence
-
-Enable **Settings → Integrations → Discord rich presence** to share your current track. The app reconnects automatically if Discord opens later or restarts. Disable **Show Discord playback button** in the same section to hide the playback button while retaining track information. Paused activity clears after 30 seconds; disabling the integration cancels its reconnect timer and pending connection attempts.
-
-### Plugins
-
-Plugin manifests are read from the application data `plugins` directory. Only known declarative capabilities are accepted, and each requested capability must be approved individually in Settings. Arbitrary plugin JavaScript is not loaded into the Electron main process.
-
-## Privacy and security
-
-- Performance telemetry is disabled by default, stored locally, and never uploaded.
-- Companion clients require explicit, expiring authorization and receive revocable tokens.
-- Sign-in secrets are handled by the YouTube Music session rather than application code.
-- ListenBrainz and companion tokens use OS-backed encryption when available.
-- External navigation is restricted and renderer processes use sandboxing and context isolation.
-- Electron fuses prevent Node execution and unsafe runtime flags in packaged builds.
-
-## Updates
-
-Installed Windows builds read Squirrel metadata through this repository's stable latest-release download URL, avoiding the rate-limited GitHub Releases API. Update ownership is fixed at `Lostepic/ytmdesktop` in both runtime and packaging configuration, so builds cannot accidentally follow the abandoned upstream repository. Raw developer packages leave the updater disabled because they do not contain Squirrel's update service.
-
-The update feed is verified against each Windows release: it offers the newest version to older clients and reports no update to clients already current. macOS automatic updates require code signing, while Linux updates continue through installed packages or GitHub Releases.
-
-## Development
-
-### Requirements
-
-- Node.js 24.22 or newer
-- Corepack with Yarn 4.19.0 (selected by `package.json`)
-- Platform packaging tools when building installers
-
-```bash
-git clone https://github.com/Lostepic/ytmdesktop.git
-cd ytmdesktop
-corepack enable
-yarn install --immutable
-yarn start
-```
-
-### Validation
-
-```bash
-yarn check
-yarn test:unit
-yarn test:ui
-yarn package
-yarn test:built
-```
-
-`yarn check` runs TypeScript validation, ESLint, and Prettier. `yarn test:unit` covers integrations, companion authentication/commands and settings persistence. `yarn test:ui` runs Electron checks for popup visibility, animation and Stream Deck renderer commands. `yarn package` creates the unpacked application; `yarn test:built` then validates its compiled paths and runs player controls through the Vite-built preload. Prefix Electron test commands with `xvfb-run --auto-servernum` on headless Linux.
-
-### Installer creation
-
-```bash
-yarn make --arch x64
-```
-
-Build output is written to `out/make`. A pushed tag matching `v*` runs the multi-platform release workflow and publishes its artifacts.
-
-## Repository layout
-
-```text
-src/main/                 Electron main process and integrations
-src/renderer/             Vue windows and YouTube Music preload
-src/shared/               Shared schemas and integration types
-src/assets/               Runtime fonts and platform-specific icons
-config/vite/              Main, renderer, and preload build targets
-docs/                     Release history and supporting documentation
-.github/workflows/        Validation and release automation
-```
-
-The icon variants in `src/assets/icons` are intentionally platform-specific: the Windows installer/tray resource, macOS bundle/template resources, Linux light/dark tray resources, title-bar artwork, and Windows media controls.
-
-## License and project history
-
-YTM Desktop is distributed under GPL-3.0 and incorporates work from the [original YouTube Music Desktop App project](https://github.com/ytmdesktop/ytmdesktop), its maintainers, and its contributors. Required copyright and licence notices and the full Git history are retained.
-
-This project is not affiliated with Google or YouTube. YouTube Music is a trademark of Google LLC.
+This is not an official Google, YouTube, Amazon, spacedesk, or Elgato product. YouTube Music is a separate hosted service; its software and content are not licensed by this repository.

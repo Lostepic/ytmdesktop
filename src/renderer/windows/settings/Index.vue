@@ -34,13 +34,16 @@ onErrorCaptured(error => {
 <style scoped>
 .settings {
   background: #0d0d13;
-  height: calc(100% - 36px);
+  min-height: 0;
+  overflow: hidden;
 }
 
 .container {
   width: 100%;
   height: 100%;
   background: #0d0d13;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .status {

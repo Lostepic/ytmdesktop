@@ -55,7 +55,7 @@ function state(progress, overrides = {}) {
 }
 
 (async () => {
-  const { visibleWindowBounds, isCloseWindowShortcut } = await load("window-behavior.ts");
+  const { visibleWindowBounds, settingsWindowPlacement, isCloseWindowShortcut } = await load("window-behavior.ts");
   const primary = { x: 0, y: 0, width: 1366, height: 768 };
   const left = { x: -1920, y: 0, width: 1920, height: 1080 };
   const saved = { x: -1700, y: 60, width: 1000, height: 700 };
@@ -68,6 +68,19 @@ function state(progress, overrides = {}) {
   const smallBounds = { x: -1800, y: 50, width: 420, height: 360 };
   assert.equal(JSON.stringify(visibleWindowBounds(smallBounds, [primary, left], { width: 320, height: 300 })), JSON.stringify(smallBounds));
   assert.ok(Number.isFinite(visibleWindowBounds({ ...saved, x: NaN }, [primary]).x));
+  const showArea = { x: -871, y: 72, width: 871, height: 436 };
+  const showSettings = settingsWindowPlacement(showArea, showArea);
+  assert.equal(showSettings.y, showArea.y, "Settings must start below the work area's top edge");
+  assert.equal(showSettings.height, 436);
+  assert.ok(showSettings.minHeight <= showSettings.height);
+  const tinyArea = { x: 400, y: -300, width: 400, height: 300 };
+  const tinySettings = settingsWindowPlacement(tinyArea, tinyArea);
+  assert.equal(tinySettings.minWidth, 400);
+  assert.equal(tinySettings.minHeight, 300);
+  const atEdge = settingsWindowPlacement({ x: 0, y: 0, width: 150, height: 120 }, primary);
+  assert.equal(atEdge.x, 0);
+  assert.equal(atEdge.y, 0);
+  assert.equal(atEdge.height, 600);
   const input = { type: "keyDown", key: "w", control: true, meta: false, alt: false, shift: false, isAutoRepeat: false };
   assert.equal(isCloseWindowShortcut(input, false), true);
   assert.equal(isCloseWindowShortcut({ ...input, control: false, meta: true }, true), true);
